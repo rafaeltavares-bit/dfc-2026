@@ -1,0 +1,531 @@
+<!DOCTYPE html>
+<html lang="pt-BR">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>DFC 2026 · Rede OK</title>
+<link href="https://fonts.googleapis.com/css2?family=Playfair+Display:wght@700;900&family=Outfit:wght@300;400;500;600;700&display=swap" rel="stylesheet">
+<script src="https://cdnjs.cloudflare.com/ajax/libs/Chart.js/4.4.1/chart.umd.min.js"></script>
+<script src="https://cdnjs.cloudflare.com/ajax/libs/PapaParse/5.4.1/papaparse.min.js"></script>
+<style>
+:root{--cream:#faf7f2;--paper:#f0ebe0;--ink:#1a1612;--ink2:#3d3830;--ink3:#6b6258;--rule:#ddd5c8;--rule2:#c8bfb0;--em:#0a5e40;--em-l:#e6f4ee;--rd:#b03020;--rd-l:#fce8e5;--gd:#9a6c18;--gd-l:#fdf0d8;--sp:#163d78;--sp-l:#e5eaf5;--pu:#6b2fd4;--pu-l:#f0eaff;--am:#c06b00;--am-l:#fff3e0;--sh:0 2px 20px rgba(26,22,18,.09);--sh2:0 8px 48px rgba(26,22,18,.15);}
+*{margin:0;padding:0;box-sizing:border-box;}
+body{background:var(--cream);color:var(--ink);font-family:'Outfit',sans-serif;font-size:14px;min-height:100vh;overflow-x:hidden;}
+.header{background:var(--ink);padding:0 48px;display:flex;align-items:stretch;justify-content:space-between;min-height:80px;position:relative;overflow:hidden;}
+.header::before{content:'';position:absolute;inset:0;background:repeating-linear-gradient(90deg,transparent,transparent 60px,rgba(255,255,255,.015) 60px,rgba(255,255,255,.015) 61px);}
+.hl{display:flex;align-items:center;gap:20px;padding:20px 0;position:relative;z-index:1;}
+.logo{width:42px;height:42px;background:var(--gd);border-radius:9px;display:flex;align-items:center;justify-content:center;font-family:'Playfair Display',serif;font-weight:900;font-size:19px;color:var(--ink);flex-shrink:0;}
+.hl h1{font-family:'Playfair Display',serif;font-size:21px;font-weight:700;color:#fff;letter-spacing:-.3px;line-height:1.2;}
+.hl .sub{font-size:12px;color:rgba(255,255,255,.4);letter-spacing:.1em;text-transform:uppercase;margin-top:4px;font-weight:300;}
+.hr{display:flex;align-items:center;gap:22px;position:relative;z-index:1;}
+.bp{padding:5px 14px;border-radius:20px;font-size:11px;font-weight:600;letter-spacing:.09em;text-transform:uppercase;}
+.bp-r{background:rgba(10,94,64,.3);color:#4ade80;border:1px solid rgba(10,94,64,.5);}
+.bp-f{background:rgba(154,108,24,.3);color:#fbbf24;border:1px solid rgba(154,108,24,.5);}
+.live{text-align:right;}
+.live .lr{display:flex;align-items:center;gap:6px;justify-content:flex-end;}
+.ld{width:7px;height:7px;background:#4ade80;border-radius:50%;animation:blink 2s ease-in-out infinite;}
+@keyframes blink{0%,100%{opacity:1}50%{opacity:.2}}
+.live .ll{font-size:12px;color:rgba(255,255,255,.5);font-weight:300;}
+.live .lt{font-size:12px;color:rgba(255,255,255,.28);font-weight:300;margin-top:2px;}
+.farol-bar{padding:0 48px;display:flex;align-items:center;gap:20px;min-height:52px;transition:background .5s;}
+.farol-bar.verde{background:linear-gradient(90deg,rgba(10,94,64,.15),rgba(10,94,64,.05));}
+.farol-bar.amarelo{background:linear-gradient(90deg,rgba(192,107,0,.18),rgba(192,107,0,.06));}
+.farol-bar.vermelho{background:linear-gradient(90deg,rgba(176,48,32,.2),rgba(176,48,32,.07));}
+.farol-icon{font-size:22px;line-height:1;flex-shrink:0;}
+.farol-text .ft-title{font-size:13px;font-weight:700;letter-spacing:.06em;text-transform:uppercase;}
+.farol-bar.verde .ft-title{color:var(--em);}
+.farol-bar.amarelo .ft-title{color:var(--am);}
+.farol-bar.vermelho .ft-title{color:var(--rd);}
+.farol-dot{width:14px;height:14px;border-radius:50%;flex-shrink:0;box-shadow:0 0 8px currentColor;}
+.farol-bar.verde .farol-dot{background:#22c55e;color:#22c55e;}
+.farol-bar.amarelo .farol-dot{background:#f59e0b;color:#f59e0b;animation:pam .8s ease-in-out infinite;}
+.farol-bar.vermelho .farol-dot{background:#ef4444;color:#ef4444;animation:prd .8s ease-in-out infinite;}
+@keyframes prd{0%,100%{box-shadow:0 0 0 0 rgba(192,57,43,.2)}50%{box-shadow:0 0 0 6px rgba(192,57,43,0)}}
+@keyframes pam{0%,100%{box-shadow:0 0 0 0 rgba(217,119,6,.2)}50%{box-shadow:0 0 0 6px rgba(217,119,6,0)}}
+.farol-chips{display:flex;gap:6px;flex-wrap:wrap;}
+.farol-chip{padding:3px 10px;border-radius:12px;font-size:11px;font-weight:700;}
+.farol-bar.vermelho .farol-chip{background:rgba(176,48,32,.15);color:var(--rd);border:1px solid rgba(176,48,32,.25);}
+.farol-bar.amarelo .farol-chip{background:rgba(192,107,0,.15);color:var(--am);border:1px solid rgba(192,107,0,.25);}
+.farol-note{font-size:11px;color:var(--ink3);margin-left:auto;font-style:italic;}
+.tabs-wrap{background:#fff;border-bottom:2px solid var(--rule);padding:0 48px;display:flex;align-items:center;justify-content:space-between;}
+.tabs{display:flex;}
+.tab{padding:16px 22px;font-size:13px;font-weight:600;letter-spacing:.06em;text-transform:uppercase;color:var(--ink3);cursor:pointer;border-bottom:3px solid transparent;transition:all .2s;white-space:nowrap;}
+.tab:hover{color:var(--ink2);}
+.tab[data-id="consolidado"].active{color:var(--gd);border-bottom-color:var(--gd);}
+.tab[data-id="redeok"].active{color:var(--sp);border-bottom-color:var(--sp);}
+.tab[data-id="delend"].active{color:var(--pu);border-bottom-color:var(--pu);}
+.tab[data-id="number"].active{color:var(--em);border-bottom-color:var(--em);}
+.tab[data-id="divida"].active{color:var(--rd);border-bottom-color:var(--rd);}
+.tr-info{font-size:12px;color:var(--ink3);}
+.main{padding:32px 48px 56px;max-width:1700px;margin:0 auto;}
+.section{display:none;animation:fi .3s ease;}
+.section.active{display:block;}
+@keyframes fi{from{opacity:0;transform:translateY(6px)}to{opacity:1;transform:translateY(0)}}
+.loading{text-align:center;padding:100px 20px;}
+.ring{width:40px;height:40px;border:3px solid var(--rule2);border-top-color:var(--gd);border-radius:50%;animation:spin .7s linear infinite;margin:0 auto 18px;}
+@keyframes spin{to{transform:rotate(360deg)}}
+.loading p{color:var(--ink3);font-size:14px;}
+.err{background:var(--rd-l);border:1px solid #f0b8b0;color:var(--rd);padding:22px 28px;border-radius:12px;font-size:13px;line-height:1.7;}
+.rf-banner{display:flex;gap:10px;margin-bottom:22px;align-items:center;flex-wrap:wrap;}
+.rf-pill{padding:6px 16px;border-radius:7px;font-size:12px;font-weight:700;letter-spacing:.06em;}
+.rf-real{background:var(--em-l);border:1px solid rgba(10,94,64,.3);color:var(--em);}
+.rf-fc{background:var(--gd-l);border:1px solid rgba(154,108,24,.3);color:var(--gd);}
+.rf-sep{color:var(--ink3);font-size:14px;}
+.rf-note{font-size:12px;color:var(--ink3);}
+.caixa-strip{display:flex;gap:7px;margin-bottom:20px;flex-wrap:wrap;align-items:center;}
+.cs-label{font-size:13px;color:var(--ink3);margin-right:6px;font-weight:600;}
+.caixa-pill{padding:5px 12px;border-radius:18px;font-size:12px;font-weight:600;display:flex;align-items:center;gap:5px;}
+.caixa-pill.ok{background:var(--em-l);color:var(--em);border:1px solid rgba(10,94,64,.25);}
+.caixa-pill.neg{background:var(--rd-l);color:var(--rd);border:1px solid rgba(176,48,32,.35);animation:prd2 2s ease-in-out infinite;}
+.caixa-pill.low{background:var(--am-l);color:var(--am);border:1px solid rgba(192,107,0,.35);animation:pam2 2s ease-in-out infinite;}
+@keyframes prd2{0%,100%{box-shadow:0 0 0 0 rgba(176,48,32,.2)}50%{box-shadow:0 0 0 6px rgba(176,48,32,0)}}
+@keyframes pam2{0%,100%{box-shadow:0 0 0 0 rgba(192,107,0,.2)}50%{box-shadow:0 0 0 6px rgba(192,107,0,0)}}
+.caixa-pill .dot{width:7px;height:7px;border-radius:50%;background:currentColor;}
+.kpi-grid{display:grid;grid-template-columns:repeat(4,1fr);gap:20px;margin-bottom:28px;}
+.kpi{background:#fff;border:1px solid var(--rule);border-radius:14px;padding:24px 26px;box-shadow:var(--sh);position:relative;overflow:hidden;transition:box-shadow .2s,transform .2s;}
+.kpi:hover{box-shadow:var(--sh2);transform:translateY(-2px);}
+.kpi-ac{position:absolute;top:0;left:0;right:0;height:4px;border-radius:14px 14px 0 0;}
+.kpi.blue .kpi-ac{background:var(--sp)}.kpi.green .kpi-ac{background:var(--em)}.kpi.red .kpi-ac{background:var(--rd)}.kpi.gold .kpi-ac{background:var(--gd)}
+.kpi-row{display:flex;justify-content:space-between;align-items:flex-start;margin-bottom:10px;}
+.kpi-badge{font-size:10px;font-weight:700;padding:3px 9px;border-radius:12px;letter-spacing:.08em;background:var(--gd-l);color:var(--gd);}
+.kpi-label{font-size:11px;font-weight:700;letter-spacing:.1em;text-transform:uppercase;color:var(--ink3);}
+.kpi-value{font-family:'Playfair Display',serif;font-size:30px;font-weight:700;color:var(--ink);line-height:1;}
+.kpi-value.neg{color:var(--rd)}.kpi-value.pos{color:var(--em)}
+.kpi-sub{font-size:12px;color:var(--ink3);margin-top:6px;}
+.saldo-breakdown{display:flex;gap:10px;margin-top:12px;}
+.sb-item{flex:1;padding:9px 12px;border-radius:8px;border:1px solid var(--rule);}
+.sb-item.disp{background:var(--em-l);border-color:rgba(10,94,64,.2);}
+.sb-item.bloq{background:var(--gd-l);border-color:rgba(154,108,24,.2);}
+.sb-label{font-size:10px;font-weight:700;letter-spacing:.08em;text-transform:uppercase;color:var(--ink3);margin-bottom:3px;}
+.sb-val{font-size:16px;font-weight:700;color:var(--ink);}
+.sb-val.neg{color:var(--rd);}
+.chart-legend{display:flex;flex-wrap:wrap;gap:12px;margin-bottom:14px;}
+.cl-item{display:flex;align-items:center;gap:6px;font-size:12px;color:var(--ink3);font-weight:500;}
+.cl-dot{width:12px;height:12px;border-radius:3px;flex-shrink:0;}
+.charts-row{display:grid;grid-template-columns:3fr 2fr;gap:20px;margin-bottom:28px;}
+.chart-card{background:#fff;border:1px solid var(--rule);border-radius:14px;padding:26px;box-shadow:var(--sh);}
+.ch{display:flex;align-items:baseline;justify-content:space-between;margin-bottom:12px;}
+.ct{font-size:13px;font-weight:700;letter-spacing:.08em;text-transform:uppercase;color:var(--ink2);}
+.cs{font-size:12px;color:var(--ink3);}
+.cw-tall{position:relative;height:260px;}
+.cw-saldo{position:relative;height:260px;margin-top:38px;}
+.tc{background:#fff;border:1px solid var(--rule);border-radius:14px;overflow:hidden;box-shadow:var(--sh);margin-bottom:24px;}
+.th-row{padding:18px 24px;display:flex;align-items:center;justify-content:space-between;border-bottom:2px solid var(--rule);}
+.th-title{font-size:13px;font-weight:700;letter-spacing:.08em;text-transform:uppercase;color:var(--ink2);}
+.th-note{font-size:12px;color:var(--ink3);}
+.btn-collapse{padding:5px 14px;border-radius:7px;border:1px solid var(--rule2);background:var(--paper);color:var(--ink3);font-size:11px;font-family:'Outfit',sans-serif;cursor:pointer;letter-spacing:.06em;font-weight:600;transition:all .15s;}
+.btn-collapse:hover{background:var(--ink);color:#fff;border-color:var(--ink);}
+.dfc-table{width:100%;border-collapse:collapse;font-size:13px;}
+.dfc-table th{padding:0;white-space:nowrap;border-bottom:2px solid var(--rule);}
+.dfc-table th .i{padding:10px 14px;display:block;text-align:right;font-size:11px;letter-spacing:.07em;text-transform:uppercase;color:var(--ink3);font-weight:700;}
+.dfc-table th:first-child .i{text-align:left;min-width:250px;}
+.dfc-table th.tcol .i{color:var(--ink2);font-weight:700;}
+.band-row th{padding:5px 0;font-size:11px;font-weight:700;letter-spacing:.1em;text-transform:uppercase;border-bottom:none;}
+.band-real{background:rgba(10,94,64,.09);color:var(--em);text-align:center;}
+.band-fc{background:rgba(154,108,24,.09);color:var(--am);text-align:center;}
+.band-total{background:var(--paper);}
+.dfc-table td{padding:9px 14px;text-align:right;border-bottom:1px solid rgba(200,191,176,.4);white-space:nowrap;color:var(--ink2);font-size:13px;}
+.dfc-table td:first-child{text-align:left;color:var(--ink3);}
+.dfc-table tr:last-child td{border-bottom:none;}
+.dfc-table tr.r-bold td{color:var(--ink);font-weight:700;background:var(--paper);}
+.dfc-table tr.r-bold td:first-child{color:var(--ink);}
+.dfc-table tr.r-subtotal td{color:var(--ink2);font-weight:600;background:rgba(230,224,214,.5);font-style:italic;}
+.dfc-table tr.r-subtotal td:first-child{color:var(--ink2);}
+.dfc-table tr.r-normal:hover td{background:rgba(246,242,236,.8);}
+.dfc-table td.pos{color:var(--em);font-weight:600}.dfc-table td.neg{color:var(--rd);font-weight:600}
+.dfc-table td.neg-hl{background:rgba(176,48,32,.07)!important;color:var(--rd)!important;font-weight:700;}
+.dfc-table td.tcol{color:var(--ink);font-weight:700;background:var(--paper);border-left:2px solid var(--rule2);}
+.d1-toggle{cursor:pointer;}
+.d1-toggle td:first-child::before{content:'▶ ';font-size:10px;color:var(--em);margin-right:4px;}
+.d1-toggle.open td:first-child::before{content:'▼ ';}
+.d1-row{display:none;}.d1-row.vis{display:table-row;}
+.d1-row td{font-size:12px;padding:8px 14px;}
+.d1-row td:first-child{padding-left:26px;color:var(--ink3);}
+.d2-toggle{cursor:pointer;}
+.d2-toggle td:first-child::before{content:'▶ ';font-size:9px;margin-right:4px;display:inline-block;}
+.d2-toggle.open td:first-child::before{content:'▼ ';}
+.d2-row{display:none;}.d2-row.vis{display:table-row;}
+.d2-rok td{background:rgba(22,61,120,.04);}.d2-rok td:first-child{padding-left:42px;color:var(--sp);font-weight:700;font-size:12px;}
+.d2-rok.d2-toggle td:first-child::before{color:var(--sp);}
+.d2-del td{background:rgba(107,47,212,.04);}.d2-del td:first-child{padding-left:42px;color:var(--pu);font-weight:700;font-size:12px;}
+.d2-del.d2-toggle td:first-child::before{color:var(--pu);}
+.d2-reg td{background:rgba(10,94,64,.04);}.d2-reg td:first-child{padding-left:42px;color:var(--em);font-weight:700;font-size:12px;}
+.d2-reg.d2-toggle td:first-child::before{color:var(--em);}
+.d3-row{display:none;}.d3-row.vis{display:table-row;}
+.d3-rok td{font-size:12px;padding:6px 14px;background:rgba(22,61,120,.025);}
+.d3-rok td:first-child{padding-left:60px;color:var(--ink3);}
+.d3-del td{font-size:12px;padding:6px 14px;background:rgba(107,47,212,.025);}
+.d3-del td:first-child{padding-left:60px;color:var(--ink3);}
+.d3-reg td{font-size:12px;padding:6px 14px;background:rgba(10,94,64,.025);}
+.d3-reg td:first-child{padding-left:60px;color:var(--ink3);}
+.d2-sup td{font-size:12px;padding:6px 14px;background:rgba(22,61,120,.025);}
+.d2-sup td:first-child{padding-left:42px;color:var(--ink3);}
+.r-saldo-sub td{font-size:12px;background:rgba(246,242,236,.6);}
+.r-saldo-disp td:first-child{color:var(--em)!important;padding-left:28px;font-weight:600;}
+.r-saldo-bloq td:first-child{color:var(--gd)!important;padding-left:28px;font-weight:600;}
+.divida-grid{display:grid;grid-template-columns:1fr 1fr;gap:20px;margin-bottom:28px;}
+.divida-card{background:#fff;border:1px solid var(--rule);border-radius:14px;padding:26px;box-shadow:var(--sh);}
+.dc-title{font-family:'Playfair Display',serif;font-size:19px;font-weight:700;color:var(--ink);margin-bottom:4px;}
+.dc-sub{font-size:12px;color:var(--ink3);margin-bottom:20px;}
+.dc-kpis{display:grid;grid-template-columns:1fr 1fr;gap:12px;margin-bottom:16px;}
+.dc-kpi{padding:14px 16px;border-radius:10px;border:1px solid var(--rule);}
+.dc-kpi.hl{background:var(--rd-l);border-color:#f0b8b0;}
+.dc-kpi.ok{background:var(--em-l);border-color:rgba(10,94,64,.2);}
+.dc-kpi-label{font-size:11px;font-weight:700;letter-spacing:.1em;text-transform:uppercase;color:var(--ink3);margin-bottom:5px;}
+.dc-kpi-val{font-family:'Playfair Display',serif;font-size:22px;font-weight:700;color:var(--ink);}
+.dc-kpi-val.neg{color:var(--rd);}
+.loan-bar{height:7px;background:var(--rule);border-radius:4px;margin-bottom:5px;overflow:hidden;}
+.loan-bar-fill{height:100%;background:linear-gradient(90deg,var(--rd),var(--gd));border-radius:4px;}
+.loan-bar-label{font-size:12px;color:var(--ink3);margin-bottom:18px;display:flex;justify-content:space-between;}
+.loan-table{width:100%;border-collapse:collapse;font-size:13px;}
+.loan-table th{padding:8px 11px;text-align:right;font-size:11px;letter-spacing:.07em;text-transform:uppercase;color:var(--ink3);border-bottom:2px solid var(--rule);white-space:nowrap;font-weight:700;background:var(--paper);}
+.loan-table th:first-child,.loan-table th:nth-child(2){text-align:left;}
+.loan-table td{padding:8px 11px;text-align:right;border-bottom:1px solid rgba(200,191,176,.4);font-size:13px;white-space:nowrap;}
+.loan-table td:first-child{text-align:left;color:var(--ink2);font-weight:600;}
+.loan-table td:nth-child(2){text-align:left;color:var(--ink3);}
+.loan-table tr:last-child td{border-bottom:none;font-weight:700;color:var(--ink);background:var(--paper);}
+.money{color:var(--sp);font-weight:600;}
+.footer{background:var(--ink);padding:18px 48px;display:flex;justify-content:space-between;align-items:center;font-size:12px;color:rgba(255,255,255,.28);letter-spacing:.06em;font-weight:300;}
+@media(max-width:1100px){.kpi-grid{grid-template-columns:repeat(2,1fr);}.charts-row{grid-template-columns:1fr;}.divida-grid{grid-template-columns:1fr;}}
+@media(max-width:768px){.header{padding:0 20px;}.tabs-wrap{padding:0 14px;overflow-x:auto;}.main{padding:20px 16px 48px;}.kpi-grid{grid-template-columns:repeat(2,1fr);gap:12px;}.footer{padding:14px 20px;flex-direction:column;gap:5px;text-align:center;}.hr{display:none;}}
+</style>
+</head>
+<body>
+<div class="header">
+  <div class="hl">
+    <div class="logo">R</div>
+    <div>
+      <h1>Demonstrativo de Fluxo de Caixa 2026</h1>
+      <div class="sub">Rede OK · Delend · Régua · Consolidado · Valores em R$ mil</div>
+    </div>
+  </div>
+  <div class="hr">
+    <span class="bp bp-r">Jan–Abr Real</span>
+    <span class="bp bp-f">Mai–Dez Forecast</span>
+    <div class="live">
+      <div class="lr"><div class="ld"></div><span class="ll">Dados ao vivo · Google Sheets</span></div>
+      <div class="lt" id="last-update">Carregando...</div>
+    </div>
+  </div>
+</div>
+
+<div id="farol-bar" class="farol-bar vermelho">
+  <div class="farol-dot"></div>
+  <div class="farol-icon" id="farol-icon">🔴</div>
+  <div class="farol-text"><div class="ft-title" id="farol-title">Carregando...</div></div>
+  <div class="farol-chips" id="farol-chips"></div>
+  <div class="farol-note">Atualiza automaticamente com a planilha</div>
+</div>
+
+<div class="tabs-wrap">
+  <div class="tabs">
+    <div class="tab active" data-id="consolidado" onclick="switchTab('consolidado',this)">Consolidado</div>
+    <div class="tab" data-id="redeok" onclick="switchTab('redeok',this)">Rede OK</div>
+    <div class="tab" data-id="delend" onclick="switchTab('delend',this)">Delend</div>
+    <div class="tab" data-id="number" onclick="switchTab('number',this)">Number</div>
+    <div class="tab" data-id="divida" onclick="switchTab('divida',this)">Painel da Dívida</div>
+  </div>
+  <div class="tr-info" id="tr-info"></div>
+</div>
+
+<div class="main">
+  <div id="loading" class="loading"><div class="ring"></div><p>Buscando dados do Google Sheets...</p></div>
+  <div id="error" style="display:none" class="err"></div>
+  <div id="sec-consolidado" class="section"></div>
+  <div id="sec-redeok" class="section"></div>
+  <div id="sec-delend" class="section"></div>
+  <div id="sec-number" class="section"></div>
+  <div id="sec-divida" class="section"></div>
+</div>
+
+<div class="footer">
+  <span>Rede OK Serviços de Tecnologia e Crédito LTDA · DFC 2026</span>
+  <span>Jan–Abr/26 Realizado · Mai–Dez/26 Forecast · R$ milhares</span>
+</div>
+
+<script>
+const CSV_URL='https://docs.google.com/spreadsheets/d/e/2PACX-1vT8sq6GUhsoMtUzJ2KUh5Ra9UPaJFJENko4XJhyaJs6XEceOH_olouKMRsjFdQE_A/pub?gid=1493194308&single=true&output=csv';
+const COL_JAN=31,N_MONTHS=12,COL_TOTAL=43,REAL_MONTHS=4;
+const MESES=['Jan','Fev','Mar','Abr','Mai','Jun','Jul','Ago','Set','Out','Nov','Dez'];
+const chartInstances={};
+
+const SECTIONS={
+  'Consolidado':{id:'consolidado',rows:{'Saldo Inicial':199,'Recebimentos':201,'Pagamentos Operacionais':203,'Geração Operacional':213,'CAPEX':216,'Aquisição de Empresas':217,'Ger. após CAPEX+Aquis':219,'Desp. Não Recorrentes':221,'Ger. após Desp. N. Rec.':223,'Total Dívidas':225,'Saldo Final':240,'Disp. Tesouraria':241,'Bloq. Garantia':242}},
+  'Rede OK':{id:'redeok',rows:{'Saldo Inicial':12,'Recebimentos':14,'Pagamentos Operacionais':16,'Geração Operacional':26,'CAPEX':28,'Aquisição de Empresas':29,'Ger. após CAPEX+Aquis':31,'Desp. Não Recorrentes':33,'Ger. após Desp. N. Rec.':35,'Total Dívidas':37,'Saldo Final':52,'Disp. Tesouraria':53,'Bloq. Garantia':54}},
+  'Delend':{id:'delend',rows:{'Saldo Inicial':74,'Recebimentos':76,'Pagamentos Operacionais':78,'Geração Operacional':88,'CAPEX':90,'Aquisição de Empresas':91,'Ger. após CAPEX+Aquis':93,'Desp. Não Recorrentes':95,'Ger. após Desp. N. Rec.':97,'Total Dívidas':99,'Saldo Final':114,'Disp. Tesouraria':115,'Bloq. Garantia':116}},
+  'Number':{id:'number',rows:{'Saldo Inicial':135,'Recebimentos':137,'Pagamentos Operacionais':139,'Geração Operacional':149,'CAPEX':151,'Aquisição de Empresas':152,'Ger. após CAPEX+Aquis':154,'Desp. Não Recorrentes':156,'Ger. após Desp. N. Rec.':158,'Total Dívidas':160,'Saldo Final':175,'Disp. Tesouraria':176,'Bloq. Garantia':177}}
+};
+
+const DFC_ORDER=[
+  {key:'Saldo Inicial',type:'bold'},
+  {key:'Recebimentos',type:'normal'},
+  {key:'Pagamentos Operacionais',type:'normal',drillable:true},
+  {key:'Geração Operacional',type:'bold'},
+  {key:'CAPEX',type:'normal'},
+  {key:'Aquisição de Empresas',type:'normal'},
+  {key:'Ger. após CAPEX+Aquis',type:'subtotal'},
+  {key:'Desp. Não Recorrentes',type:'normal',drillDNR:true},
+  {key:'Ger. após Desp. N. Rec.',type:'subtotal'},
+  {key:'Total Dívidas',type:'bold'},
+  {key:'Saldo Final',type:'bold',hasSaldoBreak:true},
+];
+
+const CAT_DATA={"ROK": {"Serviços de Informações Cadastrais": {"vals": [-1362.9, -840.6, -2542.0, -1107.5, -1616.5, -1572.5, -1502.5, -1472.5, -1472.5, -1432.5, -1432.5, -1392.5, -17747.2], "sups": [{"name": "SERASA S.A.", "vals": [-1416.0, -864.6, -2595.2, -1160.6, 0.0, 0.0, 0.0, 0.0, 0.0, 0.0, 0.0, 0.0]}]}, "Repasse Parceiros": {"vals": [-1770.0, -1433.5, -1317.6, -921.8, -1323.4, -1019.5, -547.6, -482.5, -444.6, -444.6, -407.4, -407.4, -10519.9], "sups": [{"name": "NACIONAL CREDITO LTDA", "vals": [-367.6, -286.8, -286.2, 0.0, 0.0, 0.0, 0.0, 0.0, 0.0, 0.0, 0.0, 0.0]}, {"name": "CONFFIE SERVICO DE INFORMACAO LTDA", "vals": [-406.3, -143.7, -143.7, -115.0, 0.0, 0.0, 0.0, 0.0, 0.0, 0.0, 0.0, 0.0]}, {"name": "CONFFIE TECNOLOGIA E INFORMACAO LTDA", "vals": [0.0, -143.7, -143.7, -115.0, 0.0, 0.0, 0.0, 0.0, 0.0, 0.0, 0.0, 0.0]}, {"name": "BRASIL BROKER SOLUCOES EMPRESARIAIS LTDA", "vals": [-88.4, -59.0, -62.0, -60.3, 0.0, 0.0, 0.0, 0.0, 0.0, 0.0, 0.0, 0.0]}, {"name": "GILNEI MACHADO 09201895801", "vals": [-50.0, -112.6, -38.0, -38.0, 0.0, 0.0, 0.0, 0.0, 0.0, 0.0, 0.0, 0.0]}, {"name": "LIDER DIGITAL SERVIÇOS PARA EMPRESAS LTDA", "vals": [-19.7, -65.1, -75.4, -65.1, 0.0, 0.0, 0.0, 0.0, 0.0, 0.0, 0.0, 0.0]}, {"name": "VERIFIK ANALISE DE CREDITO LTDA", "vals": [-82.1, -65.0, -37.9, -37.9, 0.0, 0.0, 0.0, 0.0, 0.0, 0.0, 0.0, 0.0]}, {"name": "RIOSAMPA SERVICOS DE MARKETING LTDA", "vals": [-29.0, -22.8, -26.2, -124.7, 0.0, 0.0, 0.0, 0.0, 0.0, 0.0, 0.0, 0.0]}, {"name": "DNC CONSULTORIA EMPRESARIAL LTDA", "vals": [-54.7, -43.5, -46.4, -42.9, 0.0, 0.0, 0.0, 0.0, 0.0, 0.0, 0.0, 0.0]}, {"name": "WEBMARKETING COMUNICACAO E SERVICOS PUBLICITA", "vals": [-53.5, -42.6, -41.2, -39.6, 0.0, 0.0, 0.0, 0.0, 0.0, 0.0, 0.0, 0.0]}, {"name": "SCB SERVICOS DE CREDITO DO BRASIL LTDA", "vals": [-54.4, -35.9, -34.3, -41.1, 0.0, 0.0, 0.0, 0.0, 0.0, 0.0, 0.0, 0.0]}, {"name": "CHECK MAX - ANALISE DE CREDITO E COBRANCA LTD", "vals": [-54.4, -51.6, -36.9, 0.0, 0.0, 0.0, 0.0, 0.0, 0.0, 0.0, 0.0, 0.0]}, {"name": "GAMP ANALISE DE CREDITO LTDA", "vals": [-59.6, -38.0, -20.0, -20.0, 0.0, 0.0, 0.0, 0.0, 0.0, 0.0, 0.0, 0.0]}, {"name": "ATENDEBR SERVICOS DE DADOS EIRELI", "vals": [-43.6, -25.4, -30.5, -37.3, 0.0, 0.0, 0.0, 0.0, 0.0, 0.0, 0.0, 0.0]}, {"name": "CONFIDENCE REPRESENTACOES EM SOLUCOES PARA AN", "vals": [-38.7, -30.8, -45.0, -16.4, 0.0, 0.0, 0.0, 0.0, 0.0, 0.0, 0.0, 0.0]}, {"name": "MRX SOLUCOES LTDA", "vals": [-37.0, -31.2, -28.4, -31.0, 0.0, 0.0, 0.0, 0.0, 0.0, 0.0, 0.0, 0.0]}, {"name": "C F DE PAULA INFORM ACOES E T ECNOLOGIA LT DA", "vals": [-37.5, -24.7, -41.8, -12.5, 0.0, 0.0, 0.0, 0.0, 0.0, 0.0, 0.0, 0.0]}, {"name": "SNCC - SERVICOS NACIONAL DE CREDITO E COBRANC", "vals": [-36.5, -22.9, -28.3, -27.4, 0.0, 0.0, 0.0, 0.0, 0.0, 0.0, 0.0, 0.0]}, {"name": "SITUE SERVICO BRASILEIRO DE ANALISE DE CREDIT", "vals": [-34.1, -25.4, -26.2, -19.1, 0.0, 0.0, 0.0, 0.0, 0.0, 0.0, 0.0, 0.0]}, {"name": "WAGNER CRISTIANO AZEVEDO DA CRUZ", "vals": [-32.7, -23.6, -29.9, -10.2, 0.0, 0.0, 0.0, 0.0, 0.0, 0.0, 0.0, 0.0]}, {"name": "FRANCISCA LEITE SILVA DOS ANJOS", "vals": [-32.8, -27.6, -17.1, -17.1, 0.0, 0.0, 0.0, 0.0, 0.0, 0.0, 0.0, 0.0]}, {"name": "SGC SERVICOS DE GESTAO DE CREDITO", "vals": [-25.9, -15.7, -19.5, -20.3, 0.0, 0.0, 0.0, 0.0, 0.0, 0.0, 0.0, 0.0]}, {"name": "AMANDA OLIVEIRA CORREIA", "vals": [-27.6, -20.6, -19.8, 0.0, 0.0, 0.0, 0.0, 0.0, 0.0, 0.0, 0.0, 0.0]}, {"name": "Outros (13 fornecedores)", "vals": [-103.7, -75.4, -39.1, -30.6, 0.0, 0.0, 0.0, 0.0, 0.0, 0.0, 0.0, 0.0]}]}, "Gastos com Pessoal": {"vals": [-589.2, -716.5, -609.7, -799.7, -663.7, -699.7, -644.7, -644.7, -644.7, -644.7, -644.7, -961.3, -8263.3], "sups": [{"name": "FUNCIONARIOS", "vals": [-137.0, -169.0, -175.6, -172.6, 0.0, 0.0, 0.0, 0.0, 0.0, 0.0, 0.0, 0.0]}, {"name": "Receita Federal", "vals": [-81.3, -62.1, -66.4, -82.8, 0.0, 0.0, 0.0, 0.0, 0.0, 0.0, 0.0, 0.0]}, {"name": "ZOOP TECNOLOGIA & INSTITUICAO DE PAGAMENTO S.", "vals": [-36.0, -46.5, -46.6, -43.8, 0.0, 0.0, 0.0, 0.0, 0.0, 0.0, 0.0, 0.0]}, {"name": "GUSTAVO GONCALVES CANDIAN LTDA", "vals": [-40.0, -53.3, 0.0, -40.0, 0.0, 0.0, 0.0, 0.0, 0.0, 0.0, 0.0, 0.0]}, {"name": "THIAGO BENTO SERVICOS DE TECNOLOGIA E DADOS L", "vals": [-22.6, -35.0, -35.0, -35.0, 0.0, 0.0, 0.0, 0.0, 0.0, 0.0, 0.0, 0.0]}, {"name": "BIT TECNOLOGIA LTDA", "vals": [-23.9, -30.0, -33.0, -30.0, 0.0, 0.0, 0.0, 0.0, 0.0, 0.0, 0.0, 0.0]}, {"name": "ZEYON DATA TECH LTDA", "vals": [-28.0, -31.0, -28.0, -28.0, 0.0, 0.0, 0.0, 0.0, 0.0, 0.0, 0.0, 0.0]}, {"name": "BRADESCO SAUDE S/A", "vals": [-20.6, -16.2, -28.5, -29.5, 0.0, 0.0, 0.0, 0.0, 0.0, 0.0, 0.0, 0.0]}, {"name": "SALES SPHERE LTDA", "vals": [0.0, 0.0, 0.0, -90.0, 0.0, 0.0, 0.0, 0.0, 0.0, 0.0, 0.0, 0.0]}, {"name": "RAFAEL JUNIOR TAVARES SERVICOS ADMINISTRATIVO", "vals": [-21.2, -21.2, -24.2, -21.2, 0.0, 0.0, 0.0, 0.0, 0.0, 0.0, 0.0, 0.0]}, {"name": "OUTRA FIRMA LTDA", "vals": [-20.8, -20.8, -23.9, -21.8, 0.0, 0.0, 0.0, 0.0, 0.0, 0.0, 0.0, 0.0]}, {"name": "MARCO ANTONIO CABRAL JUNIOR", "vals": [-19.4, -19.4, -19.4, -19.4, 0.0, 0.0, 0.0, 0.0, 0.0, 0.0, 0.0, 0.0]}, {"name": "EQUUS DATA", "vals": [-22.6, -22.6, -14.3, -14.3, 0.0, 0.0, 0.0, 0.0, 0.0, 0.0, 0.0, 0.0]}, {"name": "PEDRO ETCHEBEHERE JUNIOR LTDA", "vals": [-15.0, -15.0, -15.0, -15.0, 0.0, 0.0, 0.0, 0.0, 0.0, 0.0, 0.0, 0.0]}, {"name": "THAR CONSULTORIA INFORMATICA S/S LTDA", "vals": [0.0, -18.8, -18.8, -18.8, 0.0, 0.0, 0.0, 0.0, 0.0, 0.0, 0.0, 0.0]}, {"name": "LUIZ CARLOS DA SILVA CONSULTORIA EM TECNOLOGI", "vals": [-26.0, -26.0, 0.0, 0.0, 0.0, 0.0, 0.0, 0.0, 0.0, 0.0, 0.0, 0.0]}, {"name": "WEBER SANCHES LACERDA SOCIEDADE INDIVIDUAL DE", "vals": [-11.4, -10.8, -10.8, -10.8, 0.0, 0.0, 0.0, 0.0, 0.0, 0.0, 0.0, 0.0]}, {"name": "RAUL MARCELO W. STELER LTDA", "vals": [-10.0, -10.0, -10.6, -10.6, 0.0, 0.0, 0.0, 0.0, 0.0, 0.0, 0.0, 0.0]}, {"name": "RH EXPERTS SERVICOS COMBINADOS DE ESCRITORIO ", "vals": [-9.8, -8.9, -10.8, -9.0, 0.0, 0.0, 0.0, 0.0, 0.0, 0.0, 0.0, 0.0]}, {"name": "ALAN BATISTA AGOSTINHO", "vals": [0.0, 0.0, 0.0, -38.4, 0.0, 0.0, 0.0, 0.0, 0.0, 0.0, 0.0, 0.0]}, {"name": "SANZOVO SERVICOS ADMINISTRATIVOS LTDA", "vals": [0.0, -37.5, 0.0, -0.1, 0.0, 0.0, 0.0, 0.0, 0.0, 0.0, 0.0, 0.0]}, {"name": "2AG SERVICOS EM TECNOLOGIA", "vals": [-8.2, -8.2, -8.2, -8.2, 0.0, 0.0, 0.0, 0.0, 0.0, 0.0, 0.0, 0.0]}, {"name": "ALLAN GUILHERME BEZERRA DE MENDONCA", "vals": [-1.6, -1.7, -0.7, -22.0, 0.0, 0.0, 0.0, 0.0, 0.0, 0.0, 0.0, 0.0]}, {"name": "NAYA MARTINS SILVA", "vals": [-14.7, 0.0, 0.0, 0.0, 0.0, 0.0, 0.0, 0.0, 0.0, 0.0, 0.0, 0.0]}, {"name": "INGRID SANTOS MONSUETO", "vals": [0.0, 0.0, -10.8, 0.0, 0.0, 0.0, 0.0, 0.0, 0.0, 0.0, 0.0, 0.0]}, {"name": "YGOR GEOVA MOURA ALVES", "vals": [0.0, 0.0, -10.1, 0.0, 0.0, 0.0, 0.0, 0.0, 0.0, 0.0, 0.0, 0.0]}, {"name": "Outros (40 fornecedores)", "vals": [-19.0, -52.2, -18.9, -38.2, 0.0, 0.0, 0.0, 0.0, 0.0, 0.0, 0.0, 0.0]}]}, "Tecnologia & Telecom": {"vals": [-62.1, -23.4, -47.9, -59.6, -51.6, -51.6, -51.6, -51.6, -51.6, -51.6, -51.6, -51.6, -605.6], "sups": [{"name": "PARS PRODUTOS DE PROCESSAMENTO DE DADOS LTDA", "vals": [-31.1, -0.2, -16.3, -15.6, 0.0, 0.0, 0.0, 0.0, 0.0, 0.0, 0.0, 0.0]}, {"name": "ORACLE DO BRASIL SISTEMAS LTDA", "vals": [-10.4, -10.7, -10.7, -9.7, 0.0, 0.0, 0.0, 0.0, 0.0, 0.0, 0.0, 0.0]}, {"name": "OMIEXPERIENCE S.A.", "vals": [-3.3, -3.3, -3.3, -3.3, 0.0, 0.0, 0.0, 0.0, 0.0, 0.0, 0.0, 0.0]}, {"name": "SALESFORCE TECNOLOGIA LTDA", "vals": [-3.3, -3.3, 0.0, -5.0, 0.0, 0.0, 0.0, 0.0, 0.0, 0.0, 0.0, 0.0]}, {"name": "GOOGLE CLOUD BRASIL COMPUTACAO E SERVICOS DE ", "vals": [-2.4, -2.4, -2.4, -2.4, 0.0, 0.0, 0.0, 0.0, 0.0, 0.0, 0.0, 0.0]}, {"name": "QULTURE INFORMATICA S.A.", "vals": [0.0, -2.8, -2.8, -2.8, 0.0, 0.0, 0.0, 0.0, 0.0, 0.0, 0.0, 0.0]}, {"name": "ANTHROPIC  CLAUDE TEAM", "vals": [0.0, 0.0, -1.7, -5.1, 0.0, 0.0, 0.0, 0.0, 0.0, 0.0, 0.0, 0.0]}, {"name": "LUSHA", "vals": [0.0, 0.0, 0.0, -6.4, 0.0, 0.0, 0.0, 0.0, 0.0, 0.0, 0.0, 0.0]}, {"name": "MANUS AI", "vals": [0.0, -1.2, -2.7, -2.2, 0.0, 0.0, 0.0, 0.0, 0.0, 0.0, 0.0, 0.0]}, {"name": "VERCEL PRO", "vals": [-1.5, -1.2, -1.5, -1.5, 0.0, 0.0, 0.0, 0.0, 0.0, 0.0, 0.0, 0.0]}, {"name": "ASAAS*BLUE OCEAN AG", "vals": [-4.0, 0.0, 0.0, 0.0, 0.0, 0.0, 0.0, 0.0, 0.0, 0.0, 0.0, 0.0]}, {"name": "GLOBALTEL BR TELECOMUNICACOES LTDA", "vals": [0.0, -2.0, -0.9, -0.9, 0.0, 0.0, 0.0, 0.0, 0.0, 0.0, 0.0, 0.0]}, {"name": "TIMELINESAI", "vals": [-1.2, -1.2, -0.1, -0.6, 0.0, 0.0, 0.0, 0.0, 0.0, 0.0, 0.0, 0.0]}, {"name": "Clicksign", "vals": [-0.6, -0.6, -0.6, -0.6, 0.0, 0.0, 0.0, 0.0, 0.0, 0.0, 0.0, 0.0]}, {"name": "TELEFONICA BRASIL S.A.", "vals": [-0.7, -0.2, -0.7, -0.6, 0.0, 0.0, 0.0, 0.0, 0.0, 0.0, 0.0, 0.0]}, {"name": "CONTENTSQUARE.COM", "vals": [0.0, -2.2, 0.0, 0.0, 0.0, 0.0, 0.0, 0.0, 0.0, 0.0, 0.0, 0.0]}, {"name": "Docker, Inc (Indianapolis)", "vals": [-0.5, -0.5, -0.5, -0.5, 0.0, 0.0, 0.0, 0.0, 0.0, 0.0, 0.0, 0.0]}, {"name": "GITHUB INC.", "vals": [-0.4, -0.5, -0.4, -0.4, 0.0, 0.0, 0.0, 0.0, 0.0, 0.0, 0.0, 0.0]}, {"name": "GENSPARK.AI", "vals": [0.0, 0.0, -1.4, 0.0, 0.0, 0.0, 0.0, 0.0, 0.0, 0.0, 0.0, 0.0]}, {"name": "MSFT * E0500YLG1N", "vals": [-1.2, 0.0, 0.0, 0.0, 0.0, 0.0, 0.0, 0.0, 0.0, 0.0, 0.0, 0.0]}, {"name": "Outros (14 fornecedores)", "vals": [-1.2, -1.7, -1.7, -1.8, 0.0, 0.0, 0.0, 0.0, 0.0, 0.0, 0.0, 0.0]}]}, "Terceiros & Marketing": {"vals": [-67.1, -119.2, -271.7, -78.0, -78.0, -78.0, -78.0, -61.0, -61.0, -61.0, -61.0, -61.0, -1074.9], "sups": [{"name": "ORIA PARTNERS CAPITAL SERVICOS LTDA", "vals": [-30.0, -60.0, -150.0, 0.0, 0.0, 0.0, 0.0, 0.0, 0.0, 0.0, 0.0, 0.0]}, {"name": "SOAR3S ASSESSORIA CONTABIL LTDA", "vals": [-16.6, -17.8, -17.8, -17.8, 0.0, 0.0, 0.0, 0.0, 0.0, 0.0, 0.0, 0.0]}, {"name": "DATA2GO MARKETING E INTELIGENCIA DE DADOS LTD", "vals": [0.0, -17.1, -17.1, -17.1, 0.0, 0.0, 0.0, 0.0, 0.0, 0.0, 0.0, 0.0]}, {"name": "MH GROUP S/A", "vals": [0.0, 0.0, -51.0, 0.0, 0.0, 0.0, 0.0, 0.0, 0.0, 0.0, 0.0, 0.0]}, {"name": "HALABI SOCIEDADE DE ADVOGADOS", "vals": [-11.1, -11.1, -11.6, -11.1, 0.0, 0.0, 0.0, 0.0, 0.0, 0.0, 0.0, 0.0]}, {"name": "ECCLISSATO, CAVERNI E ALBINO NETO SOCIEDADE D", "vals": [-6.6, -7.2, -6.6, -6.6, 0.0, 0.0, 0.0, 0.0, 0.0, 0.0, 0.0, 0.0]}, {"name": "SANTA CATARINA TRIBUNAL DE JUSTICA", "vals": [0.0, -0.3, 0.0, -17.2, 0.0, 0.0, 0.0, 0.0, 0.0, 0.0, 0.0, 0.0]}, {"name": "PASTORI & ASSOCIADOS COMUNICACOES LTDA.", "vals": [0.0, 0.0, -15.0, 0.0, 0.0, 0.0, 0.0, 0.0, 0.0, 0.0, 0.0, 0.0]}, {"name": "FABIANO MICHEL MALLMANN", "vals": [0.0, 0.0, 0.0, -6.7, 0.0, 0.0, 0.0, 0.0, 0.0, 0.0, 0.0, 0.0]}, {"name": "DAZIO VASCONCELOS SOCIEDADE INDIVIDUAL DE ADV", "vals": [-2.0, -2.0, 0.0, 0.0, 0.0, 0.0, 0.0, 0.0, 0.0, 0.0, 0.0, 0.0]}, {"name": "DANILO MARTINS FERREIRA", "vals": [0.0, 0.0, 0.0, -2.5, 0.0, 0.0, 0.0, 0.0, 0.0, 0.0, 0.0, 0.0]}, {"name": "A B DA SILVA LTDA", "vals": [0.0, 0.0, 0.0, -2.3, 0.0, 0.0, 0.0, 0.0, 0.0, 0.0, 0.0, 0.0]}, {"name": "EFISYAN SERVICOS EMPRESARIAIS LTDA", "vals": [-0.5, -1.6, 0.0, 0.0, 0.0, 0.0, 0.0, 0.0, 0.0, 0.0, 0.0, 0.0]}, {"name": "TRIBUNAL DE JUSTICA DO ESTADO DE GOIAS", "vals": [0.0, 0.0, -2.0, 0.0, 0.0, 0.0, 0.0, 0.0, 0.0, 0.0, 0.0, 0.0]}, {"name": "SOLUCOES EM SOFTWARE E SERVICOS TTS LTDA", "vals": [-0.4, -0.4, -0.4, -0.4, 0.0, 0.0, 0.0, 0.0, 0.0, 0.0, 0.0, 0.0]}, {"name": "MANARA SOCIEDADE INDIVIDUAL DE ADVOCACIA", "vals": [0.0, -1.0, 0.0, 0.0, 0.0, 0.0, 0.0, 0.0, 0.0, 0.0, 0.0, 0.0]}, {"name": "LINKEDIN TECHNOLOGY UNLIMITED COMPANY", "vals": [0.0, -0.5, 0.0, 0.0, 0.0, 0.0, 0.0, 0.0, 0.0, 0.0, 0.0, 0.0]}, {"name": "MEDDICCSCORE", "vals": [0.0, 0.0, 0.0, -0.5, 0.0, 0.0, 0.0, 0.0, 0.0, 0.0, 0.0, 0.0]}, {"name": "ALGAR TELECOM S/A", "vals": [0.0, -0.1, -0.1, -0.1, 0.0, 0.0, 0.0, 0.0, 0.0, 0.0, 0.0, 0.0]}, {"name": "TL - ADSUMUS. ASSESSORIA EMPRESARIAL LTDA", "vals": [0.0, 0.0, 0.0, -0.2, 0.0, 0.0, 0.0, 0.0, 0.0, 0.0, 0.0, 0.0]}]}, "Impostos e Contribuições": {"vals": [-370.1, -215.5, -190.4, -306.6, -233.1, -218.1, -218.1, -304.8, -308.4, -295.3, -302.1, -301.4, -3264.0], "sups": [{"name": "Receita Federal", "vals": [-181.6, -128.1, -103.6, -210.9, 0.0, 0.0, 0.0, 0.0, 0.0, 0.0, 0.0, 0.0]}, {"name": "PREFEITURA MUNICIPAL DE BARUERI", "vals": [-188.4, -87.3, -86.7, -95.6, 0.0, 0.0, 0.0, 0.0, 0.0, 0.0, 0.0, 0.0]}, {"name": "MUNICIPIO DE BARUERI", "vals": [0.0, 0.0, -0.1, -0.1, 0.0, 0.0, 0.0, 0.0, 0.0, 0.0, 0.0, 0.0]}]}, "Gastos com Locação": {"vals": [-51.0, 12.3, -33.1, -32.8, -27.8, -27.8, -27.8, -27.8, -27.8, -27.8, -27.8, -27.8, -326.8], "sups": [{"name": "INTERSIX EMPREENDIMENTOS IMOBILIARIOS LTDA", "vals": [-19.0, -19.0, -19.0, -19.0, 0.0, 0.0, 0.0, 0.0, 0.0, 0.0, 0.0, 0.0]}, {"name": "CONDOMINIO WEST TOWERS", "vals": [-5.2, -5.7, -6.0, -5.9, 0.0, 0.0, 0.0, 0.0, 0.0, 0.0, 0.0, 0.0]}, {"name": "KARINA PINHEIRO GOMES DA SILVA", "vals": [-14.0, 0.0, 0.0, 0.0, 0.0, 0.0, 0.0, 0.0, 0.0, 0.0, 0.0, 0.0]}, {"name": "MIX ABC COMERCIO DE TINTAS LTDA", "vals": [-2.1, -2.1, -2.1, 0.0, 0.0, 0.0, 0.0, 0.0, 0.0, 0.0, 0.0, 0.0]}, {"name": "A2 OFFICE MOVEIS LTDA", "vals": [-5.9, 0.0, 0.0, 0.0, 0.0, 0.0, 0.0, 0.0, 0.0, 0.0, 0.0, 0.0]}, {"name": "GA ALPHAVILLE LOCACAO DE ESPACO LTDA.", "vals": [-1.7, 0.0, -3.5, 0.0, 0.0, 0.0, 0.0, 0.0, 0.0, 0.0, 0.0, 0.0]}, {"name": "CLAUDIO LEITE DA SILVA TRINDADE 01138460532", "vals": [0.0, 0.0, 0.0, -3.5, 0.0, 0.0, 0.0, 0.0, 0.0, 0.0, 0.0, 0.0]}, {"name": "COLOR GRAPHICS IMPRESSAO DIGITAL LTDA", "vals": [0.0, 0.0, 0.0, -2.8, 0.0, 0.0, 0.0, 0.0, 0.0, 0.0, 0.0, 0.0]}, {"name": "RCN DECOR CORTINAS, PAPEIS DE PAREDE, PERSIAN", "vals": [0.0, 0.0, -2.7, 0.0, 0.0, 0.0, 0.0, 0.0, 0.0, 0.0, 0.0, 0.0]}, {"name": "59.609.686 THARCIO NESTOR SANTOS DA SILVA", "vals": [-2.1, 0.0, 0.0, 0.0, 0.0, 0.0, 0.0, 0.0, 0.0, 0.0, 0.0, 0.0]}, {"name": "RONIVON SOUZA RIBEIRO 15268337866", "vals": [0.0, 0.0, 0.0, -1.5, 0.0, 0.0, 0.0, 0.0, 0.0, 0.0, 0.0, 0.0]}, {"name": "CHAVEIRO & AUTO SOCORRO MANOJO LTDA", "vals": [-0.4, 0.0, 0.0, -0.1, 0.0, 0.0, 0.0, 0.0, 0.0, 0.0, 0.0, 0.0]}, {"name": "EDIVALDO RODRIGUES DOS SANTOS", "vals": [-0.3, 0.0, 0.0, 0.0, 0.0, 0.0, 0.0, 0.0, 0.0, 0.0, 0.0, 0.0]}, {"name": "REGUS DO BRASIL LTDA", "vals": [-0.2, 0.0, 0.0, 0.0, 0.0, 0.0, 0.0, 0.0, 0.0, 0.0, 0.0, 0.0]}]}, "Gastos com Viagem": {"vals": [-2.5, -0.7, -2.1, -3.5, -1.5, -1.5, -1.5, -1.5, -1.5, -1.5, -1.5, -1.5, -21.1], "sups": [{"name": "SALES SPHERE LTDA", "vals": [0.0, 0.0, 0.0, -3.0, 0.0, 0.0, 0.0, 0.0, 0.0, 0.0, 0.0, 0.0]}, {"name": "Europlus Operadora", "vals": [-1.1, 0.0, 0.0, 0.0, 0.0, 0.0, 0.0, 0.0, 0.0, 0.0, 0.0, 0.0]}, {"name": "FERNANDO JORGE WOSNIAK STELER", "vals": [0.0, 0.0, -1.1, 0.0, 0.0, 0.0, 0.0, 0.0, 0.0, 0.0, 0.0, 0.0]}, {"name": "VIAGGIO TURISMO LTDA", "vals": [-1.0, 0.0, 0.0, 0.0, 0.0, 0.0, 0.0, 0.0, 0.0, 0.0, 0.0, 0.0]}, {"name": "ODONTOPREV S.A.", "vals": [0.0, 0.0, -0.8, 0.0, 0.0, 0.0, 0.0, 0.0, 0.0, 0.0, 0.0, 0.0]}, {"name": "DANIEL CARVALHO", "vals": [0.0, 0.0, 0.0, -0.3, 0.0, 0.0, 0.0, 0.0, 0.0, 0.0, 0.0, 0.0]}, {"name": "ALBERTO DE ARAUJO VIEIRA", "vals": [0.0, -0.3, 0.0, 0.0, 0.0, 0.0, 0.0, 0.0, 0.0, 0.0, 0.0, 0.0]}, {"name": "INGRID SANTOS MONSUETO", "vals": [0.0, -0.0, -0.2, 0.0, 0.0, 0.0, 0.0, 0.0, 0.0, 0.0, 0.0, 0.0]}, {"name": "FELIPPE CATHOUD DE QUEIROZ", "vals": [-0.2, 0.0, 0.0, 0.0, 0.0, 0.0, 0.0, 0.0, 0.0, 0.0, 0.0, 0.0]}, {"name": "RAPHAEL OLIVEIRA DE SILOS SANTOS", "vals": [0.0, -0.2, 0.0, 0.0, 0.0, 0.0, 0.0, 0.0, 0.0, 0.0, 0.0, 0.0]}, {"name": "FERNANDO FERREIRA PASSE", "vals": [-0.2, 0.0, 0.0, 0.0, 0.0, 0.0, 0.0, 0.0, 0.0, 0.0, 0.0, 0.0]}, {"name": "YURI BARBOSA SANTOS", "vals": [0.0, -0.2, 0.0, 0.0, 0.0, 0.0, 0.0, 0.0, 0.0, 0.0, 0.0, 0.0]}, {"name": "VITORIA KAROLINA SOUZA BATISTA", "vals": [0.0, 0.0, 0.0, -0.1, 0.0, 0.0, 0.0, 0.0, 0.0, 0.0, 0.0, 0.0]}, {"name": "PAULO SERGIO SANT ANNA PASINATO", "vals": [0.0, -0.1, 0.0, 0.0, 0.0, 0.0, 0.0, 0.0, 0.0, 0.0, 0.0, 0.0]}, {"name": "JOICE LORRANE NOGUEIRA DOS SANTOS", "vals": [0.0, 0.0, 0.0, -0.1, 0.0, 0.0, 0.0, 0.0, 0.0, 0.0, 0.0, 0.0]}, {"name": "DANIELA JULIO RIBEIRO", "vals": [0.0, 0.0, 0.0, -0.1, 0.0, 0.0, 0.0, 0.0, 0.0, 0.0, 0.0, 0.0]}, {"name": "ALLPARK EMPREENDIMENTOS,", "vals": [0.0, 0.0, 0.0, -0.0, 0.0, 0.0, 0.0, 0.0, 0.0, 0.0, 0.0, 0.0]}, {"name": "FEA PARK", "vals": [0.0, 0.0, -0.0, 0.0, 0.0, 0.0, 0.0, 0.0, 0.0, 0.0, 0.0, 0.0]}, {"name": "WASHINGTON OLIVEIRA DE SOUZA", "vals": [0.0, -0.0, 0.0, 0.0, 0.0, 0.0, 0.0, 0.0, 0.0, 0.0, 0.0, 0.0]}]}, "Outros": {"vals": [-4.8, -3.8, -7.9, -2.1, -2.1, -2.1, -2.1, -2.1, -2.1, -2.1, -2.1, -2.1, -35.4], "sups": [{"name": "SECRETARIA DA FAZENDA SP", "vals": [0.0, 0.0, -6.0, 0.0, 0.0, 0.0, 0.0, 0.0, 0.0, 0.0, 0.0, 0.0]}, {"name": "GIRO PAGAMENTOS E TECNOLOGIA LTDA", "vals": [-4.2, 0.0, 0.0, 0.0, 0.0, 0.0, 0.0, 0.0, 0.0, 0.0, 0.0, 0.0]}, {"name": "MUNICIPIO DE PRESIDENTE VENCESLAU", "vals": [0.0, -1.2, 0.0, 0.0, 0.0, 0.0, 0.0, 0.0, 0.0, 0.0, 0.0, 0.0]}, {"name": "SECRETARIA DA FAZENDA E PLANEJAMENTO", "vals": [0.0, 0.0, 0.0, -1.1, 0.0, 0.0, 0.0, 0.0, 0.0, 0.0, 0.0, 0.0]}, {"name": "RESOMA COMERCIO DE PRODUTOS DESCARTAVEIS E MA", "vals": [0.0, 0.0, -0.4, -0.7, 0.0, 0.0, 0.0, 0.0, 0.0, 0.0, 0.0, 0.0]}, {"name": "TEK DISTRIBUIDOR LTDA", "vals": [0.0, 0.0, -1.1, 0.0, 0.0, 0.0, 0.0, 0.0, 0.0, 0.0, 0.0, 0.0]}, {"name": "UNITHER INDUSTRIA FARMACEUTICA LTDA.", "vals": [0.0, -0.8, 0.0, 0.0, 0.0, 0.0, 0.0, 0.0, 0.0, 0.0, 0.0, 0.0]}, {"name": "EBAZAR.COM.BR. LTDA", "vals": [-0.1, -0.3, -0.1, 0.0, 0.0, 0.0, 0.0, 0.0, 0.0, 0.0, 0.0, 0.0]}, {"name": "MUNICIPIO DE ASSIS", "vals": [0.0, -0.5, 0.0, 0.0, 0.0, 0.0, 0.0, 0.0, 0.0, 0.0, 0.0, 0.0]}, {"name": "LOTUS CENTRAL DE DISTRIBUICAO DE HIGIENICOS L", "vals": [0.0, -0.4, 0.0, 0.0, 0.0, 0.0, 0.0, 0.0, 0.0, 0.0, 0.0, 0.0]}, {"name": "IFD*R.A. SERVICOS ADMINIS", "vals": [-0.4, 0.0, 0.0, 0.0, 0.0, 0.0, 0.0, 0.0, 0.0, 0.0, 0.0, 0.0]}, {"name": "SABELLA INDUSTRIA E COMERCIO DE CONFECCOES LT", "vals": [0.0, 0.0, 0.0, -0.4, 0.0, 0.0, 0.0, 0.0, 0.0, 0.0, 0.0, 0.0]}, {"name": "BPS SHOPPING CENTER LTDA", "vals": [0.0, 0.0, -0.4, 0.0, 0.0, 0.0, 0.0, 0.0, 0.0, 0.0, 0.0, 0.0]}, {"name": "MULTPAINEL EXC LOUSAS E PAINEIS DE VIDRO LTDA", "vals": [0.0, -0.2, 0.0, 0.0, 0.0, 0.0, 0.0, 0.0, 0.0, 0.0, 0.0, 0.0]}, {"name": "MADCAPITALPARK", "vals": [-0.1, 0.0, 0.0, 0.0, 0.0, 0.0, 0.0, 0.0, 0.0, 0.0, 0.0, 0.0]}, {"name": "MAGALU LOG SERVICOS LOGISTICOS LTDA", "vals": [0.0, -0.1, 0.0, 0.0, 0.0, 0.0, 0.0, 0.0, 0.0, 0.0, 0.0, 0.0]}, {"name": "ADMINISTRADORA SHOPPING NOVA IGUACU LTDA", "vals": [0.0, 0.0, 0.0, -0.1, 0.0, 0.0, 0.0, 0.0, 0.0, 0.0, 0.0, 0.0]}]}}, "DEL": {"Gastos com Pessoal": {"vals": [-315.3, -116.8, -55.2, -62.1, -62.1, -62.1, -62.1, -62.1, -62.1, -62.1, -62.1, -62.1, -1046.1], "sups": [{"name": "BRADESCO SAUDE S/A", "vals": [-32.4, -63.6, -55.2, -62.1, 0.0, 0.0, 0.0, 0.0, 0.0, 0.0, 0.0, 0.0]}, {"name": "RECEITA FEDERAL", "vals": [-84.6, 0.0, 0.0, 0.0, 0.0, 0.0, 0.0, 0.0, 0.0, 0.0, 0.0, 0.0]}, {"name": "FUNCIONÁRIOS", "vals": [-69.1, 0.0, 0.0, 0.0, 0.0, 0.0, 0.0, 0.0, 0.0, 0.0, 0.0, 0.0]}, {"name": "FERNANDO FERREIRA PASSE", "vals": [-41.9, 0.0, 0.0, 0.0, 0.0, 0.0, 0.0, 0.0, 0.0, 0.0, 0.0, 0.0]}, {"name": "PAULO SERGIO SANT ANNA PASINATO", "vals": [0.0, -41.8, 0.0, 0.0, 0.0, 0.0, 0.0, 0.0, 0.0, 0.0, 0.0, 0.0]}, {"name": "MINISTERIO DO TRABALHO", "vals": [-30.1, 0.0, 0.0, 0.0, 0.0, 0.0, 0.0, 0.0, 0.0, 0.0, 0.0, 0.0]}, {"name": "FELIPPE CATHOUD DE QUEIROZ", "vals": [-23.5, 0.0, 0.0, 0.0, 0.0, 0.0, 0.0, 0.0, 0.0, 0.0, 0.0, 0.0]}, {"name": "WASHINGTON OLIVEIRA DE SOUZA", "vals": [-19.0, 0.0, 0.0, 0.0, 0.0, 0.0, 0.0, 0.0, 0.0, 0.0, 0.0, 0.0]}, {"name": "Receita Federal", "vals": [0.0, -10.6, 0.0, 0.0, 0.0, 0.0, 0.0, 0.0, 0.0, 0.0, 0.0, 0.0]}, {"name": "PORTO SEGURO", "vals": [-8.3, 0.0, 0.0, 0.0, 0.0, 0.0, 0.0, 0.0, 0.0, 0.0, 0.0, 0.0]}, {"name": "IFOOD", "vals": [-6.3, 0.0, 0.0, 0.0, 0.0, 0.0, 0.0, 0.0, 0.0, 0.0, 0.0, 0.0]}, {"name": "PREFEITURA DO MUNICIPIO DE SP", "vals": [0.0, -0.6, 0.0, 0.0, 0.0, 0.0, 0.0, 0.0, 0.0, 0.0, 0.0, 0.0]}, {"name": "SINDIESP", "vals": [0.0, -0.2, 0.0, 0.0, 0.0, 0.0, 0.0, 0.0, 0.0, 0.0, 0.0, 0.0]}]}, "Tecnologia & Telecom": {"vals": [-85.9, -70.0, -63.3, -46.3, -46.3, -46.3, -46.3, -46.3, -46.3, -46.3, -46.3, -46.3, -635.6], "sups": [{"name": "CONTA SIMPLES SOLUCOES", "vals": [-41.2, -43.7, -38.1, 0.0, 0.0, 0.0, 0.0, 0.0, 0.0, 0.0, 0.0, 0.0]}, {"name": "INICIADOR INSTITUICAO", "vals": [-41.5, -23.3, -22.0, 0.0, 0.0, 0.0, 0.0, 0.0, 0.0, 0.0, 0.0, 0.0]}, {"name": "CONTA SIMPLES SOLUCOES DE PAGAMENTOS LTDA", "vals": [0.0, 0.0, 0.0, -45.7, 0.0, 0.0, 0.0, 0.0, 0.0, 0.0, 0.0, 0.0]}, {"name": "SECURISOFT DO BRASIL", "vals": [-2.3, -2.3, -2.3, 0.0, 0.0, 0.0, 0.0, 0.0, 0.0, 0.0, 0.0, 0.0]}, {"name": "OMIEXPERIENCE LTDA.", "vals": [-0.3, -0.3, -0.3, -0.5, 0.0, 0.0, 0.0, 0.0, 0.0, 0.0, 0.0, 0.0]}, {"name": "OMIEXPERIENCE", "vals": [-0.2, -0.2, -0.2, 0.0, 0.0, 0.0, 0.0, 0.0, 0.0, 0.0, 0.0, 0.0]}, {"name": "VIVO EMRESAS", "vals": [-0.2, -0.2, -0.2, 0.0, 0.0, 0.0, 0.0, 0.0, 0.0, 0.0, 0.0, 0.0]}, {"name": "CLICKSIGN", "vals": [-0.1, -0.1, -0.1, 0.0, 0.0, 0.0, 0.0, 0.0, 0.0, 0.0, 0.0, 0.0]}, {"name": "CLARO SA", "vals": [-0.1, 0.0, -0.1, 0.0, 0.0, 0.0, 0.0, 0.0, 0.0, 0.0, 0.0, 0.0]}, {"name": "CLICKSIGN GESTAO DE DOCUMENTOS S/A", "vals": [0.0, 0.0, 0.0, -0.1, 0.0, 0.0, 0.0, 0.0, 0.0, 0.0, 0.0, 0.0]}]}, "Terceiros & Marketing": {"vals": [-69.4, -155.7, -161.3, -160.4, -160.4, -35.4, -35.4, -35.4, -35.4, -35.4, -35.4, -35.4, -954.7], "sups": [{"name": "BARBOSA, MUSSNICH & ARAGAO", "vals": [0.0, -98.5, -105.1, -105.1, 0.0, 0.0, 0.0, 0.0, 0.0, 0.0, 0.0, 0.0]}, {"name": "CLAVIS BBR CONSULTORIA", "vals": [-40.4, -20.3, -20.3, 0.0, 0.0, 0.0, 0.0, 0.0, 0.0, 0.0, 0.0, 0.0]}, {"name": "EVERIFY OPUS SOFTWARE", "vals": [-17.9, -17.9, -17.9, 0.0, 0.0, 0.0, 0.0, 0.0, 0.0, 0.0, 0.0, 0.0]}, {"name": "CLAVIS BBR CONSULTORIA EM INFORMATICA S.A.", "vals": [0.0, 0.0, 0.0, -20.3, 0.0, 0.0, 0.0, 0.0, 0.0, 0.0, 0.0, 0.0]}, {"name": "BDO RCS AUDITORES INDEPENDENTES", "vals": [0.0, -9.0, -9.0, 0.0, 0.0, 0.0, 0.0, 0.0, 0.0, 0.0, 0.0, 0.0]}, {"name": "EVERIFY OPUS SOFTWARE SERVICOS DE INFORMATICA", "vals": [0.0, 0.0, 0.0, -17.9, 0.0, 0.0, 0.0, 0.0, 0.0, 0.0, 0.0, 0.0]}, {"name": "PORTAL ASSESSORIA", "vals": [-3.3, -3.1, -3.1, 0.0, 0.0, 0.0, 0.0, 0.0, 0.0, 0.0, 0.0, 0.0]}, {"name": "IGNIS CONTABIL LTDA", "vals": [-4.4, -4.4, 0.0, 0.0, 0.0, 0.0, 0.0, 0.0, 0.0, 0.0, 0.0, 0.0]}, {"name": "INICIADOR INSTITUICAO DE PAGAMENTO LTDA", "vals": [0.0, 0.0, 0.0, -7.9, 0.0, 0.0, 0.0, 0.0, 0.0, 0.0, 0.0, 0.0]}, {"name": "CORPSERVICES PARTICIPACOES", "vals": [0.0, 0.0, -4.4, 0.0, 0.0, 0.0, 0.0, 0.0, 0.0, 0.0, 0.0, 0.0]}, {"name": "CORPSERVICES PARTICIPACOES E SERVICOS LTDA.", "vals": [0.0, 0.0, 0.0, -4.4, 0.0, 0.0, 0.0, 0.0, 0.0, 0.0, 0.0, 0.0]}, {"name": "SOAR3S ASSESSORIA CONTABIL LTDA", "vals": [0.0, 0.0, 0.0, -3.8, 0.0, 0.0, 0.0, 0.0, 0.0, 0.0, 0.0, 0.0]}, {"name": "ASSOCIACAO OPEN FINANCE", "vals": [-2.0, -1.1, 0.0, 0.0, 0.0, 0.0, 0.0, 0.0, 0.0, 0.0, 0.0, 0.0]}, {"name": "PORTAL ASSESSORIA CONTABIL", "vals": [-0.8, -0.8, -0.8, -0.8, 0.0, 0.0, 0.0, 0.0, 0.0, 0.0, 0.0, 0.0]}, {"name": "PORTAL ASSESSORIA CONTABIL LTDA", "vals": [-0.8, -0.8, -0.8, 0.0, 0.0, 0.0, 0.0, 0.0, 0.0, 0.0, 0.0, 0.0]}, {"name": "TELEFONICA BRASIL S.A.", "vals": [0.0, 0.0, 0.0, -0.3, 0.0, 0.0, 0.0, 0.0, 0.0, 0.0, 0.0, 0.0]}]}, "Impostos e Contribuições": {"vals": [-56.8, -46.2, -22.4, -13.2, -13.2, -13.2, -13.2, -13.2, -13.2, -13.2, -13.2, -13.2, -244.5], "sups": [{"name": "RECEITA FEDERAL", "vals": [-56.5, 0.0, -21.6, -11.9, 0.0, 0.0, 0.0, 0.0, 0.0, 0.0, 0.0, 0.0]}, {"name": "Receita Federal", "vals": [0.0, -20.9, 0.0, -1.0, 0.0, 0.0, 0.0, 0.0, 0.0, 0.0, 0.0, 0.0]}, {"name": "Prefeitura Municipal de São Paulo", "vals": [-0.4, 0.0, -0.7, -0.4, 0.0, 0.0, 0.0, 0.0, 0.0, 0.0, 0.0, 0.0]}]}, "Gastos com Locação": {"vals": [-3.3, -3.0, -2.9, -3.0, -3.0, -3.0, -3.0, -3.0, -3.0, -3.0, -3.0, -3.0, -35.8], "sups": [{"name": "CUBO COWORKING ITAU", "vals": [-2.9, -2.9, -2.9, 0.0, 0.0, 0.0, 0.0, 0.0, 0.0, 0.0, 0.0, 0.0]}, {"name": "ASSOCIACAO CUBO COWORKING ITAU", "vals": [0.0, 0.0, 0.0, -3.0, 0.0, 0.0, 0.0, 0.0, 0.0, 0.0, 0.0, 0.0]}, {"name": "ENEL DISTRIBUICAO SAO PAULO", "vals": [-0.4, -0.1, 0.0, 0.0, 0.0, 0.0, 0.0, 0.0, 0.0, 0.0, 0.0, 0.0]}]}, "Outros": {"vals": [-0.1, -0.2, -0.1, -0.2, -0.2, -0.2, -0.2, -0.2, -0.2, -0.2, -0.2, -0.2, -2.2], "sups": []}}, "REG": {"Serviços de Informações Cadastrais": {"vals": [0, -2.1, -2.3, -1.4, -1.4, -1.4, -1.4, -1.4, -1.4, -1.4, -1.4, -1.4, -17.2], "sups": [{"name": "SERASA S.A.", "vals": [0.0, -2.1, -2.3, -1.4, 0.0, 0.0, 0.0, 0.0, 0.0, 0.0, 0.0, 0.0]}]}, "Gastos com Pessoal": {"vals": [-102.3, -136.3, -117.5, -83.5, -103.5, -103.5, -103.5, -103.5, -103.5, -103.5, -103.5, -103.5, -1268.1], "sups": [{"name": "LICIO C CARVALHO LTDA", "vals": [0.0, -80.0, -40.0, -40.0, 0.0, 0.0, 0.0, 0.0, 0.0, 0.0, 0.0, 0.0]}, {"name": "SANZOVO SERVICOS ADMINISTRATIVOS LTDA", "vals": [0.0, -37.5, -37.5, -43.5, 0.0, 0.0, 0.0, 0.0, 0.0, 0.0, 0.0, 0.0]}, {"name": "SANZOVO SERVICOS", "vals": [-43.5, 0.0, 0.0, 0.0, 0.0, 0.0, 0.0, 0.0, 0.0, 0.0, 0.0, 0.0]}, {"name": "LITHIUM TECH - LICIO", "vals": [-40.0, 0.0, 0.0, 0.0, 0.0, 0.0, 0.0, 0.0, 0.0, 0.0, 0.0, 0.0]}, {"name": "GUSTAVO GONCALVES CANDIAN LTDA", "vals": [0.0, 0.0, -40.0, 0.0, 0.0, 0.0, 0.0, 0.0, 0.0, 0.0, 0.0, 0.0]}, {"name": "THAR_ Harry", "vals": [-18.8, 0.0, 0.0, 0.0, 0.0, 0.0, 0.0, 0.0, 0.0, 0.0, 0.0, 0.0]}, {"name": "THAR CONSULTORIA INFORMATICA S/S LTDA", "vals": [0.0, -18.8, 0.0, 0.0, 0.0, 0.0, 0.0, 0.0, 0.0, 0.0, 0.0, 0.0]}]}, "Tecnologia & Telecom": {"vals": [-6.4, -7.6, -15.2, -13.5, -13.5, -13.5, -13.5, -13.5, -13.5, -13.5, -13.5, -13.5, -151.1], "sups": [{"name": "CONTA SIMPLES SOLUCOES DE PAGAMENTOS LTDA", "vals": [0.0, -4.0, -5.0, -6.1, 0.0, 0.0, 0.0, 0.0, 0.0, 0.0, 0.0, 0.0]}, {"name": "Omiexperience S/A", "vals": [0.0, 0.0, -7.7, -4.7, 0.0, 0.0, 0.0, 0.0, 0.0, 0.0, 0.0, 0.0]}, {"name": "NEW VOICE TELECOMUNICACOES EIRELI", "vals": [0.0, -1.7, -1.4, -1.6, 0.0, 0.0, 0.0, 0.0, 0.0, 0.0, 0.0, 0.0]}, {"name": "CONTA SIMPLES SOLUCOES", "vals": [-4.0, 0.0, 0.0, 0.0, 0.0, 0.0, 0.0, 0.0, 0.0, 0.0, 0.0, 0.0]}, {"name": "LWSA S/A", "vals": [0.0, -0.8, -0.5, -0.4, 0.0, 0.0, 0.0, 0.0, 0.0, 0.0, 0.0, 0.0]}, {"name": "OpenHaus Tecnologia LTDA", "vals": [0.0, -0.5, -0.5, -0.5, 0.0, 0.0, 0.0, 0.0, 0.0, 0.0, 0.0, 0.0]}, {"name": "New Voice Telecom", "vals": [-1.4, 0.0, 0.0, 0.0, 0.0, 0.0, 0.0, 0.0, 0.0, 0.0, 0.0, 0.0]}, {"name": "I7 TEC SOLUCOES LTDA", "vals": [0.0, -0.5, -0.2, -0.2, 0.0, 0.0, 0.0, 0.0, 0.0, 0.0, 0.0, 0.0]}, {"name": "OpenHaus", "vals": [-0.5, 0.0, 0.0, 0.0, 0.0, 0.0, 0.0, 0.0, 0.0, 0.0, 0.0, 0.0]}, {"name": "I7 Solution Ltda", "vals": [-0.3, 0.0, 0.0, 0.0, 0.0, 0.0, 0.0, 0.0, 0.0, 0.0, 0.0, 0.0]}, {"name": "SAFE2PAY", "vals": [-0.2, 0.0, 0.0, 0.0, 0.0, 0.0, 0.0, 0.0, 0.0, 0.0, 0.0, 0.0]}]}, "Terceiros & Marketing": {"vals": [-2.0, -2.2, -2.1, -2.2, -2.2, -2.2, -2.2, -2.2, -2.2, -2.2, -2.2, -2.2, -25.8], "sups": [{"name": "SOAR3S ASSESSORIA CONTABIL LTDA", "vals": [0.0, -2.2, -2.2, -2.2, 0.0, 0.0, 0.0, 0.0, 0.0, 0.0, 0.0, 0.0]}, {"name": "PORTAL ASSESSORIA", "vals": [-2.0, 0.0, 0.0, 0.0, 0.0, 0.0, 0.0, 0.0, 0.0, 0.0, 0.0, 0.0]}]}, "Impostos e Contribuições": {"vals": [-7.7, -14.0, -13.8, -12.5, -12.5, -12.5, -12.5, -12.5, -12.5, -12.5, -12.5, -12.5, -148.2], "sups": [{"name": "Receita Federal do Brasil", "vals": [-5.0, -10.9, -10.7, -9.4, 0.0, 0.0, 0.0, 0.0, 0.0, 0.0, 0.0, 0.0]}, {"name": "MUNICIPIO DE BARUERI", "vals": [0.0, -3.1, -3.1, -3.2, 0.0, 0.0, 0.0, 0.0, 0.0, 0.0, 0.0, 0.0]}, {"name": "Prefeitura Municipal de Barueri", "vals": [-2.7, 0.0, 0.0, 0.0, 0.0, 0.0, 0.0, 0.0, 0.0, 0.0, 0.0, 0.0]}]}, "Gastos com Locação": {"vals": [0, -1.2, -0.6, -0.6, -0.6, -0.6, -0.6, -0.6, -0.6, -0.6, -0.6, -0.6, -6.9], "sups": [{"name": "Regus - Sao Paulo, Alphaville - Castelo Branc", "vals": [0.0, -1.2, -0.6, -0.6, 0.0, 0.0, 0.0, 0.0, 0.0, 0.0, 0.0, 0.0]}]}, "Outros": {"vals": [-3.6, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, -3.6], "sups": []}}};
+
+const SECTIONS_DNR={"ROK":[0,0,-40,-40,-40,-40,-40,-40,-40,-40,-40,-40,-400],"DEL":[-60.1,-60.1,-20.1,-20.1,-20.1,-20.1,-20.1,-20.1,-20.1,-20.1,-20.1,-20.1,-320.7],"REG":[0,0,0,0,0,0,0,0,0,0,0,0,0]};
+
+const LOANS={'Rede OK':{saldo_abril:19016.3,caixa:4014.4,divida_liquida:15001.9,loans:[{inst:'Banco Itaú',desc:'Capital de Giro',saldo:5393,a2026:944.6,a2027:1902.8,a2028:2329.4},{inst:'FIDC - Direta Capital',desc:'Nota Comercial',saldo:4000,a2026:285.6,a2027:1713.6,a2028:1713.6},{inst:'BNDES',desc:'Contrato Financiamento',saldo:3166.7,a2026:1500,a2027:1833.3,a2028:0},{inst:'Banco Sofisa',desc:'Capital de Giro (FGI)',saldo:2662,a2026:1093,a2027:1196,a2028:191.1},{inst:'Banco Safra',desc:'Capital de Giro (FGI)',saldo:3328.4,a2026:1847.3,a2027:1057.7,a2028:634.6},{inst:'Partes Relacionadas',desc:'Mútuo',saldo:1116.7,a2026:0,a2027:250,a2028:866.7},{inst:'Receita Federal',desc:'Parcelamento Tributário',saldo:1055.4,a2026:493.3,a2027:457.5,a2028:96.4}]},'Delend':{saldo_abril:2745.6,caixa:7.95,divida_liquida:2737.6,loans:[{inst:'Banco Safra',desc:'Capital de Giro (FGI)',saldo:1702,a2026:547.2,a2027:666.2,a2028:647.6},{inst:'Banco Itaú',desc:'Capital de Giro (FGI)',saldo:1043.6,a2026:130.5,a2027:211.6,a2028:261.2}]}};
+
+function parseNum(s){if(!s||s.trim()===''||s.trim()==='-')return 0;const c=s.replace(/\s/g,'').replace(/\./g,'').replace(',','.');const v=parseFloat(c);return isNaN(v)?0:v;}
+function extractRow(rows,idx){const row=rows[idx-1];if(!row)return Array(N_MONTHS+1).fill(0);const m=[];for(let c=COL_JAN;c<COL_JAN+N_MONTHS;c++)m.push(parseNum(row[c]||'0'));return[...m,parseNum(row[COL_TOTAL]||'0')];}
+function fmt(v){if(v===null||v===undefined)return'—';return(v<0?'-':'')+Math.abs(v).toLocaleString('pt-BR',{minimumFractionDigits:0,maximumFractionDigits:0});}
+function sumArr(a){return a.reduce((x,y)=>x+y,0);}
+function bgM(r,f){return MESES.map((_,i)=>i<REAL_MONTHS?r:f);}
+function vcls(v,hl){if(hl&&v<0)return'neg neg-hl';return v<0?'neg':v>0?'pos':'';}
+
+function baseCopts(){return{responsive:true,maintainAspectRatio:false,plugins:{legend:{display:false},tooltip:{backgroundColor:'#fff',borderColor:'#ddd5c8',borderWidth:1,titleColor:'#1a1612',bodyColor:'#6b6258',padding:12,cornerRadius:8,titleFont:{family:'Outfit',size:13,weight:'600'},bodyFont:{family:'Outfit',size:12},callbacks:{label:c=>` ${c.dataset.label}: ${Math.abs(c.parsed.y).toLocaleString('pt-BR',{minimumFractionDigits:0})} R$ mil`}}},scales:{x:{ticks:{color:'#6b6258',font:{family:'Outfit',size:12}},grid:{color:'#ede8e0'},border:{color:'#ddd5c8'}},y:{ticks:{color:'#6b6258',font:{family:'Outfit',size:12}},grid:{color:'#ede8e0'},border:{color:'#ddd5c8'}}}};}
+
+function buildDrillRows(cats,id,isConsolidado){
+  let rows='';
+  Object.entries(cats).forEach(([cat,{vals:cv,sups}])=>{
+    const total=cv[12];
+    const hasConsolSups=isConsolidado&&(CAT_DATA.ROK[cat]||CAT_DATA.DEL[cat]||CAT_DATA.REG[cat]);
+    const hasSingleSups=!isConsolidado&&sups&&sups.length>0;
+    const hasSups=hasConsolSups||hasSingleSups;
+    const catKey=cat.replace(/[^a-zA-Z0-9]/g,'_');
+    const d2key=`d2-${id}-${catKey}`;
+    rows+=`<tr class="d1-row${hasSups?' d2-toggle':''}" data-d1="d1-${id}"`+(hasSups?` onclick="toggleD2('${d2key}',this)"`:'')+`>`;
+    rows+=`<td>${cat}</td>`;
+    for(let i=0;i<12;i++){const v=cv[i]||0;rows+=`<td class="${vcls(v)}" style="background:${i<REAL_MONTHS?'rgba(10,94,64,.03)':'rgba(154,108,24,.02)'}">${v!==0?fmt(v):'—'}</td>`;}
+    rows+=`<td class="tcol ${vcls(total)}">${fmt(total)}</td></tr>`;
+    if(isConsolidado&&hasConsolSups){
+      [{key:'ROK',label:'Rede OK',rc:'d2-rok',sc:'d3-rok'},{key:'DEL',label:'Delend',rc:'d2-del',sc:'d3-del'},{key:'REG',label:'Régua',rc:'d2-reg',sc:'d3-reg'}].forEach(({key,label,rc,sc})=>{
+        const cd=CAT_DATA[key][cat];if(!cd)return;
+        const coVals=cd.vals,coTotal=coVals[12];
+        const d3key=`d3-${id}-${catKey}-${key}`;
+        rows+=`<tr class="d2-row d2-toggle ${rc}" data-d2="${d2key}" onclick="toggleD3('${d3key}',this)"><td>${label}</td>`;
+        for(let i=0;i<12;i++){const v=coVals[i];rows+=`<td class="${vcls(v)}">${v!==0?fmt(v):'—'}</td>`;}
+        rows+=`<td class="tcol ${vcls(coTotal)}">${fmt(coTotal)}</td></tr>`;
+        cd.sups.forEach(({name,vals:sv})=>{
+          const stot=sumArr(sv);
+          rows+=`<tr class="d3-row ${sc}" data-d3="${d3key}"><td>${name}</td>`;
+          for(let i=0;i<12;i++){const v=sv[i]||0;rows+=`<td class="${vcls(v)}">${v!==0?fmt(v):'—'}</td>`;}
+          rows+=`<td class="tcol ${vcls(stot)}">${fmt(stot)}</td></tr>`;
+        });
+      });
+    } else if(!isConsolidado&&hasSingleSups){
+      sups.forEach(({name,vals:sv})=>{
+        const stot=sumArr(sv);
+        rows+=`<tr class="d2-row d2-sup" data-d2="${d2key}"><td>${name}</td>`;
+        for(let i=0;i<12;i++){const v=sv[i]||0;rows+=`<td class="${vcls(v)}">${v!==0?fmt(v):'—'}</td>`;}
+        rows+=`<td class="tcol ${vcls(stot)}">${fmt(stot)}</td></tr>`;
+      });
+    }
+  });
+  return rows;
+}
+
+function buildSection(company,data){
+  const {id}=SECTIONS[company];
+  const isConsolidado=company==='Consolidado';
+  const saldos=(data['Saldo Final']||[]).slice(0,12);
+  const negMeses=MESES.filter((_,i)=>saldos[i]<0);
+  const lowMeses=MESES.filter((_,i)=>saldos[i]>=0&&saldos[i]<500);
+  const recv=data['Recebimentos']?data['Recebimentos'][12]:0;
+  const pag=data['Pagamentos Operacionais']?data['Pagamentos Operacionais'][12]:0;
+  const gerOp=data['Geração Operacional']?data['Geração Operacional'][12]:0;
+  const saldoDez=data['Saldo Final']?data['Saldo Final'][11]:0;
+  const recvReal=data['Recebimentos']?sumArr(data['Recebimentos'].slice(0,REAL_MONTHS)):0;
+  const recvFc=data['Recebimentos']?sumArr(data['Recebimentos'].slice(REAL_MONTHS,12)):0;
+  const pagReal=data['Pagamentos Operacionais']?sumArr(data['Pagamentos Operacionais'].slice(0,REAL_MONTHS)):0;
+  const pagFc=data['Pagamentos Operacionais']?sumArr(data['Pagamentos Operacionais'].slice(REAL_MONTHS,12)):0;
+  const dispDez=data['Disp. Tesouraria']?data['Disp. Tesouraria'][11]:null;
+  const bloqDez=data['Bloq. Garantia']?data['Bloq. Garantia'][11]:null;
+  const coKey=isConsolidado?null:id==='redeok'?'ROK':id==='delend'?'DEL':id==='number'?null:'REG';
+  const cats=coKey?CAT_DATA[coKey]:null;
+
+  let caixaStrip=`<div class="caixa-strip"><span class="cs-label">Caixa Mensal:</span>`;
+  saldos.forEach((v,i)=>{const cls=v<0?'neg':v<500?'low':'ok';const icon=v<0?'⚠':v<500?'!':'✓';caixaStrip+=`<span class="caixa-pill ${cls}"><span class="dot"></span>${MESES[i]} ${icon}</span>`;});
+  caixaStrip+='</div>';
+
+  const kpis=[
+    {label:'Recebimentos 2026',val:recv,color:'blue',sub:`Real: ${fmt(recvReal)} · FC: ${fmt(recvFc)}`},
+    {label:'Pagamentos Operacionais',val:pag,color:'red',sub:`Real: ${fmt(pagReal)} · FC: ${fmt(pagFc)}`},
+    {label:'Geração Operacional',val:gerOp,color:gerOp>=0?'green':'red',sub:'Resultado operacional anual'},
+    {label:'Saldo Final Dez/26',val:saldoDez,color:saldoDez>=0?'green':'red',sub:negMeses.length>0?`⚠ ${negMeses.length} mês(es) negativo(s)`:'Forecast',breakdown:dispDez!==null?{disp:dispDez,bloq:bloqDez}:null},
+  ];
+
+  let thead='<thead>';
+  thead+=`<tr class="band-row"><th style="background:transparent"><div class="i"> </div></th><th colspan="${REAL_MONTHS}" class="band-real"><div class="i" style="text-align:center;color:inherit">▓ REALIZADO</div></th><th colspan="${N_MONTHS-REAL_MONTHS}" class="band-fc"><div class="i" style="text-align:center;color:inherit">░ FORECAST</div></th><th class="band-total"><div class="i"> </div></th></tr>`;
+  thead+='<tr>';
+  thead+=`<th><div class="i">Linha</div></th>`;
+  MESES.forEach((_,i)=>{thead+=`<th style="background:${i<REAL_MONTHS?'rgba(10,94,64,.06)':'rgba(154,108,24,.04)'}"><div class="i">${MESES[i]}</div></th>`;});
+  thead+=`<th class="tcol"><div class="i">2026</div></th></tr></thead>`;
+
+  let tbody='<tbody>';
+  DFC_ORDER.forEach(({key,type,drillable,drillDNR,hasSaldoBreak})=>{
+    const vals=data[key];if(!vals)return;
+    const rc=type==='bold'?'r-bold':type==='subtotal'?'r-subtotal':'r-normal';
+    const isSF=key==='Saldo Final';
+    tbody+=`<tr class="${rc}${drillable?' d1-toggle':''}${drillDNR?' d1-toggle':''}"`+(drillable?` onclick="toggleD1('d1-${id}',this)"`:drillDNR?` onclick="toggleD1('d1dnr-${id}',this)"`:'')+`>`;
+    tbody+=`<td>${key}</td>`;
+    for(let i=0;i<12;i++){const v=vals[i];tbody+=`<td class="${vcls(v,isSF&&v<0)}" style="background:${i<REAL_MONTHS?'rgba(10,94,64,.03)':'rgba(154,108,24,.02)'}">${fmt(v)}</td>`;}
+    tbody+=`<td class="tcol ${vcls(vals[12])}">${fmt(vals[12])}</td></tr>`;
+    if(drillable){
+      if(isConsolidado){
+        const allCats={};
+        ['ROK','DEL','REG'].forEach(k=>{Object.entries(CAT_DATA[k]).forEach(([cat,d])=>{if(!allCats[cat])allCats[cat]={vals:Array(13).fill(0),sups:[]};d.vals.forEach((v,i)=>{allCats[cat].vals[i]+=v;});allCats[cat].sups=d.sups;});});
+        tbody+=buildDrillRows(allCats,id,true);
+      } else if(cats){
+        tbody+=buildDrillRows(cats,id,false);
+      }
+      tbody+=`<tr class="d1-row" data-d1="d1-${id}"><td colspan="14" style="font-size:11px;color:var(--ink3);padding:6px 28px;font-style:italic;background:var(--paper)">⚠ Fornecedores Jan–Abr (realizado). Forecast usa totais projetados.</td></tr>`;
+    }
+    if(drillDNR){
+      const clsMap={ROK:'d2-rok',DEL:'d2-del',REG:'d2-reg'};
+      const coLabels={ROK:'Rede OK',DEL:'Delend',REG:'Régua'};
+      ['ROK','DEL','REG'].forEach(co=>{
+        const coVals=SECTIONS_DNR[co];
+        if(!coVals||coVals.every(v=>v===0))return;
+        tbody+=`<tr class="d1-row ${clsMap[co]}" data-d1="d1dnr-${id}"><td>${coLabels[co]}</td>`;
+        for(let i=0;i<12;i++){const v=coVals[i];tbody+=`<td class="${vcls(v)}">${v!==0?fmt(v):'—'}</td>`;}
+        tbody+=`<td class="tcol ${vcls(coVals[12])}">${fmt(coVals[12])}</td></tr>`;
+      });
+    }
+    if(hasSaldoBreak&&data['Disp. Tesouraria']&&data['Bloq. Garantia']){
+      const disp=data['Disp. Tesouraria'],bloq=data['Bloq. Garantia'];
+      tbody+=`<tr class="r-saldo-sub r-saldo-disp"><td>↳ Disponível na Tesouraria</td>`;
+      for(let i=0;i<12;i++){const v=disp[i];tbody+=`<td class="${vcls(v,v<0)}">${fmt(v)}</td>`;}
+      tbody+=`<td class="tcol ${vcls(disp[11])}">${fmt(disp[11])}</td></tr>`;
+      tbody+=`<tr class="r-saldo-sub r-saldo-bloq"><td>↳ Bloqueado em Garantia</td>`;
+      for(let i=0;i<12;i++){tbody+=`<td>${fmt(bloq[i])}</td>`;}
+      tbody+=`<td class="tcol">${fmt(bloq[11])}</td></tr>`;
+    }
+  });
+  tbody+='</tbody>';
+
+  document.getElementById('sec-'+id).innerHTML=`
+    <div class="rf-banner"><span class="rf-pill rf-real">Jan–Abr = Realizado</span><span class="rf-sep">·</span><span class="rf-pill rf-fc">Mai–Dez = Forecast</span><span class="rf-note">Verde = real · Dourado = projeção · R$ mil</span></div>
+    ${caixaStrip}
+    <div class="kpi-grid">${kpis.map(k=>`<div class="kpi ${k.color}"><div class="kpi-ac"></div><div class="kpi-row"><div class="kpi-label">${k.label}</div><span class="kpi-badge">PREV</span></div><div class="kpi-value ${k.val<0?'neg':k.val>0?'pos':''}">${fmt(k.val)}</div><div class="kpi-sub">${k.sub||''}</div>${k.breakdown?`<div class="saldo-breakdown"><div class="sb-item disp"><div class="sb-label">Disponível Tesouraria</div><div class="sb-val ${k.breakdown.disp<0?'neg':''}">${fmt(k.breakdown.disp)}</div></div><div class="sb-item bloq"><div class="sb-label">Bloqueado Garantia</div><div class="sb-val">${fmt(k.breakdown.bloq)}</div></div></div>`:''}</div>`).join('')}</div>
+    <div class="charts-row">
+      <div class="chart-card">
+        <div class="ch"><div class="ct">Recebimentos vs Pagamentos</div><div class="cs">Pagamentos empilhados por categoria · R$ mil</div></div>
+        <div class="chart-legend" id="legend-${id}"></div>
+        <div class="cw-tall"><canvas id="cmain-${id}"></canvas></div>
+      </div>
+      <div class="chart-card">
+        <div class="ch"><div class="ct">Saldo Final Mensal</div><div class="cs">R$ mil</div></div>
+        <div class="cw-saldo"><canvas id="csaldo-${id}"></canvas></div>
+      </div>
+    </div>
+    <div class="tc">
+      <div class="th-row">
+        <div style="display:flex;align-items:center;gap:14px">
+          <div class="th-title">Resumo DFC — ${company}</div>
+          <button class="btn-collapse" onclick="collapseAll('${id}')">⊟ Recolher tudo</button>
+        </div>
+        <div class="th-note">▶ Pagamentos → Categorias → ${isConsolidado?'Empresa → ':''}Fornecedores</div>
+      </div>
+      <div style="overflow-x:auto"><table class="dfc-table">${thead}${tbody}</table></div>
+    </div>`;
+  buildCharts(id,data);
+}
+
+function buildCharts(id,data){
+  if(chartInstances[id+'m'])chartInstances[id+'m'].destroy();
+  if(chartInstances[id+'s'])chartInstances[id+'s'].destroy();
+  const m12=key=>(data[key]||[]).slice(0,12);
+  const ctx1=document.getElementById('cmain-'+id);
+  if(ctx1){
+    const recv=m12('Recebimentos');
+    const pagOp=m12('Pagamentos Operacionais').map(Math.abs);
+    const aqEmp=m12('Aquisição de Empresas').map(Math.abs);
+    const dNR=m12('Desp. Não Recorrentes').map(Math.abs);
+    const dividas=m12('Total Dívidas').map(v=>v<0?Math.abs(v):0);
+    const legendItems=[{color:'rgba(10,94,64,1)',label:'Recebimentos'},{color:'rgba(10,94,64,.6)',label:'Recebimentos FC'},{color:'rgba(22,61,120,1)',label:'Operacionais'},{color:'rgba(176,48,32,1)',label:'Aquisição'},{color:'rgba(154,108,24,1)',label:'Desp. N. Rec.'},{color:'rgba(107,47,212,1)',label:'NET Dívidas'}];
+    const legendEl=document.getElementById('legend-'+id);
+    if(legendEl)legendEl.innerHTML=legendItems.map(l=>`<div class="cl-item"><div class="cl-dot" style="background:${l.color}"></div><span>${l.label}</span></div>`).join('');
+    const datasets=[
+      {label:'Recebimentos',data:recv,backgroundColor:bgM('rgba(10,94,64,1)','rgba(10,94,64,.6)'),borderRadius:4,borderSkipped:false,stack:'recv'},
+      {label:'Operacionais',data:pagOp,backgroundColor:bgM('rgba(22,61,120,1)','rgba(22,61,120,.6)'),borderRadius:0,borderSkipped:false,stack:'pag'},
+      {label:'Aquisição',data:aqEmp,backgroundColor:bgM('rgba(176,48,32,1)','rgba(176,48,32,.6)'),borderRadius:0,borderSkipped:false,stack:'pag'},
+      {label:'Desp. N. Rec.',data:dNR,backgroundColor:bgM('rgba(154,108,24,1)','rgba(154,108,24,.6)'),borderRadius:0,borderSkipped:false,stack:'pag'},
+      {label:'NET Dívidas',data:dividas,backgroundColor:bgM('rgba(107,47,212,1)','rgba(107,47,212,.6)'),borderRadius:4,borderSkipped:false,stack:'pag'},
+    ];
+    const opts=baseCopts();
+    opts.plugins.tooltip.callbacks={title:items=>`${items[0].label}`,footer:items=>{const mi=items[0].dataIndex;const tp=pagOp[mi]+aqEmp[mi]+dNR[mi]+dividas[mi];return[`Recebimentos: ${recv[mi].toLocaleString('pt-BR')} R$ mil`,`Total Pagamentos: ${tp.toLocaleString('pt-BR')} R$ mil`];}};
+    chartInstances[id+'m']=new Chart(ctx1,{type:'bar',data:{labels:MESES,datasets},options:opts});
+  }
+  const ctx2=document.getElementById('csaldo-'+id);
+  if(ctx2){
+    const sv=m12('Saldo Final');
+    const sc=sv.map((v,i)=>v<0?'rgba(176,48,32,.95)':v<500?'rgba(192,107,0,.9)':i<REAL_MONTHS?'rgba(10,94,64,.95)':'rgba(10,94,64,.6)');
+    chartInstances[id+'s']=new Chart(ctx2,{type:'bar',data:{labels:MESES,datasets:[{label:'Saldo Final',data:sv,backgroundColor:sc,borderRadius:5,borderSkipped:false}]},options:{...baseCopts(),plugins:{...baseCopts().plugins,legend:{display:false}}}});
+  }
+}
+
+function updateFarol(saldos){
+  const negMeses=MESES.filter((_,i)=>saldos[i]<0);
+  const lowMeses=MESES.filter((_,i)=>saldos[i]>=0&&saldos[i]<500);
+  const allProb=MESES.map((m,i)=>({m,v:saldos[i]})).filter(x=>x.v<500);
+  const firstProb=allProb.length>0?allProb[0].m:null;
+  const bar=document.getElementById('farol-bar');
+  const icon=document.getElementById('farol-icon');
+  const title=document.getElementById('farol-title');
+  const chips=document.getElementById('farol-chips');
+  bar.classList.remove('verde','amarelo','vermelho');
+  if(negMeses.length>0){
+    bar.classList.add('vermelho');icon.textContent='🔴';
+    title.textContent=`ALERTA: Caixa em deterioração a partir de ${firstProb}`;
+    chips.innerHTML=[...lowMeses,...negMeses].filter((m,i,a)=>a.indexOf(m)===i).sort((a,b)=>MESES.indexOf(a)-MESES.indexOf(b)).map(m=>`<span class="farol-chip">${m}</span>`).join('');
+  } else if(lowMeses.length>0){
+    bar.classList.add('amarelo');icon.textContent='🟡';
+    title.textContent=`ATENÇÃO: Caixa baixo a partir de ${firstProb}`;
+    chips.innerHTML=lowMeses.map(m=>`<span class="farol-chip">${m}</span>`).join('');
+  } else {
+    bar.classList.add('verde');icon.textContent='🟢';
+    title.textContent='CAIXA SAUDÁVEL: Todos os meses positivos acima de R$ 500 mil';
+    chips.innerHTML='';
+  }
+}
+
+function toggleD1(key,el){document.querySelectorAll(`tr[data-d1="${key}"]`).forEach(r=>r.classList.toggle('vis',!el.classList.contains('open')));el.classList.toggle('open');}
+function toggleD2(key,el){if(el.classList.contains('open')){document.querySelectorAll(`tr[data-d3^="${key}"]`).forEach(r=>r.classList.remove('vis'));document.querySelectorAll(`tr[data-d2="${key}"].open`).forEach(r=>r.classList.remove('open'));}document.querySelectorAll(`tr[data-d2="${key}"]`).forEach(r=>r.classList.toggle('vis',!el.classList.contains('open')));el.classList.toggle('open');}
+function toggleD3(key,el){document.querySelectorAll(`tr[data-d3="${key}"]`).forEach(r=>r.classList.toggle('vis',!el.classList.contains('open')));el.classList.toggle('open');}
+function collapseAll(id){document.querySelectorAll(`#sec-${id} tr[data-d1],#sec-${id} tr[data-d2],#sec-${id} tr[data-d3]`).forEach(r=>r.classList.remove('vis'));document.querySelectorAll(`#sec-${id} .d1-toggle,#sec-${id} .d2-toggle`).forEach(el=>el.classList.remove('open'));}
+
+function buildDivida(){
+  const el=document.getElementById('sec-divida');
+  const consTotal=LOANS['Rede OK'].saldo_abril+LOANS['Delend'].saldo_abril;
+  const consLiq=LOANS['Rede OK'].divida_liquida+LOANS['Delend'].divida_liquida;
+  const consCaixa=LOANS['Rede OK'].caixa+LOANS['Delend'].caixa;
+  function lT(loans,total){let t='<div style="overflow-x:auto"><table class="loan-table"><thead><tr><th>Instituição</th><th>Descrição</th><th>Saldo Abr/26</th><th>Amort. 2026</th><th>Amort. 2027</th><th>Amort. 2028</th></tr></thead><tbody>';loans.forEach(l=>{t+=`<tr><td>${l.inst}</td><td>${l.desc}</td><td class="money">${fmt(l.saldo)}</td><td>${fmt(l.a2026)}</td><td>${fmt(l.a2027)}</td><td>${fmt(l.a2028)}</td></tr>`;});t+=`<tr><td>Total</td><td></td><td class="money">${fmt(total)}</td><td>${fmt(loans.reduce((a,l)=>a+l.a2026,0))}</td><td>${fmt(loans.reduce((a,l)=>a+l.a2027,0))}</td><td>${fmt(loans.reduce((a,l)=>a+l.a2028,0))}</td></tr>`;return t+'</tbody></table></div>';}
+  function pBar(div,caixa){const pct=Math.min(100,Math.round((caixa/div)*100));return`<div class="loan-bar"><div class="loan-bar-fill" style="width:${pct}%"></div></div><div class="loan-bar-label"><span>Cobertura: ${pct}%</span><span>Caixa ${fmt(caixa)} · Dívida ${fmt(div)}</span></div>`;}
+  el.innerHTML=`<div style="background:var(--sp-l);border:1px solid #b8c8e8;color:var(--sp);padding:13px 20px;border-radius:10px;font-size:13px;margin-bottom:20px;font-weight:500">Posição de dívida com base no Saldo de Abril/26. Valores em R$ mil.</div>
+    <div class="kpi-grid" style="grid-template-columns:repeat(3,1fr)"><div class="kpi red"><div class="kpi-ac"></div><div class="kpi-label">Dívida Total Consolidada</div><div class="kpi-value neg">${fmt(consTotal)}</div><div class="kpi-sub">ROK + Delend · Saldo Abr/26</div></div><div class="kpi blue"><div class="kpi-ac"></div><div class="kpi-label">Caixa + Aplicações</div><div class="kpi-value">${fmt(consCaixa)}</div><div class="kpi-sub">Posição de caixa consolidada</div></div><div class="kpi gold"><div class="kpi-ac"></div><div class="kpi-label">Dívida Líquida Consolidada</div><div class="kpi-value neg">${fmt(consLiq)}</div><div class="kpi-sub">Dívida total menos caixa</div></div></div>
+    <div class="divida-grid"><div class="divida-card"><div class="dc-title">Rede OK</div><div class="dc-sub">CNPJ. 23.236.392.0001-56</div><div class="dc-kpis"><div class="dc-kpi hl"><div class="dc-kpi-label">Dívida Total</div><div class="dc-kpi-val neg">${fmt(LOANS['Rede OK'].saldo_abril)}</div></div><div class="dc-kpi ok"><div class="dc-kpi-label">Caixa</div><div class="dc-kpi-val">${fmt(LOANS['Rede OK'].caixa)}</div></div></div>${pBar(LOANS['Rede OK'].saldo_abril,LOANS['Rede OK'].caixa)}${lT(LOANS['Rede OK'].loans,LOANS['Rede OK'].saldo_abril)}</div><div class="divida-card"><div class="dc-title">Delend</div><div class="dc-sub">CNPJ. 045.908.294</div><div class="dc-kpis"><div class="dc-kpi hl"><div class="dc-kpi-label">Dívida Total</div><div class="dc-kpi-val neg">${fmt(LOANS['Delend'].saldo_abril)}</div></div><div class="dc-kpi ok"><div class="dc-kpi-label">Caixa</div><div class="dc-kpi-val">${fmt(LOANS['Delend'].caixa)}</div></div></div>${pBar(LOANS['Delend'].saldo_abril,LOANS['Delend'].caixa)}${lT(LOANS['Delend'].loans,LOANS['Delend'].saldo_abril)}</div></div>
+    <div class="tc"><div class="th-row"><div class="th-title">Cronograma de Amortização Consolidado</div><div class="th-note">R$ milhares · Saldo posição Abril/26</div></div><div style="overflow-x:auto"><table class="dfc-table"><thead><tr><th><div class="i">Instituição</div></th><th><div class="i">Empresa</div></th><th><div class="i">Descrição</div></th><th><div class="i">Saldo Abr/26</div></th><th><div class="i">Amort. 2026</div></th><th><div class="i">Amort. 2027</div></th><th><div class="i">Amort. 2028</div></th></tr></thead><tbody>${[...LOANS['Rede OK'].loans.map(l=>({...l,emp:'Rede OK'})),...LOANS['Delend'].loans.map(l=>({...l,emp:'Delend'}))].map(l=>`<tr class="r-normal"><td>${l.inst}</td><td style="color:var(--ink3)">${l.emp}</td><td style="color:var(--ink3)">${l.desc}</td><td class="pos">${fmt(l.saldo)}</td><td>${fmt(l.a2026)}</td><td>${fmt(l.a2027)}</td><td>${fmt(l.a2028)}</td></tr>`).join('')}<tr class="r-bold"><td>Total Consolidado</td><td></td><td></td><td class="neg">${fmt(consTotal)}</td><td>${fmt([...LOANS['Rede OK'].loans,...LOANS['Delend'].loans].reduce((a,l)=>a+l.a2026,0))}</td><td>${fmt([...LOANS['Rede OK'].loans,...LOANS['Delend'].loans].reduce((a,l)=>a+l.a2027,0))}</td><td>${fmt([...LOANS['Rede OK'].loans,...LOANS['Delend'].loans].reduce((a,l)=>a+l.a2028,0))}</td></tr></tbody></table></div></div>`;
+}
+
+function switchTab(id,el){document.querySelectorAll('.section').forEach(s=>s.classList.remove('active'));document.querySelectorAll('.tab').forEach(t=>t.classList.remove('active'));document.getElementById('sec-'+id).classList.add('active');el.classList.add('active');}
+function showError(msg){document.getElementById('loading').style.display='none';const el=document.getElementById('error');el.style.display='block';el.innerHTML='⚠ '+msg;}
+
+Papa.parse(CSV_URL,{download:true,complete:function(results){
+  const rows=results.data;
+  if(!rows||rows.length<200){showError('Planilha retornou dados insuficientes.');return;}
+  try{
+    document.getElementById('loading').style.display='none';
+    for(const[company,cfg]of Object.entries(SECTIONS)){const data={};for(const[label,rowIdx]of Object.entries(cfg.rows))data[label]=extractRow(rows,rowIdx);buildSection(company,data);}
+    buildDivida();
+    const cData={};for(const[label,rowIdx]of Object.entries(SECTIONS['Consolidado'].rows))cData[label]=extractRow(rows,rowIdx);
+    updateFarol(cData['Saldo Final'].slice(0,12));
+    document.getElementById('sec-consolidado').classList.add('active');
+    const now=new Date();
+    document.getElementById('last-update').textContent='Atualizado às '+now.toLocaleTimeString('pt-BR',{hour:'2-digit',minute:'2-digit'});
+    document.getElementById('tr-info').textContent='Atualização: '+now.toLocaleDateString('pt-BR');
+  }catch(e){showError('Erro: '+e.message+'<br>'+e.stack);}
+},error:function(err){showError('Não foi possível buscar o CSV.<br>'+err.message);}});
+</script>
+</body>
+</html>
