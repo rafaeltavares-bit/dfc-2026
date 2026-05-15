@@ -267,7 +267,7 @@ table.dfc td.fc-cell{color:var(--ink3)!important;font-style:italic;font-size:11p
     <div class="tab active" data-id="consolidado" onclick="switchTab('consolidado',this)">Consolidado</div>
     <div class="tab" data-id="redeok" onclick="switchTab('redeok',this)">Rede OK</div>
     <div class="tab" data-id="delend" onclick="switchTab('delend',this)">Delend</div>
-    <div class="tab" data-id="number" onclick="switchTab('number',this)">Number</div>
+    <div class="tab" data-id="number" onclick="switchTab('number',this)">Régua</div>
     <div class="tab" data-id="divida" onclick="switchTab('divida',this)">Painel da Dívida</div>
   </div>
   <div class="tr-info" id="tr-info"></div>
@@ -301,7 +301,7 @@ const SECS={
   'Consolidado':{id:'consolidado',rows:{'Saldo Inicial':199,'Recebimentos':201,'Pagamentos Operacionais':203,'Geração Operacional':213,'CAPEX':216,'Aquisição de Empresas':217,'Ger. após CAPEX':219,'Desp. Não Recorrentes':221,'Ger. após Desp.n.r.':223,'Total Dívidas':225,'Saldo Final':240,'Disp. Tesouraria':241,'Bloq. Garantia':242}},
   'Rede OK':{id:'redeok',rows:{'Saldo Inicial':12,'Recebimentos':14,'Pagamentos Operacionais':16,'Geração Operacional':26,'CAPEX':28,'Aquisição de Empresas':29,'Ger. após CAPEX':31,'Desp. Não Recorrentes':33,'Ger. após Desp.n.r.':35,'Total Dívidas':37,'Saldo Final':52,'Disp. Tesouraria':53,'Bloq. Garantia':54}},
   'Delend':{id:'delend',rows:{'Saldo Inicial':74,'Recebimentos':76,'Pagamentos Operacionais':78,'Geração Operacional':88,'CAPEX':90,'Aquisição de Empresas':91,'Ger. após CAPEX':93,'Desp. Não Recorrentes':95,'Ger. após Desp.n.r.':97,'Total Dívidas':99,'Saldo Final':114,'Disp. Tesouraria':115,'Bloq. Garantia':116}},
-  'Number':{id:'number',rows:{'Saldo Inicial':135,'Recebimentos':137,'Pagamentos Operacionais':139,'Geração Operacional':149,'CAPEX':151,'Aquisição de Empresas':152,'Ger. após CAPEX':154,'Desp. Não Recorrentes':156,'Ger. após Desp.n.r.':158,'Total Dívidas':160,'Saldo Final':175,'Disp. Tesouraria':176,'Bloq. Garantia':177}}
+  'Régua':{id:'number',rows:{'Saldo Inicial':135,'Recebimentos':137,'Pagamentos Operacionais':139,'Geração Operacional':149,'CAPEX':151,'Aquisição de Empresas':152,'Ger. após CAPEX':154,'Desp. Não Recorrentes':156,'Ger. após Desp.n.r.':158,'Total Dívidas':160,'Saldo Final':175,'Disp. Tesouraria':176,'Bloq. Garantia':177}}
 };
 
 const DFC_ROWS=[
@@ -420,7 +420,7 @@ function buildDrillRows(id,isCon,coKey){
 function buildSection(company,data){
   const {id}=SECS[company];
   const isCon=company==='Consolidado';
-  const coKey=isCon?null:id==='redeok'?'ROK':id==='delend'?'DEL':id==='number'?null:'REG';
+  const coKey=isCon?null:id==='redeok'?'ROK':id==='delend'?'DEL':id==='number'?'REG':'REG';
   const dispV=(data['Disp. Tesouraria']||[]).slice(0,N);
   const sfV=(data['Saldo Final']||[]).slice(0,N);
   const negM=MM.filter((_,i)=>dispV[i]<0);
@@ -544,6 +544,37 @@ function buildCharts(id,data){
       {label:'Desp. N. Rec.',data:dNR,backgroundColor:MM.map((_,i)=>i<REAL?C_DNRR_R:C_DNRR_F),borderRadius:0,borderSkipped:false,stack:'p'},
       {label:'NET Dívidas',data:div,backgroundColor:MM.map((_,i)=>i<REAL?C_DIVD_R:C_DIVD_F),borderRadius:3,borderSkipped:false,stack:'p'},
     ]},options:o});
+    // Label plugin - millions, staggered to avoid overlap
+    const fmtM=v=>(v/1000).toFixed(1).replace('.',',')+'M';
+    const labelPlugin={
+      id:'barLabels_'+id,
+      afterDraw(chart){
+        if(chart.canvas.id!=='cm-'+id)return;
+        const{ctx,scales:{x,y}}=chart;
+        ctx.save();
+        ctx.font='bold 9px Outfit,sans-serif';
+        ctx.textAlign='center';
+        MM.forEach((_,mi)=>{
+          const recvV=recv[mi];
+          const pagV=pOp[mi]+aEmp[mi]+dNR[mi]+div[mi];
+          const xPos=x.getPixelForValue(mi);
+          // Recv label: centered above recv bar, higher position
+          if(recvV>0){
+            ctx.fillStyle=mi<REAL?'#0a7a52':'#3d8a6a';
+            ctx.fillText(fmtM(recvV),xPos,y.getPixelForValue(recvV)-14);
+          }
+          // Pag label: centered above pag stack, lower position (closer to bar)
+          if(pagV>0){
+            ctx.fillStyle=mi<REAL?'#1a4fa0':'#4a6fa5';
+            ctx.fillText(fmtM(pagV),xPos,y.getPixelForValue(pagV)-4);
+          }
+        });
+        ctx.restore();
+      }
+    };
+    Chart.register(labelPlugin);
+    CH[id+'m'].options.plugins['barLabels_'+id]={};
+    CH[id+'m'].update();
   }
   const ctx2=document.getElementById('cs-'+id);
   if(ctx2){
