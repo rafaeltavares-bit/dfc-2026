@@ -508,7 +508,7 @@ function buildSection(company,data){
         <div class="cw"><canvas id="cm-${id}"></canvas></div>
       </div>
       <div class="chart-card">
-        <div class="ch"><div class="ct">Saldo Final Mensal</div><div class="cs">R$ mil</div></div>
+        <div class="ch"><div class="ct">Disponível na Tesouraria</div><div class="cs">R$ milhões</div></div>
         <div class="cw" style="margin-top:34px"><canvas id="cs-${id}"></canvas></div>
       </div>
     </div>
@@ -595,9 +595,32 @@ function buildCharts(id,data){
   }
   const ctx2=document.getElementById('cs-'+id);
   if(ctx2){
-    const sv=m12('Saldo Final');
+    const sv=m12('Disp. Tesouraria');
     const sc=sv.map((v,i)=>v<0?C_AQUI_R:v<500?C_DNRR_R:i<REAL?C_SFIN_R:C_SFIN_F);
-    CH[id+'s']=new Chart(ctx2,{type:'bar',data:{labels:MM,datasets:[{label:'Saldo Final',data:sv,backgroundColor:sc,borderRadius:5,borderSkipped:false}]},options:{...copts(),plugins:{...copts().plugins,legend:{display:false}}}});
+    const fmtMs=v=>(v/1000).toFixed(1).replace('.',',');
+    const saldoLabelPlugin={
+      id:'saldoLabel_'+id,
+      afterDraw(chart){
+        if(chart.canvas.id!=='cs-'+id)return;
+        const{ctx,scales:{x,y}}=chart;
+        ctx.save();
+        ctx.font='bold 10px Outfit,sans-serif';
+        ctx.textAlign='center';
+        sv.forEach((v,mi)=>{
+          if(v===0)return;
+          const bar=chart.getDatasetMeta(0).data[mi];
+          if(!bar)return;
+          const yPos=v>=0?y.getPixelForValue(v)-5:y.getPixelForValue(v)+14;
+          ctx.fillStyle=v<0?C_AQUI_R:v<500?C_DNRR_R:mi<REAL?C_SFIN_R:C_SFIN_F;
+          ctx.fillText(fmtMs(v),bar.x,yPos);
+        });
+        ctx.restore();
+      }
+    };
+    Chart.register(saldoLabelPlugin);
+    const sOpts={...copts(),plugins:{...copts().plugins,legend:{display:false}}};sOpts.scales={...sOpts.scales,y:{...sOpts.scales.y,ticks:{...sOpts.scales.y.ticks,callback:v=>v===0?'0':(v/1000).toFixed(1).replace('.',',')}}};
+    sOpts.plugins['saldoLabel_'+id]={};
+    CH[id+'s']=new Chart(ctx2,{type:'bar',data:{labels:MM,datasets:[{label:'Disp. Tesouraria',data:sv,backgroundColor:sc,borderRadius:5,borderSkipped:false}]},options:sOpts});
   }
 }
 
