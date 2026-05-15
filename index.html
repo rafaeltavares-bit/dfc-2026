@@ -459,14 +459,13 @@ function buildSection(company,data){
   ];
 
   // Table
-  let thead=`<th colspan="${REAL}" class="band-real"><div class="i" style="text-align:center;color:inherit">▓ REALIZADO</div></th><th colspan="${N-REAL}" class="band-fc"><div class="i" style="text-align:center;color:inherit">░ FORECAST</div></th><th class="tcol"><div class="i"> </div></th></tr><tr><th><div class="i">Linha</div></th>;
+  let thead=`<th colspan="${REAL}" class="band-real"><div class="i" style="text-align:center;color:inherit">▓ REALIZADO</div></th><th colspan="${N-REAL}" class="band-fc"><div class="i" style="text-align:center;color:inherit">░ FORECAST</div></th><th class="tcol"><div class="i"> </div></th></tr><tr><th><div class="i">Linha</div></th>`
   if(isCon){
     thead+=`<th id="hdr25-${id}" onclick="tog25('${id}')" style="background:rgba(107,98,88,.1);cursor:pointer;white-space:nowrap;min-width:80px;border-left:2px solid rgba(107,98,88,.2)"><div class="i" style="color:#6b6258">&#9658; 2025</div></th>`;
     ['Jan','Fev','Mar','Abr','Mai','Jun','Jul','Ago','Set','Out','Nov','Dez'].forEach(m=>{
       thead+=`<th class="col2025m-${id}" style="display:none;min-width:72px;background:rgba(107,98,88,.05)"><div class="i" style="color:#6b6258">${m}/25</div></th>`;
     });
   }
-  thead+=`
   MM.forEach((_,i)=>{thead+=`<th style="background:${i<REAL?'rgba(10,94,64,.05)':'rgba(154,108,24,.03)'}"><div class="i">${MM[i]}</div></th>`;}  );
   thead+=`<th class="tcol"><div class="i">2026</div></th></tr></thead>`;
 
