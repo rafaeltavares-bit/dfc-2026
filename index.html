@@ -544,29 +544,32 @@ function buildCharts(id,data){
       {label:'Desp. N. Rec.',data:dNR,backgroundColor:MM.map((_,i)=>i<REAL?C_DNRR_R:C_DNRR_F),borderRadius:0,borderSkipped:false,stack:'p'},
       {label:'NET Dívidas',data:div,backgroundColor:MM.map((_,i)=>i<REAL?C_DIVD_R:C_DIVD_F),borderRadius:3,borderSkipped:false,stack:'p'},
     ]},options:o});
-    // Label plugin - millions, staggered to avoid overlap
+    // Label plugin - each label above its own bar
     const fmtM=v=>(v/1000).toFixed(1).replace('.',',')+'M';
     const labelPlugin={
       id:'barLabels_'+id,
       afterDraw(chart){
         if(chart.canvas.id!=='cm-'+id)return;
         const{ctx,scales:{x,y}}=chart;
+        // Get actual bar positions from chart datasets
+        const recvMeta=chart.getDatasetMeta(0); // Recebimentos dataset
+        const operMeta=chart.getDatasetMeta(1); // Operacionais (bottom of pag stack)
         ctx.save();
-        ctx.font='bold 9px Outfit,sans-serif';
+        ctx.font='bold 10px Outfit,sans-serif';
         ctx.textAlign='center';
         MM.forEach((_,mi)=>{
           const recvV=recv[mi];
           const pagV=pOp[mi]+aEmp[mi]+dNR[mi]+div[mi];
-          const xPos=x.getPixelForValue(mi);
-          // Recv label: centered above recv bar, higher position
-          if(recvV>0){
+          // Use actual bar X position from chart metadata
+          const recvBar=recvMeta.data[mi];
+          const operBar=operMeta.data[mi];
+          if(recvV>0&&recvBar){
             ctx.fillStyle=mi<REAL?'#0a7a52':'#3d8a6a';
-            ctx.fillText(fmtM(recvV),xPos,y.getPixelForValue(recvV)-14);
+            ctx.fillText(fmtM(recvV),recvBar.x,y.getPixelForValue(recvV)-5);
           }
-          // Pag label: centered above pag stack, lower position (closer to bar)
-          if(pagV>0){
+          if(pagV>0&&operBar){
             ctx.fillStyle=mi<REAL?'#1a4fa0':'#4a6fa5';
-            ctx.fillText(fmtM(pagV),xPos,y.getPixelForValue(pagV)-4);
+            ctx.fillText(fmtM(pagV),operBar.x,y.getPixelForValue(pagV)-5);
           }
         });
         ctx.restore();
