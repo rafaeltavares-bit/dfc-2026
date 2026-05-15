@@ -236,7 +236,9 @@ table.dfc td.fc-cell{color:var(--ink3)!important;font-style:italic;font-size:11p
 
 
 .col2025t{background:var(--paper);min-width:75px;cursor:pointer;border-left:2px solid var(--rule2);border-right:2px solid var(--rule2);}
-.col2025t .i,.col2025td{color:var(--ink2);font-weight:700;border-left:2px solid var(--rule2);}
+.col2025t .i,.col2025td{color:var(--ink);font-weight:700;border-left:2px solid var(--rule2);border-right:2px solid var(--rule2);}
+table.dfc td.col2025td.pos{color:var(--em)!important;}
+table.dfc td.col2025td.neg{color:var(--rd)!important;}
 .col2025m{display:none;min-width:72px;background:rgba(107,98,88,.035);}
 .col2025md{display:none;background:rgba(107,98,88,.02);}
 </style>
@@ -462,12 +464,12 @@ function buildSection(company,data){
   ];
 
   // Table
-  let thead=`<th colspan="${REAL}" class="band-real"><div class="i" style="text-align:center;color:inherit">▓ REALIZADO</div></th><th colspan="${N-REAL}" class="band-fc"><div class="i" style="text-align:center;color:inherit">░ FORECAST</div></th><th class="tcol"><div class="i"> </div></th></tr><tr><th><div class="i">Linha</div></th>`
+  let thead=`<th colspan="${REAL}" class="band-real"><div class="i" style="text-align:center;color:inherit">▓ REALIZADO</div></th><th colspan="${N-REAL}" class="band-fc"><div class="i" style="text-align:center;color:inherit">░ FORECAST</div></th><th class="tcol" style="border-left:2px solid var(--rule2);background:var(--paper)"><div class="i"> </div></th></tr><tr><th><div class="i">Linha</div></th>`
   if(isCon){
     ['Jan','Fev','Mar','Abr','Mai','Jun','Jul','Ago','Set','Out','Nov','Dez'].forEach(m=>{
       thead+=`<th class="col2025m-${id}" style="display:none;min-width:72px;background:rgba(107,98,88,.05)"><div class="i" style="color:#6b6258">${m}/25</div></th>`;
     });
-    thead+=`<th id="hdr25-${id}" onclick="tog25('${id}')" style="background:var(--paper);cursor:pointer;white-space:nowrap;min-width:80px;border-left:2px solid var(--rule2);border-right:2px solid var(--rule2)"><div class="i" style="color:var(--ink2)">&#9658; 2025</div></th>`;
+    thead+=`<th id="hdr25-${id}" onclick="tog25('${id}')" style="background:var(--paper);cursor:pointer;white-space:nowrap;min-width:80px;border-left:2px solid var(--rule2);border-right:2px solid var(--rule2)"><div class="i" style="color:var(--ink)">&#9658; 2025</div></th>`;
   }
   MM.forEach((_,i)=>{thead+=`<th style="background:${i<REAL?'rgba(10,94,64,.05)':'rgba(154,108,24,.03)'}"><div class="i">${MM[i]}/26</div></th>`;}  );
   thead+=`<th class="tcol" style="background:var(--paper);border-left:2px solid var(--rule2)"><div class="i">2026</div></th></tr></thead>`;
