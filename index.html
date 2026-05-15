@@ -675,10 +675,12 @@ function updateFarol(dispV){
 
 function tog25(id){
   const hdr=document.getElementById('hdr25-'+id);
-  const open=hdr&&hdr.querySelector('.i').innerHTML.includes('9660');
-  document.querySelectorAll('.col2025m-'+id).forEach(el=>el.style.display=open?'none':'table-cell');
-  document.querySelectorAll('.col2025md-'+id).forEach(el=>el.style.display=open?'none':'table-cell');
-  if(hdr)hdr.querySelector('.i').innerHTML=(open?'&#9658;':'&#9660;')+' 2025';
+  const cols=document.querySelectorAll('.col2025m-'+id);
+  const open=cols.length>0&&cols[0].style.display!=='none'&&cols[0].style.display!=='';
+  const show=!open;
+  cols.forEach(el=>el.style.display=show?'table-cell':'none');
+  document.querySelectorAll('.col2025md-'+id).forEach(el=>el.style.display=show?'table-cell':'none');
+  if(hdr)hdr.querySelector('.i').innerHTML=(show?'&#9660;':'&#9658;')+' 2025';
 }
 function tD1(k,el){document.querySelectorAll(`tr[data-d1="${k}"]`).forEach(r=>r.classList.toggle('vis',!el.classList.contains('open')));el.classList.toggle('open');}
 function tD2(k,el){if(el.classList.contains('open')){document.querySelectorAll(`tr[data-d3^="${k}"]`).forEach(r=>r.classList.remove('vis'));document.querySelectorAll(`tr[data-d2="${k}"].open`).forEach(r=>r.classList.remove('open'));}document.querySelectorAll(`tr[data-d2="${k}"]`).forEach(r=>r.classList.toggle('vis',!el.classList.contains('open')));el.classList.toggle('open');}
