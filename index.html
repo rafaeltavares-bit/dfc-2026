@@ -311,13 +311,14 @@ const DFC_ROWS=[
   {k:'Geração Operacional',t:'bold'},
   {k:'CAPEX',t:'normal'},
   {k:'Aquisição de Empresas',t:'normal'},
-  {k:'Ger. após CAPEX',t:'sub'},
-  {k:'Desp. Não Recorrentes',t:'normal'},
-  {k:'Ger. após Desp.n.r.',t:'sub'},
+  {k:'Ger. após CAPEX',t:'bold'},
+  {k:'Desp. Não Recorrentes',t:'normal',dnr:true},
+  {k:'Ger. após Desp.n.r.',t:'bold'},
   {k:'Total Dívidas',t:'bold'},
   {k:'Saldo Final',t:'bold',saldo:true},
 ];
 
+const DNR_DATA={"ROK": [0, 0, -40, -40, -40, -40, -40, -40, -40, -40, -40, -40], "DEL": [-60.1, -60.1, -20.1, -20.1, -20.1, -20.1, -20.1, -20.1, -20.1, -20.1, -20.1, -20.1], "REG": [0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0]};
 const LOANS={
   'Rede OK':{saldo:19016.3,caixa:4014.4,dl:15001.9,loans:[
     {i:'Banco Itaú',d:'Capital de Giro',s:5393,a26:944.6,a27:1902.8,a28:2329.4},
@@ -471,6 +472,22 @@ function buildSection(company,data){
       tbody+=drillRows;
       tbody+=`<tr class="d1-row drill-fc-note" data-d1="d1-${id}"><td colspan="${N+2}">⚠ Fornecedores disponíveis apenas para Jan–Abr (realizados). Forecast usa totais projetados da planilha DFC.</td></tr>`;
     }
+    if(r.dnr){
+      // Desp. Não Recorrentes breakdown by company
+      const dnrKey='d1dnr-'+id;
+      tbody=tbody.slice(0,-6); // remove last </tr>
+      tbody=tbody.replace(`<tr class="r-normal" onclick`,`<tr class="r-normal d1-toggle" onclick="tD1('${dnrKey}',this)" onclick`);
+      // Re-add the row with toggle - simpler approach: just add sub-rows
+      const coLabels={ROK:'Rede OK',DEL:'Delend',REG:'Régua'};
+      ['ROK','DEL','REG'].forEach(co=>{
+        const coV=DNR_DATA[co];
+        if(!coV||coV.every(v=>v===0))return;
+        const coTotal=coV.reduce((a,b)=>a+b,0);
+        tbody+=`<tr class="d1-row d2-${co.toLowerCase()}" data-d1="d1dnr-${id}"><td>${coLabels[co]}</td>`;
+        for(let i=0;i<N;i++){const v=coV[i];tbody+=`<td class="${vcls(v)}">${v!==0?fmt(v):'—'}</td>`;}
+        tbody+=`<td class="tcol ${vcls(coTotal)}">${fmt(coTotal)}</td></tr>`;
+      });
+    }
     if(saldo&&data['Disp. Tesouraria']&&data['Bloq. Garantia']){
       const disp=data['Disp. Tesouraria'],bloq=data['Bloq. Garantia'];
       tbody+=`<tr class="r-saldo-sub r-saldo-disp"><td>↳ Disponível na Tesouraria</td>`;
@@ -489,7 +506,7 @@ function buildSection(company,data){
     <div class="kpi-grid">${kpis.map(k=>`<div class="kpi ${k.c}"><div class="kpi-ac"></div><div class="kpi-row"><div class="kpi-label">${k.l}</div><span class="kpi-badge">2026</span></div><div class="kpi-value ${k.v<0?'neg':k.v>0?'pos':''}">${fmt(k.v)}</div><div class="kpi-sub">${k.s||''}</div>${k.bd?`<div class="saldo-breakdown"><div class="sb-item disp"><div class="sb-label">Disponível Tesouraria</div><div class="sb-val ${k.bd.d<0?'neg':''}">${fmt(k.bd.d)}</div></div><div class="sb-item bloq"><div class="sb-label">Bloqueado Garantia</div><div class="sb-val">${fmt(k.bd.b)}</div></div></div>`:''} </div>`).join('')}</div>
     <div class="charts-row">
       <div class="chart-card">
-        <div class="ch"><div class="ct">Recebimentos vs Pagamentos</div><div class="cs">R$ mil · empilhado por categoria</div></div>
+        <div class="ch"><div class="ct">Recebimentos vs Pagamentos</div><div class="cs">R$ milhões</div></div>
         <div class="chart-legend" id="leg-${id}"></div>
         <div class="cw"><canvas id="cm-${id}"></canvas></div>
       </div>
@@ -545,7 +562,7 @@ function buildCharts(id,data){
       {label:'NET Dívidas',data:div,backgroundColor:MM.map((_,i)=>i<REAL?C_DIVD_R:C_DIVD_F),borderRadius:3,borderSkipped:false,stack:'p'},
     ]},options:o});
     // Label plugin - each label above its own bar
-    const fmtM=v=>(v/1000).toFixed(1).replace('.',',')+'M';
+    const fmtM=v=>(v/1000).toFixed(1).replace('.',',');
     const labelPlugin={
       id:'barLabels_'+id,
       afterDraw(chart){
