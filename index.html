@@ -465,7 +465,6 @@ function buildSection(company,data){
     const isSF=k==='Saldo Final';
     tbody+=`<tr class="${rc}${drill?' d1-toggle':''}${dnr?' d1-toggle':''}"${drill?` onclick="tD1('d1-${id}',this)"`:dnr?` onclick="tD1('d1dnr-${id}',this)"`:''} ><td>${k}</td>`;
     if(isCon){const v25=DFC_2025[k]!==undefined?DFC_2025[k][12]:null;tbody+=v25!==null?'<td class="col25 '+vcls(v25,k==="Saldo Final"&&v25<0)+'" style="background:rgba(107,98,88,.06);font-weight:600;display:none">'+fmt(v25)+'</td>':'<td class="col25" style="display:none"></td>';}else{tbody+='<td class="col25" style="display:none"></td>';}
-    tbody+=`
     for(let i=0;i<N;i++){
       const v=vals[i];
       const hl=isSF&&v<0;
