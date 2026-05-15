@@ -232,6 +232,13 @@ table.dfc td.fc-cell{color:var(--ink3)!important;font-style:italic;font-size:11p
 .footer{background:var(--ink);padding:16px 48px;display:flex;justify-content:space-between;align-items:center;font-size:12px;color:rgba(255,255,255,.25);letter-spacing:.05em;font-weight:300;}
 @media(max-width:1100px){.kpi-grid{grid-template-columns:repeat(2,1fr);} .charts-row{grid-template-columns:1fr;} .divida-grid{grid-template-columns:1fr;}}
 @media(max-width:768px){.header,.main,.footer,.tabs-wrap,.farol-bar{padding-left:16px;padding-right:16px;} .kpi-grid{grid-template-columns:1fr 1fr;gap:10px;} .hr{display:none;}}
+
+.th25{background:rgba(107,98,88,.1)!important;cursor:pointer;white-space:nowrap;}
+.th25:hover{background:rgba(107,98,88,.18)!important;}
+.th25 .i{color:#6b6258;font-weight:700;}
+.td25t{background:rgba(107,98,88,.06);font-weight:700;}
+.td25m{background:rgba(107,98,88,.03);display:none;}
+.th25m{background:rgba(107,98,88,.05)!important;display:none;}
 </style>
 </head>
 <body>
@@ -385,7 +392,7 @@ function buildDrillRows(id,isCon,coKey){
     const catTot=sa(catV);
     const hasSubs=isCon?['ROK','DEL','REG'].some(k=>(val[k]||[]).length>0):(val||[]).length>0;
     rows+=`<tr class="d1-row${hasSubs?' d2-toggle':''}" data-d1="d1-${id}"${hasSubs?` onclick="tD2('${d2key}',this)"`:''}>`;
-    rows+=`<td>${cat}</td>`;
+    rows+=`<td>${cat}</td><td class='td25t'></td>`;for(let m=0;m<12;m++)rows+=`<td class='td25m td25m-${id}'></td>`;
     for(let i=0;i<REAL;i++){const v=catV[i];rows+=`<td class="${vcls(v)}" style="background:rgba(10,94,64,.025)">${v!==0?fmt(v):'—'}</td>`;}
     for(let i=REAL;i<N;i++)rows+=`<td class="fc-cell">FC</td>`;
     rows+=`<td class="tcol ${vcls(catTot)}">${fmt(catTot)}</td></tr>`;
@@ -452,7 +459,18 @@ function buildSection(company,data){
   ];
 
   // Table
-  let thead=`<thead><tr class="band-row"><th style="background:transparent"><div class="i"> </div></th><th colspan="${REAL}" class="band-real"><div class="i" style="text-align:center;color:inherit">▓ REALIZADO</div></th><th colspan="${N-REAL}" class="band-fc"><div class="i" style="text-align:center;color:inherit">░ FORECAST</div></th><th class="tcol"><div class="i"> </div></th></tr><tr><th><div class="i">Linha</div></th>
+  const show25=isCon;
+  let thead=`<thead><tr class="band-row"><th style="background:transparent"><div class="i"> </div></th>`;
+  if(show25){
+    thead+=`<th colspan="1" class="th25" id="th25hdr-${id}" onclick="exp25('${id}')" style="min-width:80px"><div class="i">▶ 2025</div></th>`;
+    for(let i=0;i<12;i++)thead+=`<th class="th25m th25m-${id}" style="min-width:75px"><div class="i">${'Jan','Fev','Mar','Abr','Mai','Jun','Jul','Ago','Set','Out','Nov','Dez'[i]}/25</div></th>`;
+  }
+  thead+=`<th colspan="${REAL}" style="background:rgba(10,94,64,.09);text-align:center"><div class="i" style="text-align:center;color:var(--em)">▓ REALIZADO</div></th><th colspan="${N-REAL}" style="background:rgba(154,108,24,.09);text-align:center"><div class="i" style="text-align:center;color:var(--am)">░ FORECAST</div></th><th style="background:var(--paper)"><div class="i"> </div></th></tr><tr><th><div class="i">Linha</div></th>`;
+  if(show25){
+    thead+=`<th class="th25" onclick="exp25('${id}')" style="min-width:80px"><div class="i">Total 25</div></th>`;
+    for(let i=0;i<12;i++)thead+=`<th class="th25m th25m-${id}" style="min-width:75px"><div class="i">${'Jan','Fev','Mar','Abr','Mai','Jun','Jul','Ago','Set','Out','Nov','Dez'[i]}</div></th>`;
+  }
+  thead+=`<th colspan="${REAL}" class="band-real"><div class="i" style="text-align:center;color:inherit">▓ REALIZADO</div></th><th colspan="${N-REAL}" class="band-fc"><div class="i" style="text-align:center;color:inherit">░ FORECAST</div></th><th class="tcol"><div class="i"> </div></th></tr><tr><th><div class="i">Linha</div></th>
 `;
   MM.forEach((_,i)=>{thead+=`<th style="background:${i<REAL?'rgba(10,94,64,.05)':'rgba(154,108,24,.03)'}"><div class="i">${MM[i]}</div></th>`;}  );
   thead+=`<th class="tcol"><div class="i">2026</div></th></tr></thead>`;
@@ -463,6 +481,14 @@ function buildSection(company,data){
     const rc=t==='bold'?'r-bold':t==='sub'?'r-sub':'r-normal';
     const isSF=k==='Saldo Final';
     tbody+=`<tr class="${rc}${drill?' d1-toggle':''}${dnr?' d1-toggle':''}"${drill?` onclick="tD1('d1-${id}',this)"`:dnr?` onclick="tD1('d1dnr-${id}',this)"`:''} ><td>${k}</td>`;
+    if(isCon){
+      const v25t=DFC_2025[k]?DFC_2025[k][12]:null;
+      tbody+='<td class="td25t '+(v25t!==null&&v25t<0?'neg':v25t>0?'pos':'')+'">'+(v25t!==null?fmt(v25t):'—')+'</td>';
+      for(let m=0;m<12;m++){
+        const vm=DFC_2025[k]?DFC_2025[k][m]:null;
+        tbody+='<td class="td25m td25m-'+id+' '+(vm!==null&&vm<0?'neg':vm>0?'pos':'')+'">'+(vm!==null&&vm!==0?fmt(vm):'—')+'</td>';
+      }
+    }
     for(let i=0;i<N;i++){
       const v=vals[i];
       const hl=isSF&&v<0;
@@ -490,9 +516,11 @@ function buildSection(company,data){
     if(saldo&&data['Disp. Tesouraria']&&data['Bloq. Garantia']){
       const disp=data['Disp. Tesouraria'],bloq=data['Bloq. Garantia'];
       tbody+=`<tr class="r-saldo-sub r-saldo-disp"><td>↳ Disponível na Tesouraria</td>`;
+      if(isCon){const d25t=DFC_2025['Disp. Tesouraria'];tbody+='<td class="td25t '+(d25t&&d25t[12]<0?'neg':'pos')+'">'+fmt(d25t?d25t[12]:0)+'</td>';for(let m=0;m<12;m++){const vm=d25t?d25t[m]:0;tbody+='<td class="td25m td25m-'+id+' '+(vm<0?'neg':'pos')+'">'+fmt(vm)+'</td>';}}
       for(let i=0;i<N;i++){const v=disp[i];tbody+=`<td class="${vcls(v,v<0)}">${fmt(v)}</td>`;}
       tbody+=`<td class="tcol ${vcls(disp[N])}">${fmt(disp[N])}</td></tr>`;
       tbody+=`<tr class="r-saldo-sub r-saldo-bloq"><td>↳ Bloqueado em Garantia</td>`;
+      if(isCon){const b25t=DFC_2025['Bloq. Garantia'];tbody+='<td class="td25t">'+fmt(b25t?b25t[12]:0)+'</td>';for(let m=0;m<12;m++){tbody+='<td class="td25m td25m-'+id+'">'+fmt(b25t?b25t[m]:0)+'</td>';}}
       for(let i=0;i<N;i++)tbody+=`<td>${fmt(bloq[i])}</td>`;
       tbody+=`<td class="tcol">${fmt(bloq[N])}</td></tr>`;
     }
@@ -524,7 +552,6 @@ function buildSection(company,data){
       </div>
       <div style="overflow-x:auto"><table class="dfc">${thead}${tbody}</table></div>
     </div>
-    ${isCon?'<div class="tc" style="margin-top:16px"><div class="th-row" style="cursor:pointer;user-select:none" onclick="var d=this.nextElementSibling;d.style.display=d.style.display===\'none\'?\'block\':\'none\';this.querySelector(\'.arr25\').textContent=d.style.display===\'none\'?\'▶\':\'▼\'"><div style="display:flex;align-items:center;gap:12px"><div class=\"th-title\" style=\"color:var(--ink3)\"><span class=\"arr25\">▶</span> Histórico 2025 — Total do Ano</div></div><div class=\"th-note\">Clique para expandir os 12 meses de 2025</div></div><div style=\"display:none;overflow-x:auto\">'+build2025Table()+'</div></div>':''}
     `;
   buildCharts(id,data);
 }
@@ -675,6 +702,16 @@ function build2025Table(){
   });
   t+='</tbody></table>';
   return t;
+}
+function exp25(id){
+  const btn=document.getElementById('th25hdr-'+id);
+  const open=btn&&btn.querySelector('.i').textContent.includes('▼');
+  document.querySelectorAll('.th25m-'+id).forEach(el=>el.style.display=open?'none':'');
+  document.querySelectorAll('.td25m-'+id).forEach(el=>el.style.display=open?'none':'');
+  if(btn)btn.querySelector('.i').textContent=(open?'▶':'▼')+' 2025';
+  document.querySelectorAll('.th25[onclick="exp25(\''+id+'\')"]').forEach(el=>{
+    el.querySelector('.i').textContent=(open?'▶':'▼')+' '+(open?'2025':'fechar');
+  });
 }
 function toggle2025(thEl){
   const show=thEl.querySelector('.i').textContent.includes('▶');
