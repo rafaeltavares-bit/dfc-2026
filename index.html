@@ -478,7 +478,7 @@ function buildSection(company,data){
     const vals=data[k];if(!vals)return;
     const rc=t==='bold'?'r-bold':t==='sub'?'r-sub':'r-normal';
     const isSF=k==='Saldo Final';
-    tbody+=`<tr class="${rc}${drill?' d1-toggle':''}${dnr?' d1-toggle':''}"${drill?` onclick="tD1('d1-${id}',this)"`:dnr?` onclick="tD1('d1dnr-${id}',this)"`:''}} ><td>${k}</td>`;
+    tbody+=`<tr class="${rc}${drill?' d1-toggle':''}${dnr?' d1-toggle':''}${divDrill?' d1-toggle':''}"${drill?` onclick="tD1('d1-${id}',this)"`:dnr?` onclick="tD1('d1dnr-${id}',this)"`:divDrill?` onclick="tD1('d1div-${id}',this)"`:''} ><td>${k}</td>`;
     if(isCon){
       for(let _m=0;_m<12;_m++){
         const _vm=DFC_2025[k]!=null?DFC_2025[k][_m]:null;
