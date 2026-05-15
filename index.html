@@ -235,8 +235,8 @@ table.dfc td.fc-cell{color:var(--ink3)!important;font-style:italic;font-size:11p
 
 
 
-.col2025t{background:rgba(107,98,88,.07);min-width:75px;cursor:pointer;}
-.col2025t .i,.col2025td{color:#6b6258;font-weight:700;}
+.col2025t{background:var(--paper);min-width:75px;cursor:pointer;border-left:2px solid var(--rule2);border-right:2px solid var(--rule2);}
+.col2025t .i,.col2025td{color:var(--ink2);font-weight:700;border-left:2px solid var(--rule2);}
 .col2025m{display:none;min-width:72px;background:rgba(107,98,88,.035);}
 .col2025md{display:none;background:rgba(107,98,88,.02);}
 </style>
@@ -316,8 +316,7 @@ const DFC_ROWS=[
   {k:'Recebimentos',t:'normal'},
   {k:'Pagamentos Operacionais',t:'normal',drill:true},
   {k:'Geração Operacional',t:'bold'},
-  {k:'CAPEX',t:'normal'},
-  {k:'Aquisição de Empresas',t:'normal'},
+  {k:'Aquisição de Empresas / Capex',t:'normal'},
   {k:'Ger. após CAPEX',t:'bold'},
   {k:'Desp. Não Recorrentes',t:'normal',dnr:true},
   {k:'Ger. após Desp.n.r.',t:'bold'},
@@ -468,10 +467,10 @@ function buildSection(company,data){
     ['Jan','Fev','Mar','Abr','Mai','Jun','Jul','Ago','Set','Out','Nov','Dez'].forEach(m=>{
       thead+=`<th class="col2025m-${id}" style="display:none;min-width:72px;background:rgba(107,98,88,.05)"><div class="i" style="color:#6b6258">${m}/25</div></th>`;
     });
-    thead+=`<th id="hdr25-${id}" onclick="tog25('${id}')" style="background:rgba(107,98,88,.1);cursor:pointer;white-space:nowrap;min-width:80px;border-right:2px solid rgba(107,98,88,.2)"><div class="i" style="color:#6b6258">&#9658; 2025</div></th>`;
+    thead+=`<th id="hdr25-${id}" onclick="tog25('${id}')" style="background:var(--paper);cursor:pointer;white-space:nowrap;min-width:80px;border-left:2px solid var(--rule2);border-right:2px solid var(--rule2)"><div class="i" style="color:var(--ink2)">&#9658; 2025</div></th>`;
   }
   MM.forEach((_,i)=>{thead+=`<th style="background:${i<REAL?'rgba(10,94,64,.05)':'rgba(154,108,24,.03)'}"><div class="i">${MM[i]}/26</div></th>`;}  );
-  thead+=`<th class="tcol"><div class="i">2026</div></th></tr></thead>`;
+  thead+=`<th class="tcol" style="background:var(--paper);border-left:2px solid var(--rule2)"><div class="i">2026</div></th></tr></thead>`;
 
   let tbody='<tbody>';
   DFC_ROWS.forEach(({k,t,drill,saldo,dnr,divDrill})=>{
@@ -796,6 +795,11 @@ function loadAll(){
   for(const[co,cfg]of Object.entries(SECS)){
         const d={};
         for(const[lbl,ri]of Object.entries(cfg.rows))d[lbl]=exR(rows,ri);
+        Object.assign(d,DR[cfg.id]||{});
+        // Merge CAPEX + Aquisição into one line
+        const capex=d['CAPEX']||Array(13).fill(0);
+        const aquis=d['Aquisição de Empresas']||Array(13).fill(0);
+        d['Aquisição de Empresas / Capex']=capex.map((v,i)=>v+aquis[i]);
         buildSection(co,d);
       }
       buildDivida();
