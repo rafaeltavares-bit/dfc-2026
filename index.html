@@ -460,7 +460,7 @@ function buildSection(company,data){
     const vals=data[k];if(!vals)return;
     const rc=t==='bold'?'r-bold':t==='sub'?'r-sub':'r-normal';
     const isSF=k==='Saldo Final';
-    tbody+=`<tr class="${rc}${drill?' d1-toggle':''}"${drill?` onclick="tD1('d1-${id}',this)"`:''}><td>${k}</td>`;
+    tbody+=`<tr class="${rc}${drill?' d1-toggle':''}${dnr?' d1-toggle':''}"${drill?` onclick="tD1('d1-${id}',this)"`:dnr?` onclick="tD1('d1dnr-${id}',this)"`:''} ><td>${k}</td>`;
     for(let i=0;i<N;i++){
       const v=vals[i];
       const hl=isSF&&v<0;
