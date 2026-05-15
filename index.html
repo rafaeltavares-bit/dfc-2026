@@ -155,9 +155,9 @@ table.dfc th.tcol .i{color:var(--ink2);font-weight:700;}
 table.dfc td{padding:8px 13px;text-align:right;border-bottom:1px solid rgba(200,191,176,.35);white-space:nowrap;color:var(--ink2);font-size:13px;}
 table.dfc td:first-child{text-align:left;color:var(--ink3);}
 table.dfc tr:last-child td{border-bottom:none;}
-table.dfc tr.r-bold td{color:var(--ink);font-weight:700;background:var(--paper);}
+table.dfc tr.r-bold{background:var(--paper);}table.dfc tr.r-bold td{color:var(--ink);font-weight:700;background:var(--paper);}
 table.dfc tr.r-bold td:first-child{color:var(--ink);}
-table.dfc tr.r-sub td{color:var(--ink2);font-weight:600;background:rgba(230,224,214,.4);font-style:italic;}
+table.dfc tr.r-sub{background:rgba(230,224,214,.4);}table.dfc tr.r-sub td{color:var(--ink2);font-weight:600;background:rgba(230,224,214,.4);font-style:italic;}
 table.dfc tr.r-sub td:first-child{color:var(--ink2);}
 table.dfc tr.r-normal:hover td{background:rgba(246,242,236,.7);}
 table.dfc td.pos{color:var(--em);font-weight:600;}
@@ -461,12 +461,12 @@ function buildSection(company,data){
   // Table
   let thead=`<th colspan="${REAL}" class="band-real"><div class="i" style="text-align:center;color:inherit">▓ REALIZADO</div></th><th colspan="${N-REAL}" class="band-fc"><div class="i" style="text-align:center;color:inherit">░ FORECAST</div></th><th class="tcol"><div class="i"> </div></th></tr><tr><th><div class="i">Linha</div></th>`
   if(isCon){
-    thead+=`<th id="hdr25-${id}" onclick="tog25('${id}')" style="background:rgba(107,98,88,.1);cursor:pointer;white-space:nowrap;min-width:80px;border-left:2px solid rgba(107,98,88,.2)"><div class="i" style="color:#6b6258">&#9658; 2025</div></th>`;
     ['Jan','Fev','Mar','Abr','Mai','Jun','Jul','Ago','Set','Out','Nov','Dez'].forEach(m=>{
       thead+=`<th class="col2025m-${id}" style="display:none;min-width:72px;background:rgba(107,98,88,.05)"><div class="i" style="color:#6b6258">${m}/25</div></th>`;
     });
+    thead+=`<th id="hdr25-${id}" onclick="tog25('${id}')" style="background:rgba(107,98,88,.1);cursor:pointer;white-space:nowrap;min-width:80px;border-right:2px solid rgba(107,98,88,.2)"><div class="i" style="color:#6b6258">&#9658; 2025</div></th>`;
   }
-  MM.forEach((_,i)=>{thead+=`<th style="background:${i<REAL?'rgba(10,94,64,.05)':'rgba(154,108,24,.03)'}"><div class="i">${MM[i]}</div></th>`;}  );
+  MM.forEach((_,i)=>{thead+=`<th style="background:${i<REAL?'rgba(10,94,64,.05)':'rgba(154,108,24,.03)'}"><div class="i">${MM[i]}/26</div></th>`;}  );
   thead+=`<th class="tcol"><div class="i">2026</div></th></tr></thead>`;
 
   let tbody='<tbody>';
@@ -476,12 +476,12 @@ function buildSection(company,data){
     const isSF=k==='Saldo Final';
     tbody+=`<tr class="${rc}${drill?' d1-toggle':''}${dnr?' d1-toggle':''}"${drill?` onclick="tD1('d1-${id}',this)"`:dnr?` onclick="tD1('d1dnr-${id}',this)"`:''}} ><td>${k}</td>`;
     if(isCon){
-      const _v25t=DFC_2025[k]!=null?DFC_2025[k][12]:null;
-      tbody+='<td class="col2025td col2025t-'+id+' '+(_v25t!=null?(_v25t<0?'neg':_v25t>0?'pos':''):'')+'">'+(_v25t!=null?fmt(_v25t):'—')+'</td>';
       for(let _m=0;_m<12;_m++){
         const _vm=DFC_2025[k]!=null?DFC_2025[k][_m]:null;
         tbody+='<td class="col2025md col2025m-'+id+' '+(_vm!=null?(_vm<0?'neg':_vm>0?'pos':''):'')+'">'+(_vm!=null&&_vm!==0?fmt(_vm):'—')+'</td>';
       }
+      const _v25t=DFC_2025[k]!=null?DFC_2025[k][12]:null;
+      tbody+='<td class="col2025td col2025t-'+id+' '+(_v25t!=null?(_v25t<0?'neg':_v25t>0?'pos':''):'')+'">'+(_v25t!=null?fmt(_v25t):'—')+'</td>';
     }
     for(let i=0;i<N;i++){
       const v=vals[i];
@@ -510,11 +510,11 @@ function buildSection(company,data){
     if(saldo&&data['Disp. Tesouraria']&&data['Bloq. Garantia']){
       const disp=data['Disp. Tesouraria'],bloq=data['Bloq. Garantia'];
       tbody+=`<tr class="r-saldo-sub r-saldo-disp"><td>↳ Disponível na Tesouraria</td>`;
-      if(isCon){const _s25=DFC_2025['Disp. Tesouraria'];tbody+='<td class="col2025td col2025t-'+id+'">'+(_s25?fmt(_s25[12]):'—')+'</td>';for(let _m=0;_m<12;_m++)tbody+='<td class="col2025md col2025m-'+id+'">'+(_s25&&_s25[_m]!==0?fmt(_s25[_m]):'—')+'</td>';}
+      if(isCon){const _s25=DFC_2025['Disp. Tesouraria'];for(let _m=0;_m<12;_m++)tbody+='<td class="col2025md col2025m-'+id+'">'+(_s25&&_s25[_m]!==0?fmt(_s25[_m]):'—')+'</td>';tbody+='<td class="col2025td col2025t-'+id+'">'+(_s25?fmt(_s25[12]):'—')+'</td>';}
       for(let i=0;i<N;i++){const v=disp[i];tbody+=`<td class="${vcls(v,v<0)}">${fmt(v)}</td>`;}
       tbody+=`<td class="tcol ${vcls(disp[N])}">${fmt(disp[N])}</td></tr>`;
       tbody+=`<tr class="r-saldo-sub r-saldo-bloq"><td>↳ Bloqueado em Garantia</td>`;
-      if(isCon){const _s25=DFC_2025['Bloq. Garantia'];tbody+='<td class="col2025td col2025t-'+id+'">'+(_s25?fmt(_s25[12]):'—')+'</td>';for(let _m=0;_m<12;_m++)tbody+='<td class="col2025md col2025m-'+id+'">'+(_s25&&_s25[_m]!==0?fmt(_s25[_m]):'—')+'</td>';}
+      if(isCon){const _s25=DFC_2025['Bloq. Garantia'];for(let _m=0;_m<12;_m++)tbody+='<td class="col2025md col2025m-'+id+'">'+(_s25&&_s25[_m]!==0?fmt(_s25[_m]):'—')+'</td>';tbody+='<td class="col2025td col2025t-'+id+'">'+(_s25?fmt(_s25[12]):'—')+'</td>';}
       for(let i=0;i<N;i++)tbody+=`<td>${fmt(bloq[i])}</td>`;
       tbody+=`<td class="tcol">${fmt(bloq[N])}</td></tr>`;
     }
