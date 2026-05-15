@@ -385,7 +385,7 @@ function buildDrillRows(id,isCon,coKey){
     const catTot=sa(catV);
     const hasSubs=isCon?['ROK','DEL','REG'].some(k=>(val[k]||[]).length>0):(val||[]).length>0;
     rows+=`<tr class="d1-row${hasSubs?' d2-toggle':''}" data-d1="d1-${id}"${hasSubs?` onclick="tD2('${d2key}',this)"`:''}>`;
-    rows+=`<td>${cat}</td><td class='col25' style='background:rgba(107,98,88,.06);display:none'></td>`;
+    rows+=`<td>${cat}</td>`;
     for(let i=0;i<REAL;i++){const v=catV[i];rows+=`<td class="${vcls(v)}" style="background:rgba(10,94,64,.025)">${v!==0?fmt(v):'—'}</td>`;}
     for(let i=REAL;i<N;i++)rows+=`<td class="fc-cell">FC</td>`;
     rows+=`<td class="tcol ${vcls(catTot)}">${fmt(catTot)}</td></tr>`;
@@ -400,7 +400,7 @@ function buildDrillRows(id,isCon,coKey){
         rows+=`<td class="tcol ${vcls(cT)}">${fmt(cT)}</td></tr>`;
         cF.forEach(({f,v:vs})=>{
           const tot=sa(vs);
-          rows+=`<tr class="d3-row ${sc}" data-d3="${d3key}"><td>${f}</td><td class='col25' style='display:none'></td>`;
+          rows+=`<tr class="d3-row ${sc}" data-d3="${d3key}"><td>${f}</td>`;
           for(let i=0;i<REAL;i++){const v=vs[i];rows+=`<td class="${vcls(v)}">${v!==0?fmt(v):'—'}</td>`;}
           for(let i=REAL;i<N;i++)rows+=`<td></td>`;
           rows+=`<td class="tcol ${vcls(tot)}">${fmt(tot)}</td></tr>`;
@@ -409,7 +409,7 @@ function buildDrillRows(id,isCon,coKey){
     }else{
       (val||[]).forEach(({f,v:vs})=>{
         const tot=sa(vs);
-        rows+=`<tr class="d2-row d2-sup" data-d2="${d2key}"><td>${f}</td><td class='col25' style='display:none'></td>`;
+        rows+=`<tr class="d2-row d2-sup" data-d2="${d2key}"><td>${f}</td>`;
         for(let i=0;i<REAL;i++){const v=vs[i];rows+=`<td class="${vcls(v)}">${v!==0?fmt(v):'—'}</td>`;}
         for(let i=REAL;i<N;i++)rows+=`<td></td>`;
         rows+=`<td class="tcol ${vcls(tot)}">${fmt(tot)}</td></tr>`;
@@ -454,7 +454,6 @@ function buildSection(company,data){
   // Table
   let thead=`<thead><tr class="band-row"><th style="background:transparent"><div class="i"> </div></th><th colspan="${REAL}" class="band-real"><div class="i" style="text-align:center;color:inherit">▓ REALIZADO</div></th><th colspan="${N-REAL}" class="band-fc"><div class="i" style="text-align:center;color:inherit">░ FORECAST</div></th><th class="tcol"><div class="i"> </div></th></tr><tr><th><div class="i">Linha</div></th>
 `;
-  if(isCon)thead+='<th class="col25 col25-toggle" onclick="toggle2025(this)" style="cursor:pointer;white-space:nowrap;min-width:70px;background:rgba(107,98,88,.08)"><div class=\"i\" style=\"color:#6b6258\">▶ 2025</div></th>';
   MM.forEach((_,i)=>{thead+=`<th style="background:${i<REAL?'rgba(10,94,64,.05)':'rgba(154,108,24,.03)'}"><div class="i">${MM[i]}</div></th>`;}  );
   thead+=`<th class="tcol"><div class="i">2026</div></th></tr></thead>`;
 
@@ -464,7 +463,6 @@ function buildSection(company,data){
     const rc=t==='bold'?'r-bold':t==='sub'?'r-sub':'r-normal';
     const isSF=k==='Saldo Final';
     tbody+=`<tr class="${rc}${drill?' d1-toggle':''}${dnr?' d1-toggle':''}"${drill?` onclick="tD1('d1-${id}',this)"`:dnr?` onclick="tD1('d1dnr-${id}',this)"`:''} ><td>${k}</td>`;
-    if(isCon){const v25=DFC_2025[k]!==undefined?DFC_2025[k][12]:null;tbody+=v25!==null?'<td class="col25 '+vcls(v25,k==="Saldo Final"&&v25<0)+'" style="background:rgba(107,98,88,.06);font-weight:600;display:none">'+fmt(v25)+'</td>':'<td class="col25" style="display:none"></td>';}else{tbody+='<td class="col25" style="display:none"></td>';}
     for(let i=0;i<N;i++){
       const v=vals[i];
       const hl=isSF&&v<0;
@@ -484,17 +482,17 @@ function buildSection(company,data){
         const coV=DNR_DATA[co];
         if(!coV||coV.every(v=>v===0))return;
         const coTotal=coV.reduce((a,b)=>a+b,0);
-        tbody+=`<tr class="d1-row d2-${co.toLowerCase()}" data-d1="${dnrKey}"><td>${coLabels[co]}</td><td class='col25' style='display:none'></td>`;
+        tbody+=`<tr class="d1-row d2-${co.toLowerCase()}" data-d1="${dnrKey}"><td>${coLabels[co]}</td>`;
         for(let i=0;i<N;i++){const v=coV[i];tbody+=`<td class="${vcls(v)}">${v!==0?fmt(v):'—'}</td>`;}
         tbody+=`<td class="tcol ${vcls(coTotal)}">${fmt(coTotal)}</td></tr>`;
       });
     }
     if(saldo&&data['Disp. Tesouraria']&&data['Bloq. Garantia']){
       const disp=data['Disp. Tesouraria'],bloq=data['Bloq. Garantia'];
-      tbody+=`<tr class="r-saldo-sub r-saldo-disp"><td>↳ Disponível na Tesouraria</td><td class='col25' style='background:rgba(107,98,88,.06);display:none'>${DFC_2025['Disp. Tesouraria']?fmt(DFC_2025['Disp. Tesouraria'][12]):'—'}</td>`;
+      tbody+=`<tr class="r-saldo-sub r-saldo-disp"><td>↳ Disponível na Tesouraria</td>`;
       for(let i=0;i<N;i++){const v=disp[i];tbody+=`<td class="${vcls(v,v<0)}">${fmt(v)}</td>`;}
       tbody+=`<td class="tcol ${vcls(disp[N])}">${fmt(disp[N])}</td></tr>`;
-      tbody+=`<tr class="r-saldo-sub r-saldo-bloq"><td>↳ Bloqueado em Garantia</td><td class='col25' style='background:rgba(107,98,88,.06);display:none'>${DFC_2025['Bloq. Garantia']?fmt(DFC_2025['Bloq. Garantia'][12]):'—'}</td>`;
+      tbody+=`<tr class="r-saldo-sub r-saldo-bloq"><td>↳ Bloqueado em Garantia</td>`;
       for(let i=0;i<N;i++)tbody+=`<td>${fmt(bloq[i])}</td>`;
       tbody+=`<td class="tcol">${fmt(bloq[N])}</td></tr>`;
     }
@@ -525,7 +523,9 @@ function buildSection(company,data){
         <div class="th-note">▶ Pagamentos → Categorias →${isCon?' Empresa →':''} Fornecedores (Jan–Abr realizados, conciliado)</div>
       </div>
       <div style="overflow-x:auto"><table class="dfc">${thead}${tbody}</table></div>
-    </div>`;
+    </div>
+    ${isCon?'<div class="tc" style="margin-top:16px"><div class="th-row" style="cursor:pointer;user-select:none" onclick="var d=this.nextElementSibling;d.style.display=d.style.display===\'none\'?\'block\':\'none\';this.querySelector(\'.arr25\').textContent=d.style.display===\'none\'?\'▶\':\'▼\'"><div style="display:flex;align-items:center;gap:12px"><div class=\"th-title\" style=\"color:var(--ink3)\"><span class=\"arr25\">▶</span> Histórico 2025 — Total do Ano</div></div><div class=\"th-note\">Clique para expandir os 12 meses de 2025</div></div><div style=\"display:none;overflow-x:auto\">'+build2025Table()+'</div></div>':''}
+    `;
   buildCharts(id,data);
 }
 
@@ -652,10 +652,34 @@ function updateFarol(dispV){
   }
 }
 
+function build2025Table(){
+  const MM25=["Jan", "Fev", "Mar", "Abr", "Mai", "Jun", "Jul", "Ago", "Set", "Out", "Nov", "Dez"];
+  const D25={"Saldo Inicial":[6612.88,5466.97,4589.06,5896.31,7460.75,6931.65,6188.51,7330.12,7845.95,5756.48,6273.06,6806.42,6612.88],"Recebimentos":[4266.28,4743.71,4732.5,4892.89,4909.29,4918.07,4653.74,4992.02,4768.35,4892.75,4719.85,5327.53,57817.0],"Pagamentos Operacionais":[-5043.69,-4678.02,-4778.42,-4935.57,-4535.58,-4589.41,-5122.68,-3414.95,-5798.85,-4453.04,-3188.73,-5281.46,-55820.4],"Geração Operacional":[-777.4,65.69,-45.92,-42.68,373.71,328.66,-468.94,1577.07,-1030.49,439.72,1531.12,46.07,1996.6],"CAPEX":[0.0,0.0,-0.16,-1.0,-1.0,-9.8,-1.0,-1.0,0.0,0.0,0.0,0.0,-13.96],"Aquisição de Empresas":[-252.17,-324.04,-101.34,-76.34,-101.34,-79.87,-101.34,-101.34,-101.34,-101.34,-101.34,-101.34,-1543.11],"Ger. após CAPEX":[-1029.57,-258.34,-147.42,-120.02,271.37,238.99,-571.28,1474.73,-1131.83,338.38,1429.79,-55.27,439.53],"Desp. Não Recorrentes":[-115.0,-98.51,-80.0,-80.0,-80.0,-80.0,-80.0,-80.0,-80.0,-80.0,-60.06,-40.0,-953.57],"Ger. após Desp.n.r.":[-1144.57,-356.85,-227.42,-200.02,191.37,158.99,-651.28,1394.73,-1211.83,258.38,1369.72,-95.27,-514.04],"Total Dívidas":[-856.34,-891.06,-833.53,-901.15,-912.76,-902.14,-1207.11,-878.9,-984.54,98.04,-861.37,-763.51,-9894.37],"Saldo Final":[5466.97,4589.06,5896.31,7460.75,6931.65,6188.51,7330.12,7845.95,5756.48,6273.06,6806.42,5947.64,5947.64],"Disp. Tesouraria":[4169.48,3232.11,4600.01,6162.55,5610.71,4919.68,6121.5,6630.81,4556.03,5170.73,5554.01,4821.49,4821.49],"Bloq. Garantia":[1297.49,1356.95,1296.3,1298.2,1320.94,1268.83,1208.62,1215.14,1200.45,1102.33,1252.41,1126.15,1126.15]};
+  const rows=[
+    {k:'Saldo Inicial',t:'bold'},{k:'Recebimentos',t:'normal'},{k:'Pagamentos Operacionais',t:'normal'},
+    {k:'Geração Operacional',t:'bold'},{k:'CAPEX',t:'normal'},{k:'Aquisição de Empresas',t:'normal'},
+    {k:'Ger. após CAPEX',t:'bold'},{k:'Desp. Não Recorrentes',t:'normal'},{k:'Ger. após Desp.n.r.',t:'bold'},
+    {k:'Total Dívidas',t:'bold'},{k:'Saldo Final',t:'bold'},
+    {k:'Disp. Tesouraria',t:'saldo'},{k:'Bloq. Garantia',t:'saldo'}
+  ];
+  let t='<table class="dfc"><thead><tr><th><div class="i">Linha</div></th>';
+  MM25.forEach(m=>t+=`<th style="background:rgba(107,98,88,.04)"><div class="i">${m}/25</div></th>`);
+  t+='<th class="tcol"><div class="i">2025</div></th></tr></thead><tbody>';
+  rows.forEach(({k,t:type})=>{
+    const vals=D25[k];if(!vals)return;
+    const rc=type==='bold'?'r-bold':type==='saldo'?'r-saldo-sub':'r-normal';
+    const isSF=k==='Saldo Final';
+    t+=`<tr class="${rc}"><td>${k==='Disp. Tesouraria'?'↳ Disponível na Tesouraria':k==='Bloq. Garantia'?'↳ Bloqueado em Garantia':k}</td>`;
+    for(let i=0;i<12;i++){const v=vals[i];t+=`<td class="${v<0?'neg':v>0?'pos':''}">${v!==0?fmt(v):'—'}</td>`;}
+    t+=`<td class="tcol ${vals[12]<0?'neg':vals[12]>0?'pos':''}">${fmt(vals[12])}</td></tr>`;
+  });
+  t+='</tbody></table>';
+  return t;
+}
 function toggle2025(thEl){
   const show=thEl.querySelector('.i').textContent.includes('▶');
   thEl.querySelector('.i').textContent=(show?'▼ ':'▶ ')+'2025';
-  document.querySelectorAll('.col25').forEach(el=>{
+  document.querySelectorAll('.').forEach(el=>{
     el.style.display=show?'':'none';
   });
 }
