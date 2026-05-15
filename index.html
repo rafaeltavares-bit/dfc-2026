@@ -456,7 +456,7 @@ function buildSection(company,data){
   thead+=`<th class="tcol"><div class="i">2026</div></th></tr></thead>`;
 
   let tbody='<tbody>';
-  DFC_ROWS.forEach(({k,t,drill,saldo})=>{
+  DFC_ROWS.forEach(({k,t,drill,saldo,dnr})=>{
     const vals=data[k];if(!vals)return;
     const rc=t==='bold'?'r-bold':t==='sub'?'r-sub':'r-normal';
     const isSF=k==='Saldo Final';
@@ -472,18 +472,15 @@ function buildSection(company,data){
       tbody+=drillRows;
       tbody+=`<tr class="d1-row drill-fc-note" data-d1="d1-${id}"><td colspan="${N+2}">⚠ Fornecedores disponíveis apenas para Jan–Abr (realizados). Forecast usa totais projetados da planilha DFC.</td></tr>`;
     }
-    if(r.dnr){
-      // Desp. Não Recorrentes breakdown by company
+    if(dnr){
+      // Desp. Não Recorrentes breakdown by company (simple sub-rows)
       const dnrKey='d1dnr-'+id;
-      tbody=tbody.slice(0,-6); // remove last </tr>
-      tbody=tbody.replace(`<tr class="r-normal" onclick`,`<tr class="r-normal d1-toggle" onclick="tD1('${dnrKey}',this)" onclick`);
-      // Re-add the row with toggle - simpler approach: just add sub-rows
       const coLabels={ROK:'Rede OK',DEL:'Delend',REG:'Régua'};
       ['ROK','DEL','REG'].forEach(co=>{
         const coV=DNR_DATA[co];
         if(!coV||coV.every(v=>v===0))return;
         const coTotal=coV.reduce((a,b)=>a+b,0);
-        tbody+=`<tr class="d1-row d2-${co.toLowerCase()}" data-d1="d1dnr-${id}"><td>${coLabels[co]}</td>`;
+        tbody+=`<tr class="d1-row d2-${co.toLowerCase()}" data-d1="${dnrKey}"><td>${coLabels[co]}</td>`;
         for(let i=0;i<N;i++){const v=coV[i];tbody+=`<td class="${vcls(v)}">${v!==0?fmt(v):'—'}</td>`;}
         tbody+=`<td class="tcol ${vcls(coTotal)}">${fmt(coTotal)}</td></tr>`;
       });
