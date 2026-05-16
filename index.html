@@ -639,7 +639,7 @@ function buildSection(company,data){
   }
   thead+=`<th style="background:var(--paper);border-left:2px solid var(--rule2)"></th></tr>`; // 2026
   // Linha 2: cabeçalhos das colunas
-  thead+=`<tr><th><div class="i">Linha</div></th>`
+  thead+=`<tr><th><div class="i">Linha</div></th>`;
   ['Jan','Fev','Mar','Abr','Mai','Jun','Jul','Ago','Set','Out','Nov','Dez'].forEach(m=>{
     thead+=`<th class="col2025m-${id}" style="display:none;min-width:72px;background:rgba(107,98,88,.05)"><div class="i" style="color:#6b6258">${m}/25</div></th>`;
   });
