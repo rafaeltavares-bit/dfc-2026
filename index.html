@@ -865,16 +865,19 @@ function parseBRNumber(s){
 }
 
 function parseMonth(dateStr){
-  if(!dateStr)return -1;
+  // Retorna {mes, ano} ou null se inválido
+  if(!dateStr)return null;
   const s=String(dateStr).trim();
-  // Aceita 7/1/2025, 07/01/2025, 2025-01-07, 1/7/2025...
-  // Heurística: se tem 4 dígitos no início → ISO (ano-mês-dia)
+  // ISO: 2026-01-07
   let m=s.match(/^(\d{4})[-\/](\d{1,2})[-\/](\d{1,2})/);
-  if(m)return parseInt(m[2],10)-1;
-  // Senão assumimos dd/mm/yyyy ou d/m/yyyy (formato BR)
+  if(m)return {mes:parseInt(m[2],10)-1,ano:parseInt(m[1],10)};
+  // Americano: m/d/yyyy (formato que o Google Sheets exporta por padrão)
   m=s.match(/^(\d{1,2})[-\/](\d{1,2})[-\/](\d{2,4})/);
-  if(m)return parseInt(m[2],10)-1;
-  return -1;
+  if(m){
+    let ano=parseInt(m[3],10);if(ano<100)ano+=2000;
+    return {mes:parseInt(m[1],10)-1,ano};
+  }
+  return null;
 }
 
 function buildDrillFromCSV(rows,empKey){
@@ -919,25 +922,28 @@ function buildDrillFromCSV(rows,empKey){
     return {};
   }
   const acc={};
-  let totalLinhas=0,linhasValidas=0,linhasForaFluxo=0,linhasForaMes=0;
+  let totalLinhas=0,linhasValidas=0,linhasForaFluxo=0,linhasForaAno=0,linhasForaMes=0,linhasDataInvalida=0;
+  const ANO_PAINEL=2026;
   for(let r=headerRow+1;r<rows.length;r++){
     const row=rows[r];if(!row||!row.length)continue;
     totalLinhas++;
     const fluxo=String(row[iFluxo]||'').trim();
     if(!fluxo)continue;
     if(!DFC_FLUXOS.includes(fluxo)){linhasForaFluxo++;continue;}
-    const mes=parseMonth(row[iData]);
-    if(mes<0||mes>=REAL){linhasForaMes++;continue;}
+    const dt=parseMonth(row[iData]);
+    if(!dt){linhasDataInvalida++;continue;}
+    if(dt.ano!==ANO_PAINEL){linhasForaAno++;continue;}
+    if(dt.mes<0||dt.mes>=REAL){linhasForaMes++;continue;}
     const forn=String(row[iForn]||'').trim();
     if(!forn)continue;
     const valor=parseBRNumber(row[iValor])/1000;
     if(valor===0)continue;
     if(!acc[fluxo])acc[fluxo]={};
     if(!acc[fluxo][forn])acc[fluxo][forn]=[0,0,0,0];
-    acc[fluxo][forn][mes]+=valor;
+    acc[fluxo][forn][dt.mes]+=valor;
     linhasValidas++;
   }
-  console.log('['+empKey+'] Estatísticas:',{totalLinhas,linhasValidas,linhasForaFluxo,linhasForaMes});
+  console.log('['+empKey+'] Estatísticas:',{totalLinhas,linhasValidas,linhasForaFluxo,linhasForaAno,linhasForaMes,linhasDataInvalida});
   const out={};
   Object.entries(acc).forEach(([cat,forns])=>{
     out[cat]=Object.entries(forns).map(([f,v])=>({f,v:v.map(x=>Math.round(x*100)/100)}))
