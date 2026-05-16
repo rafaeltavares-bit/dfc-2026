@@ -737,51 +737,89 @@ function buildSection(company,data){
     if(divDrill){
       // Total Dívidas drill - funciona em Consolidado E abas individuais
       const ddKey='d1div-'+id;
-      const MESES_N=MM;
       const divSubs=[
-        {k:'Captação de dívidas',    row:'captDFC', drillBancos:'captacao', color:'pos'},
-        {k:'Pagamento de Empréstimos',row:'pagDFC',  drillBancos:'pagamento', color:'neg'},
-        {k:'Parcelamentos Tributários',row:'parlDFC', color:'neg'},
-        {k:'Despesas Bancárias',      row:'despDFC', color:'neg'},
+        {k:'Captação de dívidas',    row:'captDFC', drillBancos:'captacao'},
+        {k:'Pagamento de Empréstimos',row:'pagDFC',  drillBancos:'pagamento'},
+        {k:'Parcelamentos Tributários',row:'parlDFC'},
+        {k:'Despesas Bancárias',      row:'despDFC'},
       ];
-      // Determina quais LOANS_DRILL combinar:
-      // - Consolidado: ROK + DEL
-      // - Rede OK: só ROK
-      // - Delend: só DEL
-      // - Régua: nada
-      const empresasLoans=isCon?['ROK','DEL']:(coKey==='ROK'?['ROK']:(coKey==='DEL'?['DEL']:[]));
+      // Mapa de empresas LOANS_DRILL por id da empresa
+      const empMapaLoans={consolidado:['ROK','DEL'],redeok:['ROK'],delend:['DEL'],number:[]};
+      const empresasLoans=empMapaLoans[id]||[];
+      const empLabels={ROK:'Rede OK',DEL:'Delend',REG:'Régua'};
+      const empSc={ROK:'d2-rok',DEL:'d2-del',REG:'d2-reg'};
+
+      // === Valores 2025 (lendo DFC_2025_BY_CO direto) ===
+      const get25=(rowKey)=>{
+        const dr=DFC_2025_BY_CO[id];
+        return (dr&&dr['_div_'+rowKey])||Array(13).fill(0);
+      };
+
       divSubs.forEach(sub=>{
         const subVals=data['_div_'+sub.row]||Array(13).fill(0);
         const subTotal=subVals[12];
-        // Combina bancos das empresas (soma quando mesmo nome aparece em mais de uma)
-        const bancosCombinados={};
-        if(sub.drillBancos){
-          empresasLoans.forEach(eL=>{
-            const bk=LOANS_DRILL[eL]&&LOANS_DRILL[eL][sub.drillBancos]&&LOANS_DRILL[eL][sub.drillBancos].bancos||{};
-            Object.entries(bk).forEach(([banco,vals])=>{
-              if(!bancosCombinados[banco])bancosCombinados[banco]=Array(12).fill(0);
-              vals.forEach((v,i)=>{bancosCombinados[banco][i]+=v;});
-            });
-          });
-        }
-        const hasBancos=!!sub.drillBancos&&Object.keys(bancosCombinados).length>0;
+        const sub25=get25(sub.row);
+        const subTotal25=sub25[12];
+        // Empresas com banco neste sub (filtra quem realmente tem dados)
+        const empresasComDados=empresasLoans.filter(eL=>{
+          if(!sub.drillBancos)return false;
+          const bk=LOANS_DRILL[eL]&&LOANS_DRILL[eL][sub.drillBancos]&&LOANS_DRILL[eL][sub.drillBancos].bancos||{};
+          return Object.keys(bk).length>0&&Object.values(bk).some(arr=>arr.some(v=>v!==0));
+        });
+        const hasDrillD2=empresasComDados.length>0;
         const subKey='d2div-'+id+'-'+sub.row;
-        tbody+=`<tr class="d1-row${hasBancos?' d2-toggle':''}" data-d1="${ddKey}"${hasBancos?` onclick="tD2('${subKey}',this)"`:''}>`;
+        // Linha pai (nível 1)
+        tbody+=`<tr class="d1-row${hasDrillD2?' d2-toggle':''}" data-d1="${ddKey}"${hasDrillD2?` onclick="tD2('${subKey}',this)"`:''}>`;
         tbody+=`<td>${sub.k}</td>`;
-        for(let _m=0;_m<12;_m++)tbody+='<td class="col2025md col2025m-'+id+'"></td>';
-        tbody+='<td class="col2025td col2025t-'+id+'"></td>';
+        // 2025: lê do DFC direto
+        for(let _m=0;_m<12;_m++){const v=sub25[_m]||0;tbody+='<td class="col2025md col2025m-'+id+' '+vcls(v)+'">'+(v!==0?fmt(v):'—')+'</td>';}
+        tbody+='<td class="col2025td col2025t-'+id+' '+vcls(subTotal25)+'">'+(subTotal25?fmt(subTotal25):'—')+'</td>';
+        // 2026
         for(let i=0;i<N;i++){const v=subVals[i];tbody+=`<td class="${vcls(v)}${i===REAL?' boundary-fc':''}" style="background:rgba(22,61,120,.025)">${v!==0?fmt(v):'—'}</td>`;}
         tbody+=`<td class="tcol ${vcls(subTotal)}">${fmt(subTotal)}</td></tr>`;
-        if(hasBancos){
-          Object.entries(bancosCombinados).forEach(([banco,vals])=>{
-            if(!vals.some(v=>v!==0))return;
-            const bTotal=vals.reduce((a,b)=>a+b,0);
-            tbody+=`<tr class="d2-row d2-rok" data-d2="${subKey}"><td>${banco}</td>`;
-            for(let _m=0;_m<12;_m++)tbody+='<td class="col2025md col2025m-'+id+'"></td>';
-            tbody+='<td class="col2025td col2025t-'+id+'"></td>';
-            for(let i=0;i<N;i++){const v=vals[i]||0;tbody+=`<td class="${vcls(v)}${i===REAL?' boundary-fc':''}">${v!==0?fmt(v):'—'}</td>`;}
-            tbody+=`<td class="tcol ${vcls(bTotal)}">${fmt(bTotal)}</td></tr>`;
-          });
+
+        // === Drill nível 2: por empresa (só no Consolidado) ou direto bancos (individuais) ===
+        if(hasDrillD2){
+          if(isCon){
+            // Consolidado: mostra ROK e DEL como nível 2, cada um expande para bancos (nível 3)
+            empresasComDados.forEach(eL=>{
+              const bk=LOANS_DRILL[eL][sub.drillBancos].bancos;
+              // Soma da empresa = soma de todos os bancos dela
+              const totEmp=Array(12).fill(0);
+              Object.values(bk).forEach(arr=>{arr.forEach((v,i)=>{totEmp[i]+=v;});});
+              if(!totEmp.some(v=>v!==0))return;
+              const empTotal=totEmp.reduce((a,b)=>a+b,0);
+              const d3key=`d3div-${id}-${sub.row}-${eL}`;
+              tbody+=`<tr class="d2-row d2-toggle ${empSc[eL]}" data-d2="${subKey}" onclick="tD3('${d3key}',this)"><td>${empLabels[eL]}</td>`;
+              for(let _m=0;_m<12;_m++)tbody+='<td class="col2025md col2025m-'+id+'"></td>';
+              tbody+='<td class="col2025td col2025t-'+id+'"></td>';
+              for(let i=0;i<N;i++){const v=totEmp[i];tbody+=`<td class="${vcls(v)}${i===REAL?' boundary-fc':''}">${v!==0?fmt(v):'—'}</td>`;}
+              tbody+=`<td class="tcol ${vcls(empTotal)}">${fmt(empTotal)}</td></tr>`;
+              // Bancos da empresa (nível 3)
+              Object.entries(bk).forEach(([banco,vals])=>{
+                if(!vals.some(v=>v!==0))return;
+                const bTotal=vals.reduce((a,b)=>a+b,0);
+                tbody+=`<tr class="d3-row ${empSc[eL].replace('d2-','d3-')}" data-d3="${d3key}"><td>${banco}</td>`;
+                for(let _m=0;_m<12;_m++)tbody+='<td class="col2025md col2025m-'+id+'"></td>';
+                tbody+='<td class="col2025td col2025t-'+id+'"></td>';
+                for(let i=0;i<N;i++){const v=vals[i]||0;tbody+=`<td class="${vcls(v)}${i===REAL?' boundary-fc':''}">${v!==0?fmt(v):'—'}</td>`;}
+                tbody+=`<td class="tcol ${vcls(bTotal)}">${fmt(bTotal)}</td></tr>`;
+              });
+            });
+          }else{
+            // Individuais: direto bancos da empresa
+            const eL=empresasLoans[0];
+            const bk=LOANS_DRILL[eL][sub.drillBancos].bancos;
+            Object.entries(bk).forEach(([banco,vals])=>{
+              if(!vals.some(v=>v!==0))return;
+              const bTotal=vals.reduce((a,b)=>a+b,0);
+              tbody+=`<tr class="d2-row ${empSc[eL]}" data-d2="${subKey}"><td>${banco}</td>`;
+              for(let _m=0;_m<12;_m++)tbody+='<td class="col2025md col2025m-'+id+'"></td>';
+              tbody+='<td class="col2025td col2025t-'+id+'"></td>';
+              for(let i=0;i<N;i++){const v=vals[i]||0;tbody+=`<td class="${vcls(v)}${i===REAL?' boundary-fc':''}">${v!==0?fmt(v):'—'}</td>`;}
+              tbody+=`<td class="tcol ${vcls(bTotal)}">${fmt(bTotal)}</td></tr>`;
+            });
+          }
         }
       });
     }
@@ -1406,6 +1444,14 @@ function loadAll(){
       DR[id]['_div_'+key+'DFC']=exR(rows,ri);
     });
   });
+  // Lê dívida 2025 (mesma estrutura, colunas R-AD)
+  const DR_25={};
+  Object.entries(debtRowMap).forEach(([id,map])=>{
+    DR_25[id]={};
+    Object.entries(map).forEach(([key,ri])=>{
+      DR_25[id]['_div_'+key+'DFC']=exR25(rows,ri);
+    });
+  });
   for(const[co,cfg]of Object.entries(SECS)){
         const d={};
         const d25={};
@@ -1457,6 +1503,8 @@ function loadAll(){
         conciliarSaldoFinal(d25,'25');
         // Armazena 2025 por empresa para uso na renderização
         DFC_2025_BY_CO[cfg.id]=d25;
+        // Adiciona dados de dívida 2025 ao d25 (para drill)
+        Object.assign(d25,DR_25[cfg.id]||{});
         // Armazena 2026 por empresa (antes das sobrescritas) para conciliação
         DFC_2026_BY_CO[cfg.id]={...d};
         // Conserva valor da planilha em "Pagamentos Operacionais" (não sobrescreve).
