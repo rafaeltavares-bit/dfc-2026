@@ -264,8 +264,8 @@ table.dfc th.boundary-fc,table.dfc td.boundary-fc{border-left:2px solid #a89e8b!
   </div>
   <div class="hr">
     <button class="btn-refresh" onclick="refreshAll()" id="btn-r"><span class="ri">↻</span> Atualizar</button>
-    <span class="bp bp-r">Jan–Abr Real</span>
-    <span class="bp bp-f">Mai–Dez Forecast</span>
+    <span class="bp bp-r" id="bp-real-label">Jan–Abr Real</span>
+    <span class="bp bp-f" id="bp-fc-label">Mai–Dez Forecast</span>
     <div class="live">
       <div class="lr"><div class="ld"></div><span class="ll">Dados ao vivo · Google Sheets</span></div>
       <div class="lt" id="last-upd">Carregando...</div>
@@ -303,7 +303,7 @@ table.dfc th.boundary-fc,table.dfc td.boundary-fc{border-left:2px solid #a89e8b!
 
 <div class="footer">
   <span>Rede OK Serviços de Tecnologia e Crédito LTDA · DFC 2026</span>
-  <span>Jan–Abr/26 Realizado · Mai–Dez/26 Forecast · R$ milhares</span>
+  <span id="subt-real-fc">Jan–Abr/26 Realizado · Mai–Dez/26 Forecast · R$ milhares</span>
 </div>
 
 <script>
@@ -311,7 +311,9 @@ const CSV_DFC='https://docs.google.com/spreadsheets/d/e/2PACX-1vT8sq6GUhsoMtUzJ2
 const CSV_PAG_ROK='https://docs.google.com/spreadsheets/d/e/2PACX-1vT8sq6GUhsoMtUzJ2KUh5Ra9UPaJFJENko4XJhyaJs6XEceOH_olouKMRsjFdQE_A/pub?gid=159115910&single=true&output=csv';
 const CSV_PAG_DEL='https://docs.google.com/spreadsheets/d/e/2PACX-1vT8sq6GUhsoMtUzJ2KUh5Ra9UPaJFJENko4XJhyaJs6XEceOH_olouKMRsjFdQE_A/pub?gid=115038308&single=true&output=csv';
 const CSV_PAG_REG='https://docs.google.com/spreadsheets/d/e/2PACX-1vT8sq6GUhsoMtUzJ2KUh5Ra9UPaJFJENko4XJhyaJs6XEceOH_olouKMRsjFdQE_A/pub?gid=440029315&single=true&output=csv';
-const COL_JAN=31,N=12,COL_TOT=43,REAL=4;
+const CSV_CONFIG='https://docs.google.com/spreadsheets/d/e/2PACX-1vT8sq6GUhsoMtUzJ2KUh5Ra9UPaJFJENko4XJhyaJs6XEceOH_olouKMRsjFdQE_A/pub?gid=454596146&single=true&output=csv';
+const COL_JAN=31,N=12,COL_TOT=43;
+let REAL=4; // será atualizado pela aba Config (chave MES_REAL)
 const MM=['Jan','Fev','Mar','Abr','Mai','Jun','Jul','Ago','Set','Out','Nov','Dez'];
 const CH={};
 
@@ -951,7 +953,7 @@ function buildDrillFromCSV(rows,empKey){
     const valor=parseBRNumber(row[iValor])/1000;
     if(valor===0)continue;
     if(!acc[fluxo])acc[fluxo]={};
-    if(!acc[fluxo][forn])acc[fluxo][forn]=[0,0,0,0];
+    if(!acc[fluxo][forn])acc[fluxo][forn]=Array(N).fill(0);
     acc[fluxo][forn][dt.mes]+=valor;
     linhasValidas++;
   }
@@ -983,7 +985,7 @@ function buildDrillFromCSV(rows,empKey){
     const principais=lista.slice(idx).sort((a,b)=>a.total-b.total); // ordena principais mais negativo primeiro
     const resultado=principais.map(({f,v})=>({f,v}));
     if(outros.length>1){
-      const soma=[0,0,0,0];
+      const soma=Array(N).fill(0);
       outros.forEach(it=>it.v.forEach((v,i)=>soma[i]+=v));
       resultado.push({f:`Outros (${outros.length} fornecedores)`,v:soma.map(x=>Math.round(x*100)/100)});
     }else if(outros.length===1){
@@ -1002,6 +1004,42 @@ function loadPaymentsCSV(url,empKey){
       catch(e){console.error('Erro parse '+empKey,e);resolve(null);}
     },error:e=>{console.error('Erro fetch '+empKey,e);resolve(null);}});
   });
+}
+
+function loadConfig(){
+  return new Promise(resolve=>{
+    Papa.parse(CSV_CONFIG,{download:true,complete:res=>{
+      try{
+        const rows=res.data||[];
+        for(let r=0;r<rows.length;r++){
+          const k=String(rows[r][0]||'').trim().toLowerCase();
+          if(k==='mes_real'||k==='mês_real'||k==='mesreal'){
+            const v=parseInt(String(rows[r][1]||'').trim(),10);
+            if(v>=1&&v<=12){
+              REAL=v;
+              console.log('Config: MES_REAL =',v,'(Realizado: Jan-'+MM[v-1]+')');
+              atualizarLabelsRealFC();
+              return resolve(v);
+            }
+          }
+        }
+        console.warn('Config: MES_REAL não encontrado, usando padrão REAL=',REAL);
+        atualizarLabelsRealFC();
+        resolve(REAL);
+      }catch(e){console.error('Erro lendo Config:',e);resolve(REAL);}
+    },error:e=>{console.error('Erro fetch Config:',e);resolve(REAL);}});
+  });
+}
+
+function atualizarLabelsRealFC(){
+  const ultRealMM=MM[REAL-1];
+  const primFCMM=REAL<12?MM[REAL]:null;
+  const realLabel=`Jan–${ultRealMM} Real`;
+  const fcLabel=primFCMM?`${primFCMM}–Dez Forecast`:'Sem Forecast';
+  const elReal=document.getElementById('bp-real-label');if(elReal)elReal.textContent=realLabel;
+  const elFC=document.getElementById('bp-fc-label');if(elFC)elFC.textContent=fcLabel;
+  const subt=document.getElementById('subt-real-fc');
+  if(subt)subt.textContent=primFCMM?`Jan–${ultRealMM}/26 Realizado · ${primFCMM}–Dez/26 Forecast · R$ milhares`:`Jan–Dez/26 Realizado · R$ milhares`;
 }
 
 async function rebuildDRILL(){
@@ -1025,8 +1063,8 @@ function loadAll(){
   if(btn)btn.classList.add('spin');
   document.getElementById('loading').style.display='block';
   document.querySelectorAll('.section').forEach(s=>s.classList.remove('active'));
-  // Primeiro recarrega DRILL das abas de pagamento, depois o DFC consolidado
-  rebuildDRILL().then(()=>{
+  // Primeiro lê Config (define REAL), depois recarrega DRILL, depois processa DFC
+  loadConfig().then(()=>rebuildDRILL()).then(()=>{
   Papa.parse(CSV_DFC,{download:true,complete:function(res){
     const rows=res.data;
     if(!rows||rows.length<200){showErr('Planilha retornou dados insuficientes.');return;}
@@ -1060,16 +1098,15 @@ function loadAll(){
         const empKey=cfg.id==='redeok'?'ROK':cfg.id==='delend'?'DEL':cfg.id==='number'?'REG':null;
         const isConsol=co==='Consolidado';
         const empresasParaSomar=isConsol?['ROK','DEL','REG']:[empKey];
-        const pagJanAbr=[0,0,0,0];
+        const pagJanReal=Array(N).fill(0);
         empresasParaSomar.forEach(ek=>{
           if(!ek||!DRILL[ek])return;
           Object.values(DRILL[ek]).forEach(forns=>{
-            forns.forEach(({v})=>{v.forEach((x,i)=>{if(i<REAL)pagJanAbr[i]+=x;});});
+            forns.forEach(({v})=>{v.forEach((x,i)=>{if(i<REAL)pagJanReal[i]+=x;});});
           });
         });
         if(d['Pagamentos Operacionais']){
-          for(let i=0;i<REAL;i++)d['Pagamentos Operacionais'][i]=Math.round(pagJanAbr[i]*100)/100;
-          // Recalcula total anual
+          for(let i=0;i<REAL;i++)d['Pagamentos Operacionais'][i]=Math.round(pagJanReal[i]*100)/100;
           d['Pagamentos Operacionais'][N]=sa(d['Pagamentos Operacionais'].slice(0,N));
         }
         // Recalcula Geração Operacional = Recebimentos + Pagamentos
