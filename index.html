@@ -879,9 +879,29 @@ function parseMonth(dateStr){
 
 function buildDrillFromCSV(rows,empKey){
   // rows é array de arrays (Papa.parse data, header=false)
-  // descobrir índices das colunas pela linha 0 (cabeçalho)
   if(!rows||rows.length<2)return {};
-  const header=rows[0].map(h=>String(h||'').trim().toLowerCase());
+  // O CSV pode ter linha(s) de total/título antes do cabeçalho.
+  // Procurar a linha de cabeçalho varrendo as primeiras 10 linhas.
+  let headerRow=-1;
+  let header=[];
+  for(let r=0;r<Math.min(10,rows.length);r++){
+    const row=(rows[r]||[]).map(h=>String(h||'').trim().toLowerCase());
+    const hasData=row.some(h=>h.includes('data'));
+    const hasForn=row.some(h=>h.includes('fornecedor'));
+    const hasFluxo=row.some(h=>h.includes('fluxo'));
+    const hasValor=row.some(h=>h.includes('valor'));
+    if(hasData&&hasForn&&hasFluxo&&hasValor){
+      headerRow=r;header=row;break;
+    }
+  }
+  if(headerRow<0){
+    console.warn('['+empKey+'] Cabeçalho não encontrado nas primeiras 10 linhas');
+    console.warn('['+empKey+'] Linha 0:',rows[0]);
+    console.warn('['+empKey+'] Linha 1:',rows[1]);
+    console.warn('['+empKey+'] Linha 2:',rows[2]);
+    return {};
+  }
+  console.log('['+empKey+'] Cabeçalho encontrado na linha '+headerRow,header);
   const findCol=(...names)=>{
     for(const n of names){
       const i=header.findIndex(h=>h.includes(n));
@@ -889,35 +909,39 @@ function buildDrillFromCSV(rows,empKey){
     }
     return -1;
   };
-  const iData=findCol('data');
+  const iData=findCol('data de cr','data');
   const iForn=findCol('fornecedor');
   const iFluxo=findCol('fluxo');
   const iValor=findCol('valor pago','valor');
+  console.log('['+empKey+'] Índices:',{iData,iForn,iFluxo,iValor});
   if(iData<0||iForn<0||iFluxo<0||iValor<0){
-    console.warn('['+empKey+'] Colunas não encontradas no CSV. Header:',header);
+    console.warn('['+empKey+'] Faltam colunas. Header:',header);
     return {};
   }
-  // Agrupador: {categoria: {fornecedor: [v1,v2,v3,v4]}}
   const acc={};
-  for(let r=1;r<rows.length;r++){
+  let totalLinhas=0,linhasValidas=0,linhasForaFluxo=0,linhasForaMes=0;
+  for(let r=headerRow+1;r<rows.length;r++){
     const row=rows[r];if(!row||!row.length)continue;
+    totalLinhas++;
     const fluxo=String(row[iFluxo]||'').trim();
-    if(!DFC_FLUXOS.includes(fluxo))continue; // filtro: só categorias do DFC
+    if(!fluxo)continue;
+    if(!DFC_FLUXOS.includes(fluxo)){linhasForaFluxo++;continue;}
     const mes=parseMonth(row[iData]);
-    if(mes<0||mes>=REAL)continue; // só Jan-Abr
+    if(mes<0||mes>=REAL){linhasForaMes++;continue;}
     const forn=String(row[iForn]||'').trim();
     if(!forn)continue;
-    const valor=parseBRNumber(row[iValor])/1000; // converte para milhares
+    const valor=parseBRNumber(row[iValor])/1000;
     if(valor===0)continue;
     if(!acc[fluxo])acc[fluxo]={};
     if(!acc[fluxo][forn])acc[fluxo][forn]=[0,0,0,0];
     acc[fluxo][forn][mes]+=valor;
+    linhasValidas++;
   }
-  // Converter pra formato esperado pelo painel: {cat:[{f,v},...]}
+  console.log('['+empKey+'] Estatísticas:',{totalLinhas,linhasValidas,linhasForaFluxo,linhasForaMes});
   const out={};
   Object.entries(acc).forEach(([cat,forns])=>{
     out[cat]=Object.entries(forns).map(([f,v])=>({f,v:v.map(x=>Math.round(x*100)/100)}))
-      .sort((a,b)=>a.v.reduce((s,x)=>s+x,0)-b.v.reduce((s,x)=>s+x,0)); // mais negativo primeiro
+      .sort((a,b)=>a.v.reduce((s,x)=>s+x,0)-b.v.reduce((s,x)=>s+x,0));
   });
   return out;
 }
