@@ -1392,7 +1392,7 @@ function loadAll(){
       document.getElementById('tr-info').textContent='Atualização: '+now.toLocaleDateString('pt-BR');
       if(btn)btn.classList.remove('spin');
       setTimeout(syncHScroll,100);
-    }catch(e){showErr('Erro: '+e.message);}
+    }catch(e){console.error('Erro stack:',e);showErr('Erro: '+e.message+' (ver Console F12)');}
   },error:function(e){showErr('Não foi possível buscar o CSV.<br>'+e.message);}
   });
   });
