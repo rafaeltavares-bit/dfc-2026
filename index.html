@@ -648,6 +648,7 @@ function buildSection(company,data){
 
   let tbody='<tbody>';
   DFC_ROWS.forEach(({k,t,drill,saldo,dnr,divDrill,label})=>{
+    try{
     const vals=data[k];if(!vals)return;
     const displayLabel=label||k;
     const rc=t==='bold'?'r-bold':t==='sub'?'r-sub':'r-normal';
@@ -794,6 +795,7 @@ function buildSection(company,data){
       for(let i=0;i<N;i++)tbody+=`<td${i===REAL?' class="boundary-fc"':''}>${fmt(bloq[i])}</td>`;
       tbody+=`<td class="tcol">${fmt(bloq[N])}</td></tr>`;
     }
+    }catch(err){console.error('Erro DFC_ROWS k='+k+' company='+company+':',err);}
   });
   tbody+='</tbody>';
 
