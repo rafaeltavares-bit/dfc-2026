@@ -948,8 +948,27 @@ function buildDrillFromCSV(rows,empKey){
   console.log('['+empKey+'] Estatísticas:',{totalLinhas,linhasValidas,linhasForaFluxo,linhasForaAno,linhasForaMes,linhasDataInvalida,primeiraDataLida,primeiraDataParsed});
   const out={};
   Object.entries(acc).forEach(([cat,forns])=>{
-    out[cat]=Object.entries(forns).map(([f,v])=>({f,v:v.map(x=>Math.round(x*100)/100)}))
+    // Lista de fornecedores ordenada pelo total (mais negativo primeiro)
+    const lista=Object.entries(forns).map(([f,v])=>({f,v:v.map(x=>Math.round(x*100)/100)}))
       .sort((a,b)=>a.v.reduce((s,x)=>s+x,0)-b.v.reduce((s,x)=>s+x,0));
+    // Total absoluto da categoria (somando todos os meses de todos os fornecedores)
+    const totalCatAbs=lista.reduce((s,it)=>s+Math.abs(it.v.reduce((a,b)=>a+b,0)),0);
+    if(totalCatAbs===0){out[cat]=lista;return;}
+    // Separar: principais (>=5%) e outros (<5%)
+    const principais=[],outros=[];
+    lista.forEach(it=>{
+      const peso=Math.abs(it.v.reduce((a,b)=>a+b,0))/totalCatAbs;
+      if(peso>=0.05)principais.push(it);else outros.push(it);
+    });
+    // Se sobrar mais de 1 outro, agrega numa linha "Outros (N fornecedores)"
+    if(outros.length>1){
+      const soma=[0,0,0,0];
+      outros.forEach(it=>it.v.forEach((v,i)=>soma[i]+=v));
+      principais.push({f:`Outros (${outros.length} fornecedores)`,v:soma.map(x=>Math.round(x*100)/100)});
+    }else if(outros.length===1){
+      principais.push(outros[0]); // se só tem 1, não vale fazer "Outros"
+    }
+    out[cat]=principais;
   });
   return out;
 }
@@ -1013,6 +1032,32 @@ function loadAll(){
         const capex=d['CAPEX']||Array(13).fill(0);
         const aquis=d['Aquisição de Empresas']||Array(13).fill(0);
         d['Aquisição de Empresas / Capex']=capex.map((v,i)=>v+aquis[i]);
+        // === CONCILIAÇÃO: Pagamentos Operacionais Jan-Abr = soma do DRILL ===
+        // Garante que a soma dos fornecedores bata com o total da categoria,
+        // e o total dos Pagamentos Operacionais = soma das categorias.
+        const empKey=cfg.id==='redeok'?'ROK':cfg.id==='delend'?'DEL':cfg.id==='number'?'REG':null;
+        const isConsol=co==='Consolidado';
+        const empresasParaSomar=isConsol?['ROK','DEL','REG']:[empKey];
+        const pagJanAbr=[0,0,0,0];
+        empresasParaSomar.forEach(ek=>{
+          if(!ek||!DRILL[ek])return;
+          Object.values(DRILL[ek]).forEach(forns=>{
+            forns.forEach(({v})=>{v.forEach((x,i)=>{if(i<REAL)pagJanAbr[i]+=x;});});
+          });
+        });
+        if(d['Pagamentos Operacionais']){
+          for(let i=0;i<REAL;i++)d['Pagamentos Operacionais'][i]=Math.round(pagJanAbr[i]*100)/100;
+          // Recalcula total anual
+          d['Pagamentos Operacionais'][N]=sa(d['Pagamentos Operacionais'].slice(0,N));
+        }
+        // Recalcula Geração Operacional = Recebimentos + Pagamentos
+        if(d['Recebimentos']&&d['Pagamentos Operacionais']){
+          d['Geração Operacional']=d['Geração Operacional']||Array(N+1).fill(0);
+          for(let i=0;i<N;i++){
+            d['Geração Operacional'][i]=Math.round(((d['Recebimentos'][i]||0)+(d['Pagamentos Operacionais'][i]||0))*100)/100;
+          }
+          d['Geração Operacional'][N]=sa(d['Geração Operacional'].slice(0,N));
+        }
         buildSection(co,d);
       }
       buildDivida();
