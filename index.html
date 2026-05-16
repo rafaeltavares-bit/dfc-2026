@@ -930,6 +930,7 @@ function loadAll(){
       }catch(e){console.error(`Erro ao parsear Pag ${label}, usando fallback:`,e);}
       return false;
     };
+    // Leitura ao vivo das 3 abas Pagamentos (REG, ROK, DEL)
     tryLive(resREG,'REG','Regua');
     tryLive(resROK,'ROK','Rede OK');
     tryLive(resDEL,'DEL','Delend');
