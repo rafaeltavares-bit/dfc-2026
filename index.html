@@ -150,8 +150,8 @@ table.dfc th .i{padding:9px 13px;display:block;text-align:right;font-size:11px;l
 table.dfc th:first-child .i{text-align:left;min-width:240px;}
 table.dfc th.tcol .i{color:var(--ink2);font-weight:700;}
 .band-row th{border-bottom:none;}
-.band-real{background:rgba(10,94,64,.25);color:var(--em);text-align:center;}
-.band-fc{background:rgba(154,108,24,.22);color:var(--am);text-align:center;}
+.band-real{background:rgba(10,94,64,.08);color:var(--em);text-align:center;}
+.band-fc{background:rgba(154,108,24,.08);color:var(--am);text-align:center;}
 table.dfc td{padding:8px 13px;text-align:right;border-bottom:1px solid rgba(200,191,176,.35);white-space:nowrap;color:var(--ink2);font-size:13px;}
 table.dfc td:first-child{text-align:left;color:var(--ink3);}
 table.dfc tr:last-child td{border-bottom:none;}
@@ -163,7 +163,7 @@ table.dfc tr.r-normal:hover td{background:rgba(246,242,236,.7);}
 table.dfc td.pos{color:var(--em);font-weight:600;}
 table.dfc td.neg{color:var(--rd);font-weight:600;}
 table.dfc td.neg-hl{background:rgba(176,48,32,.07)!important;color:var(--rd)!important;font-weight:700;}
-table.dfc td.tcol{color:var(--ink);font-weight:700;background:var(--paper);border-left:2px solid #a89e8b!important;}
+table.dfc td.tcol{color:var(--ink);font-weight:700;background:var(--paper);border-left:2px solid var(--rule2);}
 table.dfc td.fc-cell{color:var(--ink3)!important;font-style:italic;font-size:11px;font-weight:400!important;}
 
 /* DRILL */
@@ -172,7 +172,7 @@ table.dfc td.fc-cell{color:var(--ink3)!important;font-style:italic;font-size:11p
 .d1-toggle.open td:first-child::before{content:"▼ ";}
 .d1-row{display:none;}
 .d1-row.vis{display:table-row;}
-.d1-row td{font-size:12px;padding:7px 13px;border-bottom:1px solid rgba(168,158,139,.4)!important;}
+.d1-row td{font-size:12px;padding:7px 13px;}
 .d1-row td:first-child{padding-left:24px;color:var(--ink3);}
 
 .d2-toggle{cursor:pointer;}
@@ -180,7 +180,6 @@ table.dfc td.fc-cell{color:var(--ink3)!important;font-style:italic;font-size:11p
 .d2-toggle.open td:first-child::before{content:"▼ ";}
 .d2-row{display:none;}
 .d2-row.vis{display:table-row;}
-.d2-row td{border-bottom:1px solid rgba(168,158,139,.4)!important;}
 .d2-rok td{background:rgba(22,61,120,.04);}
 .d2-rok td:first-child{padding-left:40px;color:var(--sp);font-weight:700;font-size:12px;}
 .d2-rok.d2-toggle td:first-child::before{color:var(--sp);}
@@ -192,7 +191,6 @@ table.dfc td.fc-cell{color:var(--ink3)!important;font-style:italic;font-size:11p
 .d2-reg.d2-toggle td:first-child::before{color:var(--em);}
 .d3-row{display:none;}
 .d3-row.vis{display:table-row;}
-.d3-row td{border-bottom:1px solid rgba(168,158,139,.3)!important;}
 .d3-rok td{font-size:12px;padding:5px 13px;background:rgba(22,61,120,.02);}
 .d3-rok td:first-child{padding-left:58px;color:var(--ink3);}
 .d3-del td{font-size:12px;padding:5px 13px;background:rgba(10,79,244,.02);}
@@ -237,13 +235,12 @@ table.dfc td.fc-cell{color:var(--ink3)!important;font-style:italic;font-size:11p
 
 
 
-.col2025t{background:var(--paper);min-width:75px;cursor:pointer;border-left:2px solid #a89e8b;border-right:2px solid #a89e8b;}
-.col2025t .i,.col2025td{color:var(--ink);font-weight:700;border-left:2px solid #a89e8b!important;border-right:2px solid #a89e8b!important;}
+.col2025t{background:var(--paper);min-width:75px;cursor:pointer;border-left:2px solid var(--rule2);border-right:2px solid var(--rule2);}
+.col2025t .i,.col2025td{color:var(--ink);font-weight:700;border-left:2px solid var(--rule2);border-right:2px solid var(--rule2);}
 table.dfc td.col2025td.pos{color:var(--em)!important;}
 table.dfc td.col2025td.neg{color:var(--rd)!important;}
 .col2025m{display:none;min-width:72px;background:rgba(107,98,88,.035);}
 .col2025md{display:none;background:rgba(107,98,88,.02);}
-table.dfc th.boundary-fc,table.dfc td.boundary-fc{border-left:2px solid #a89e8b!important;}
 </style>
 </head>
 <body>
@@ -302,15 +299,12 @@ table.dfc th.boundary-fc,table.dfc td.boundary-fc{border-left:2px solid #a89e8b!
 
 <script>
 const CSV_DFC='https://docs.google.com/spreadsheets/d/e/2PACX-1vT8sq6GUhsoMtUzJ2KUh5Ra9UPaJFJENko4XJhyaJs6XEceOH_olouKMRsjFdQE_A/pub?single=true&output=csv&gid=1493194308';
-const CSV_PAG_REG='https://docs.google.com/spreadsheets/d/e/2PACX-1vT8sq6GUhsoMtUzJ2KUh5Ra9UPaJFJENko4XJhyaJs6XEceOH_olouKMRsjFdQE_A/pub?single=true&output=csv&gid=440029315';
-const CSV_PAG_ROK='https://docs.google.com/spreadsheets/d/e/2PACX-1vT8sq6GUhsoMtUzJ2KUh5Ra9UPaJFJENko4XJhyaJs6XEceOH_olouKMRsjFdQE_A/pub?single=true&output=csv&gid=159115910';
-const CSV_PAG_DEL='https://docs.google.com/spreadsheets/d/e/2PACX-1vT8sq6GUhsoMtUzJ2KUh5Ra9UPaJFJENko4XJhyaJs6XEceOH_olouKMRsjFdQE_A/pub?single=true&output=csv&gid=115038308';
 const COL_JAN=31,N=12,COL_TOT=43,REAL=4;
 const MM=['Jan','Fev','Mar','Abr','Mai','Jun','Jul','Ago','Set','Out','Nov','Dez'];
 const CH={};
 
 // Pre-computed drill data (conciliado 9/9 categorias ✅)
-const DRILL={"ROK":{"Serviços de Informações Cadastrais":[{"f":"SERASA S.A.","v":[-1362.91,-840.55,-2542.04,-1107.52]}],"Terceiros & Marketing":[{"f":"ORIA PARTNERS CAPITAL SERVICOS LTDA","v":[-30.0,-60.0,-150.0,0.0]},{"f":"SOAR3S ASSESSORIA CONTABIL LTDA","v":[-16.62,-17.75,-17.75,-17.75]},{"f":"DATA2GO MARKETING E INTELIGENCIA DE DADOS LTDA","v":[0.0,-17.15,-17.15,-17.15]},{"f":"MH GROUP S/A","v":[0.0,0.0,-51.0,0.0]},{"f":"HALABI SOCIEDADE DE ADVOGADOS","v":[-11.05,-11.05,-11.58,-11.05]},{"f":"ECCLISSATO, CAVERNI E ALBINO NETO SOCIEDADE DE ADV","v":[-6.59,-7.21,-6.59,-6.59]},{"f":"SANTA CATARINA TRIBUNAL DE JUSTICA","v":[0.0,-0.32,0.0,-17.23]},{"f":"PASTORI & ASSOCIADOS COMUNICACOES LTDA.","v":[0.0,0.0,-15.0,0.0]},{"f":"DAZIO VASCONCELOS SOCIEDADE INDIVIDUAL DE ADVOCACI","v":[-2.0,-2.0,0.0,0.0]},{"f":"FABIANO MICHEL MALLMANN","v":[0.0,0.0,0.0,-3.33]},{"f":"DANILO MARTINS FERREIRA","v":[0.0,0.0,0.0,-2.52]},{"f":"EFISYAN SERVICOS EMPRESARIAIS LTDA","v":[-0.47,-1.65,0.0,0.0]},{"f":"TRIBUNAL DE JUSTICA DO ESTADO DE GOIAS","v":[0.0,0.0,-2.05,0.0]},{"f":"SOLUCOES EM SOFTWARE E SERVICOS TTS LTDA","v":[-0.38,-0.43,-0.43,-0.43]},{"f":"A B DA SILVA LTDA","v":[0.0,0.0,0.0,-1.17]},{"f":"MANARA SOCIEDADE INDIVIDUAL DE ADVOCACIA","v":[0.0,-1.04,0.0,0.0]},{"f":"LINKEDIN TECHNOLOGY UNLIMITED COMPANY","v":[0.0,-0.47,0.0,0.0]},{"f":"MEDDICCSCORE","v":[0.0,0.0,0.0,-0.47]},{"f":"ALGAR TELECOM S/A","v":[0.0,-0.12,-0.15,-0.14]},{"f":"TL - ADSUMUS. ASSESSORIA EMPRESARIAL LTDA","v":[0.0,0.0,0.0,-0.16]}],"Gastos com Locação":[{"f":"INTERSIX EMPREENDIMENTOS IMOBILIARIOS LTDA","v":[-19.0,-19.0,-19.0,-19.0]},{"f":"CONDOMINIO WEST TOWERS","v":[-5.21,-5.7,-5.98,-5.87]},{"f":"KARINA PINHEIRO GOMES DA SILVA","v":[-14.0,0.0,0.0,0.0]},{"f":"MIX ABC COMERCIO DE TINTAS LTDA","v":[-2.12,-2.12,-2.12,0.0]},{"f":"A2 OFFICE MOVEIS LTDA","v":[-5.88,0.0,0.0,0.0]},{"f":"GA ALPHAVILLE LOCACAO DE ESPACO LTDA.","v":[-1.71,0.0,-3.48,0.0]},{"f":"CLAUDIO LEITE DA SILVA TRINDADE 01138460532","v":[0.0,0.0,0.0,-3.5]},{"f":"COLOR GRAPHICS IMPRESSAO DIGITAL LTDA","v":[0.0,0.0,0.0,-2.83]},{"f":"RCN DECOR CORTINAS, PAPEIS DE PAREDE, PERSIANAS E ","v":[0.0,0.0,-2.75,0.0]},{"f":"59.609.686 THARCIO NESTOR SANTOS DA SILVA","v":[-2.1,0.0,0.0,0.0]},{"f":"RONIVON SOUZA RIBEIRO 15268337866","v":[0.0,0.0,0.0,-1.5]},{"f":"CHAVEIRO & AUTO SOCORRO MANOJO LTDA","v":[-0.38,0.0,0.0,-0.08]},{"f":"EDIVALDO RODRIGUES DOS SANTOS","v":[-0.35,0.0,0.0,0.0]},{"f":"Karina Passarelli Ltda","v":[0.0,0.0,0.22,0.0]},{"f":"REGUS DO BRASIL LTDA","v":[-0.24,39.07,0.0,0.0]}],"Gastos com Pessoal":[{"f":"FUNCIONARIOS","v":[-107.72,-145.77,-150.39,-144.72]},{"f":"Receita Federal - INSS","v":[-81.33,-62.13,-66.38,-82.77]},{"f":"ZOOP TECNOLOGIA & INSTITUICAO DE PAGAMENTO S.A.","v":[-36.0,-46.53,-46.62,-43.84]},{"f":"GUSTAVO GONCALVES CANDIAN LTDA","v":[-40.0,-53.33,0.0,-40.0]},{"f":"THIAGO BENTO SERVICOS DE TECNOLOGIA E DADOS LTDA","v":[-22.58,-35.0,-35.0,-35.0]},{"f":"BIT TECNOLOGIA LTDA","v":[-23.92,-30.0,-33.0,-30.0]},{"f":"ZEYON DATA TECH LTDA","v":[-28.0,-31.0,-28.0,-28.0]},{"f":"Receita Federal - FGTS","v":[-29.29,-23.19,-25.25,-27.92]},{"f":"BRADESCO SAUDE S/A","v":[-20.55,-16.25,-28.53,-29.54]},{"f":"SALES SPHERE LTDA","v":[0.0,0.0,0.0,-90.0]},{"f":"RAFAEL JUNIOR TAVARES SERVICOS ADMINISTRATIVOS LTD","v":[-21.2,-21.2,-24.2,-21.2]},{"f":"OUTRA FIRMA LTDA","v":[-20.82,-20.85,-23.89,-21.84]},{"f":"MARCO ANTONIO CABRAL JUNIOR","v":[-19.42,-19.42,-19.42,-19.42]},{"f":"EQUUS DATA","v":[-22.58,-22.58,-14.27,-14.27]},{"f":"PEDRO ETCHEBEHERE JUNIOR LTDA","v":[-15.0,-15.0,-15.0,-15.0]},{"f":"THAR CONSULTORIA INFORMATICA S/S LTDA","v":[0.0,-18.77,-18.77,-18.77]},{"f":"LUIZ CARLOS DA SILVA CONSULTORIA EM TECNOLOGIA DA ","v":[-26.0,-26.04,0.0,0.0]},{"f":"WEBER SANCHES LACERDA SOCIEDADE INDIVIDUAL DE ADVO","v":[-11.37,-10.83,-10.83,-10.83]},{"f":"RAUL MARCELO W. STELER LTDA","v":[-10.0,-10.0,-10.6,-10.6]},{"f":"RH EXPERTS SERVICOS COMBINADOS DE ESCRITORIO LTDA","v":[-9.8,-8.9,-10.8,-9.0]},{"f":"ALAN BATISTA AGOSTINHO","v":[0.0,0.0,0.0,-38.42]},{"f":"SANZOVO SERVICOS ADMINISTRATIVOS LTDA","v":[0.0,-37.54,0.0,-0.12]},{"f":"2AG SERVICOS EM TECNOLOGIA","v":[-8.25,-8.25,-8.25,-8.25]},{"f":"ALLAN GUILHERME BEZERRA DE MENDONCA","v":[-1.64,-1.74,-0.7,-22.02]},{"f":"NAYA MARTINS SILVA","v":[-14.73,0.0,0.0,0.0]},{"f":"Outros (42 fornecedores)","v":[-18.95,-52.19,-39.85,-38.18]}],"Repasse Parceiros":[{"f":"NACIONAL CREDITO LTDA","v":[-367.63,-286.78,-286.22,0.0]},{"f":"CONFFIE SERVICO DE INFORMACAO LTDA","v":[-406.29,-143.7,-143.7,-115.0]},{"f":"CONFFIE TECNOLOGIA E INFORMACAO LTDA","v":[0.0,-143.7,-143.7,-115.0]},{"f":"BRASIL BROKER SOLUCOES EMPRESARIAIS LTDA","v":[-88.44,-59.02,-62.02,-60.34]},{"f":"GILNEI MACHADO 09201895801","v":[-49.96,-112.56,-38.0,-38.0]},{"f":"LIDER DIGITAL SERVIÇOS PARA EMPRESAS LTDA","v":[-19.71,-65.08,-75.4,-65.08]},{"f":"VERIFIK ANALISE DE CREDITO LTDA","v":[-82.12,-65.02,-37.93,-37.93]},{"f":"RIOSAMPA SERVICOS DE MARKETING LTDA","v":[-29.02,-22.84,-26.2,-124.69]},{"f":"DNC CONSULTORIA EMPRESARIAL LTDA","v":[-54.67,-43.54,-46.35,-42.93]},{"f":"WEBMARKETING COMUNICACAO E SERVICOS PUBLICITARIOS ","v":[-53.5,-42.56,-41.17,-39.58]},{"f":"SCB SERVICOS DE CREDITO DO BRASIL LTDA","v":[-54.44,-35.92,-34.33,-41.12]},{"f":"CHECK MAX - ANALISE DE CREDITO E COBRANCA LTDA","v":[-54.43,-51.57,-36.91,0.0]},{"f":"GAMP ANALISE DE CREDITO LTDA","v":[-59.63,-38.02,-20.0,-20.0]},{"f":"ATENDEBR SERVICOS DE DADOS EIRELI","v":[-43.55,-25.39,-30.55,-37.25]},{"f":"CONFIDENCE REPRESENTACOES EM SOLUCOES PARA ANALISE","v":[-38.68,-30.79,-44.99,-16.36]},{"f":"MRX SOLUCOES LTDA","v":[-37.01,-31.18,-28.35,-31.04]},{"f":"C F DE PAULA INFORM ACOES E T ECNOLOGIA LT DA","v":[-37.52,-24.66,-41.75,-12.54]},{"f":"SNCC - SERVICOS NACIONAL DE CREDITO E COBRANCA LTD","v":[-36.51,-22.94,-28.33,-27.39]},{"f":"SITUE SERVICO BRASILEIRO DE ANALISE DE CREDITO E S","v":[-34.12,-25.39,-26.23,-19.14]},{"f":"WAGNER CRISTIANO AZEVEDO DA CRUZ","v":[-32.71,-23.6,-29.91,-10.24]},{"f":"FRANCISCA LEITE SILVA DOS ANJOS","v":[-32.84,-27.56,-17.15,-17.15]},{"f":"SGC SERVICOS DE GESTAO DE CREDITO","v":[-25.95,-15.66,-19.53,-20.34]},{"f":"AMANDA OLIVEIRA CORREIA","v":[-27.63,-20.6,-19.82,0.0]},{"f":"THRONYUS PROMOCAO DE VENDAS E COMUNICACAO LTDA","v":[-15.63,-18.45,-21.13,-3.01]},{"f":"VALORIZANDO GJR MARKETING LTDA","v":[-10.2,-6.63,-10.26,-9.58]},{"f":"Outros (11 fornecedores)","v":[-77.83,-50.35,-7.68,-18.04]}],"Tecnologia & Telecom":[{"f":"PARS PRODUTOS DE PROCESSAMENTO DE DADOS LTDA","v":[-31.14,-0.25,-16.34,-15.62]},{"f":"ORACLE DO BRASIL SISTEMAS LTDA","v":[-10.42,-10.72,-10.7,-9.73]},{"f":"OMIEXPERIENCE S.A.","v":[-3.35,-3.35,-3.35,-3.35]},{"f":"SALESFORCE TECNOLOGIA LTDA","v":[-3.35,-3.35,0.0,-5.03]},{"f":"GOOGLE CLOUD BRASIL COMPUTACAO E SERVICOS DE DADOS","v":[-2.44,-2.41,-2.41,-2.41]},{"f":"QULTURE INFORMATICA S.A.","v":[0.0,-2.84,-2.84,-2.84]},{"f":"ANTHROPIC  CLAUDE TEAM","v":[0.0,0.0,-1.66,-5.08]},{"f":"LUSHA","v":[0.0,0.0,0.0,-6.44]},{"f":"MANUS AI","v":[0.0,-1.18,-2.75,-2.2]},{"f":"VERCEL PRO","v":[-1.5,-1.17,-1.48,-1.54]},{"f":"ASAAS*BLUE OCEAN AG","v":[-4.0,0.0,0.0,0.0]},{"f":"GLOBALTEL BR TELECOMUNICACOES LTDA","v":[0.0,-1.99,-0.9,-0.9]},{"f":"TIMELINESAI","v":[-1.17,-1.15,-0.14,-0.55]},{"f":"Clicksign","v":[-0.64,-0.6,-0.59,-0.59]},{"f":"TELEFONICA BRASIL S.A.","v":[-0.73,-0.18,-0.73,-0.6]},{"f":"CONTENTSQUARE.COM","v":[0.0,-2.16,0.0,0.0]},{"f":"Docker, Inc (Indianapolis)","v":[-0.46,-0.46,-0.45,-0.45]},{"f":"GITHUB INC.","v":[-0.44,-0.45,-0.42,-0.42]},{"f":"GENSPARK.AI","v":[0.0,0.0,-1.38,0.0]},{"f":"MSFT * E0500YLG1N","v":[-1.21,0.0,0.0,0.0]},{"f":"WWW.MAKE.COM","v":[0.0,0.0,-1.06,0.0]},{"f":"MICROSOFT DO BRASIL IMPORTACAO E COMERCIO DE SOFTW","v":[0.0,-0.61,0.0,0.0]},{"f":"MSFT * E0500YUHUS","v":[0.0,0.0,0.0,-0.61]},{"f":"MSFT * E0500Z3NW2","v":[0.0,0.0,0.0,-0.61]},{"f":"CLAUDE.AI SUBSCRIPTION","v":[0.0,-0.59,0.0,0.0]},{"f":"BANCO DO BRASIL","v":[0.0,10.55,0.0,0.0]},{"f":"Outros (9 fornecedores)","v":[-1.22,-0.53,-0.65,-0.62]}],"Gastos com Viagem":[{"f":"SALES SPHERE LTDA","v":[0.0,0.0,0.0,-2.96]},{"f":"Europlus Operadora","v":[-1.07,0.0,0.0,0.0]},{"f":"FERNANDO JORGE WOSNIAK STELER","v":[0.0,0.0,-1.07,0.0]},{"f":"VIAGGIO TURISMO LTDA","v":[-1.0,0.0,0.0,0.0]},{"f":"ODONTOPREV S.A.","v":[0.0,0.0,-0.77,0.0]},{"f":"DANIEL CARVALHO","v":[0.0,0.0,0.0,-0.29]},{"f":"ALBERTO DE ARAUJO VIEIRA","v":[0.0,-0.25,0.0,0.0]},{"f":"INGRID SANTOS MONSUETO","v":[0.0,-0.04,-0.19,0.0]},{"f":"FELIPPE CATHOUD DE QUEIROZ","v":[-0.22,0.0,0.0,0.0]},{"f":"RAPHAEL OLIVEIRA DE SILOS SANTOS","v":[0.0,-0.2,0.0,0.0]},{"f":"FERNANDO FERREIRA PASSE","v":[-0.2,0.0,0.0,0.0]},{"f":"YURI BARBOSA SANTOS","v":[0.0,-0.16,0.0,0.0]},{"f":"VITORIA KAROLINA SOUZA BATISTA","v":[0.0,0.0,0.0,-0.13]},{"f":"JOICE LORRANE NOGUEIRA DOS SANTOS","v":[0.0,0.0,0.0,-0.06]},{"f":"DANIELA JULIO RIBEIRO","v":[0.0,0.0,0.0,-0.05]},{"f":"PAULO SERGIO SANT ANNA PASINATO","v":[0.0,-0.05,0.0,0.0]},{"f":"ALLPARK EMPREENDIMENTOS,","v":[0.0,0.0,0.0,-0.04]},{"f":"FEA PARK","v":[0.0,0.0,-0.04,0.0]},{"f":"WASHINGTON OLIVEIRA DE SOUZA","v":[0.0,-0.04,0.0,0.0]}],"Impostos e Contribuições":[{"f":"Receita Federal","v":[-181.62,-128.12,-103.64,-210.95]},{"f":"PREFEITURA MUNICIPAL DE BARUERI","v":[-188.44,-87.33,-86.79,-95.7]}],"Outros":[{"f":"SECRETARIA DA FAZENDA SP","v":[0.0,0.0,-5.95,0.0]},{"f":"GIRO PAGAMENTOS E TECNOLOGIA LTDA","v":[-4.23,0.0,0.0,0.0]},{"f":"MUNICIPIO DE PRESIDENTE VENCESLAU","v":[0.0,-1.15,0.0,0.0]},{"f":"SECRETARIA DA FAZENDA E PLANEJAMENTO","v":[0.0,0.0,0.0,-1.09]},{"f":"RESOMA COMERCIO DE PRODUTOS DESCARTAVEIS E MATERIA","v":[0.0,0.0,-0.43,-0.65]},{"f":"TEK DISTRIBUIDOR LTDA","v":[0.0,0.0,-1.06,0.0]},{"f":"UNITHER INDUSTRIA FARMACEUTICA LTDA.","v":[0.0,-0.83,0.0,0.0]},{"f":"EBAZAR.COM.BR. LTDA","v":[-0.1,-0.32,-0.12,0.0]},{"f":"MUNICIPIO DE ASSIS","v":[0.0,-0.51,0.0,0.0]},{"f":"LOTUS CENTRAL DE DISTRIBUICAO DE HIGIENICOS LTDA","v":[0.0,-0.43,0.0,0.0]},{"f":"IFD*R.A. SERVICOS ADMINIS","v":[-0.37,0.0,0.0,0.0]},{"f":"SABELLA INDUSTRIA E COMERCIO DE CONFECCOES LTDA","v":[0.0,0.0,0.0,-0.36]},{"f":"BPS SHOPPING CENTER LTDA","v":[0.0,0.0,-0.35,0.0]},{"f":"COOPERVISION DO BRASIL LTDA.","v":[0.0,-0.22,0.0,0.0]},{"f":"MULTPAINEL EXC LOUSAS E PAINEIS DE VIDRO LTDA","v":[0.0,-0.2,0.0,0.0]},{"f":"MADCAPITALPARK","v":[-0.14,0.0,0.0,0.0]},{"f":"ADMINISTRADORA SHOPPING NOVA IGUACU LTDA","v":[0.0,0.0,0.0,-0.13]},{"f":"MAGALU LOG SERVICOS LOGISTICOS LTDA","v":[0.0,-0.14,0.0,0.14]}]},"DEL":{"Terceiros & Marketing":[{"f":"BARBOSA, MUSSNICH & ARAGAO","v":[0.0,-98.46,-105.07,-105.07]},{"f":"CLAVIS BBR CONSULTORIA EM INFORMATICA S.A.","v":[-40.36,-20.27,-20.27,-20.27]},{"f":"EVERIFY OPUS SOFTWARE","v":[-17.9,-17.9,-17.9,0.0]},{"f":"BDO RCS AUDITORES INDEPENDENTES","v":[0.0,-9.05,-9.05,0.0]},{"f":"EVERIFY OPUS SOFTWARE SERVICOS DE INFORMATICA LTDA","v":[0.0,0.0,0.0,-17.9]},{"f":"PORTAL ASSESSORIA CONTABIL LTDA","v":[-4.8,-4.59,-4.59,-0.76]},{"f":"IGNIS CONTABIL LTDA","v":[-4.4,-4.4,0.0,0.0]},{"f":"CORPSERVICES PARTICIPACOES E SERVICOS LTDA.","v":[0.0,0.0,-4.4,-4.4]},{"f":"INICIADOR INSTITUICAO DE PAGAMENTO LTDA","v":[0.0,0.0,0.0,-7.85]},{"f":"SOAR3S ASSESSORIA CONTABIL LTDA","v":[0.0,0.0,0.0,-3.83]},{"f":"ASSOCIACAO OPEN FINANCE","v":[-2.0,-1.06,0.0,0.0]},{"f":"TELEFONICA BRASIL S.A.","v":[0.0,0.0,0.0,-0.29]}],"Gastos com Locação":[{"f":"CUBO COWORKING ITAU","v":[-2.9,-2.9,-2.9,0.0]},{"f":"ASSOCIACAO CUBO COWORKING ITAU","v":[0.0,0.0,0.0,-2.96]},{"f":"ENEL DISTRIBUICAO SAO PAULO","v":[-0.4,-0.06,0.0,0.0]}],"Gastos com Pessoal":[{"f":"BRADESCO SAUDE S/A","v":[-32.42,-63.58,-55.24,-62.09]},{"f":"Receita Federal - INSS","v":[-73.41,-10.58,0.0,0.0]},{"f":"FUNCIONÁRIOS","v":[-69.08,0.0,0.0,0.0]},{"f":"FERNANDO FERREIRA PASSE","v":[-41.92,0.0,0.0,0.0]},{"f":"PAULO SERGIO SANT ANNA PASINATO","v":[0.0,-41.78,0.0,0.0]},{"f":"Receita Federal - FGTS","v":[-30.09,0.0,0.0,0.0]},{"f":"FELIPPE CATHOUD DE QUEIROZ","v":[-23.51,0.0,0.0,0.0]},{"f":"WASHINGTON OLIVEIRA DE SOUZA","v":[-18.99,0.0,0.0,0.0]},{"f":"RECEITA FEDERAL - FGTS","v":[-11.18,0.0,0.0,0.0]},{"f":"PORTO SEGURO","v":[-8.35,0.0,0.0,0.0]},{"f":"IFOOD","v":[-6.3,0.0,0.0,0.0]},{"f":"PREFEITURA DO MUNICIPIO DE SP","v":[0.0,-0.63,0.0,0.0]},{"f":"SINDIESP","v":[0.0,-0.2,0.0,0.0]}],"Tecnologia & Telecom":[{"f":"CONTA SIMPLES SOLUCOES DE PAGAMENTOS LTDA","v":[-41.17,-43.67,-38.15,-45.7]},{"f":"INICIADOR INSTITUICAO","v":[-41.52,-23.3,-21.98,0.0]},{"f":"SECURISOFT DO BRASIL","v":[-2.33,-2.33,-2.33,0.0]},{"f":"OMIEXPERIENCE LTDA.","v":[-0.48,-0.49,-0.49,-0.48]},{"f":"VIVO EMRESAS","v":[-0.16,-0.15,-0.15,0.0]},{"f":"CLICKSIGN GESTAO DE DOCUMENTOS S/A","v":[-0.12,-0.09,-0.09,-0.09]},{"f":"CLARO SA","v":[-0.11,0.0,-0.07,0.0]}],"Impostos e Contribuições":[{"f":"Receita Federal","v":[-56.47,-20.87,-21.64,-12.88]},{"f":"Prefeitura Municipal de São Paulo","v":[-0.38,0.0,-0.71,-0.36]}],"Outros":[{"f":"SAFE2PAY","v":[0.0,-0.2,0.0,0.0]},{"f":"SAFE2PAY INTERMEDIACAO DE NEGOCIOS LTDA","v":[0.0,0.0,0.0,-0.2]},{"f":"SALU","v":[-0.1,0.0,-0.1,0.0]}]},"REG":{"Serviços de Informações Cadastrais":[{"f":"SERASA S.A.","v":[0.0,-2.11,-2.31,-1.42]}],"Terceiros & Marketing":[{"f":"SOAR3S ASSESSORIA CONTABIL LTDA","v":[0.0,-2.17,-2.17,-2.17]},{"f":"PORTAL ASSESSORIA","v":[-2.03,0.0,0.0,0.0]}],"Gastos com Locação":[{"f":"Regus - Sao Paulo, Alphaville - Castelo Branco - T","v":[0.0,-1.16,-0.57,-0.57]}],"Gastos com Pessoal":[{"f":"SANZOVO SERVICOS ADMINISTRATIVOS LTDA","v":[-43.55,-37.54,-37.54,-43.55]},{"f":"LICIO C CARVALHO LTDA","v":[-40.0,-80.0,-40.0,-40.0]},{"f":"GUSTAVO GONCALVES CANDIAN LTDA","v":[0.0,0.0,-40.0,0.0]},{"f":"THAR_ Harry","v":[-18.77,-18.77,0.0,0.0]}],"Tecnologia & Telecom":[{"f":"CONTA SIMPLES SOLUCOES DE PAGAMENTOS LTDA","v":[0.0,-4.01,-4.97,-6.06]},{"f":"Omiexperience S/A","v":[0.0,0.0,-7.69,-4.74]},{"f":"NEW VOICE TELECOMUNICACOES EIRELI","v":[0.0,-1.72,-1.37,-1.63]},{"f":"CONTA SIMPLES SOLUCOES","v":[-4.04,0.0,0.0,0.0]},{"f":"LWSA S/A","v":[0.0,-0.85,-0.48,-0.43]},{"f":"OpenHaus Tecnologia LTDA","v":[0.0,-0.53,-0.53,-0.53]},{"f":"New Voice Telecom","v":[-1.42,0.0,0.0,0.0]},{"f":"I7 TEC SOLUCOES LTDA","v":[0.0,-0.47,-0.23,-0.15]},{"f":"OpenHaus","v":[-0.49,0.0,0.0,0.0]},{"f":"I7 Solution Ltda","v":[-0.31,0.0,0.0,0.0]},{"f":"SAFE2PAY","v":[-0.2,0.0,0.0,0.0]}],"Impostos e Contribuições":[{"f":"Receita Federal do Brasil","v":[-4.96,-10.85,-10.7,-9.38]},{"f":"MUNICIPIO DE BARUERI","v":[0.0,-3.11,-3.11,-3.15]},{"f":"Prefeitura Municipal de Barueri","v":[-2.7,0.0,0.0,0.0]}],"Outros":[{"f":"BR BRINDES","v":[-3.59,0.0,0.0,0.0]}]}};
+const DRILL={"ROK":{"Serviços de Informações Cadastrais":[{"f":"SERASA S.A.","v":[-1362.91,-840.55,-2542.04,-1107.52]}],"Terceiros & Marketing":[{"f":"ORIA PARTNERS CAPITAL SERVICOS LTDA","v":[-30.0,-60.0,-150.0,0.0]},{"f":"SOAR3S ASSESSORIA CONTABIL LTDA","v":[-16.62,-17.75,-17.75,-17.75]},{"f":"DATA2GO MARKETING E INTELIGENCIA DE DADOS LTDA","v":[0.0,-17.15,-17.15,-17.15]},{"f":"MH GROUP S/A","v":[0.0,0.0,-51.0,0.0]},{"f":"HALABI SOCIEDADE DE ADVOGADOS","v":[-11.05,-11.05,-11.58,-11.05]},{"f":"ECCLISSATO, CAVERNI E ALBINO NETO SOCIEDADE DE ADV","v":[-6.59,-7.21,-6.59,-6.59]},{"f":"SANTA CATARINA TRIBUNAL DE JUSTICA","v":[0.0,-0.32,0.0,-17.23]},{"f":"PASTORI & ASSOCIADOS COMUNICACOES LTDA.","v":[0.0,0.0,-15.0,0.0]},{"f":"DAZIO VASCONCELOS SOCIEDADE INDIVIDUAL DE ADVOCACI","v":[-2.0,-2.0,0.0,0.0]},{"f":"FABIANO MICHEL MALLMANN","v":[0.0,0.0,0.0,-3.33]},{"f":"DANILO MARTINS FERREIRA","v":[0.0,0.0,0.0,-2.52]},{"f":"EFISYAN SERVICOS EMPRESARIAIS LTDA","v":[-0.47,-1.65,0.0,0.0]},{"f":"TRIBUNAL DE JUSTICA DO ESTADO DE GOIAS","v":[0.0,0.0,-2.05,0.0]},{"f":"SOLUCOES EM SOFTWARE E SERVICOS TTS LTDA","v":[-0.38,-0.43,-0.43,-0.43]},{"f":"A B DA SILVA LTDA","v":[0.0,0.0,0.0,-1.17]},{"f":"MANARA SOCIEDADE INDIVIDUAL DE ADVOCACIA","v":[0.0,-1.04,0.0,0.0]},{"f":"LINKEDIN TECHNOLOGY UNLIMITED COMPANY","v":[0.0,-0.47,0.0,0.0]},{"f":"MEDDICCSCORE","v":[0.0,0.0,0.0,-0.47]},{"f":"ALGAR TELECOM S/A","v":[0.0,-0.12,-0.15,-0.14]},{"f":"TL - ADSUMUS. ASSESSORIA EMPRESARIAL LTDA","v":[0.0,0.0,0.0,-0.16]}],"Gastos com Locação":[{"f":"INTERSIX EMPREENDIMENTOS IMOBILIARIOS LTDA","v":[-19.0,-19.0,-19.0,-19.0]},{"f":"CONDOMINIO WEST TOWERS","v":[-5.21,-5.7,-5.98,-5.87]},{"f":"KARINA PINHEIRO GOMES DA SILVA","v":[-14.0,0.0,0.0,0.0]},{"f":"MIX ABC COMERCIO DE TINTAS LTDA","v":[-2.12,-2.12,-2.12,0.0]},{"f":"A2 OFFICE MOVEIS LTDA","v":[-5.88,0.0,0.0,0.0]},{"f":"GA ALPHAVILLE LOCACAO DE ESPACO LTDA.","v":[-1.71,0.0,-3.48,0.0]},{"f":"CLAUDIO LEITE DA SILVA TRINDADE 01138460532","v":[0.0,0.0,0.0,-3.5]},{"f":"COLOR GRAPHICS IMPRESSAO DIGITAL LTDA","v":[0.0,0.0,0.0,-2.83]},{"f":"RCN DECOR CORTINAS, PAPEIS DE PAREDE, PERSIANAS E ","v":[0.0,0.0,-2.75,0.0]},{"f":"59.609.686 THARCIO NESTOR SANTOS DA SILVA","v":[-2.1,0.0,0.0,0.0]},{"f":"RONIVON SOUZA RIBEIRO 15268337866","v":[0.0,0.0,0.0,-1.5]},{"f":"CHAVEIRO & AUTO SOCORRO MANOJO LTDA","v":[-0.38,0.0,0.0,-0.08]},{"f":"EDIVALDO RODRIGUES DOS SANTOS","v":[-0.35,0.0,0.0,0.0]},{"f":"Karina Passarelli Ltda","v":[0.0,0.0,0.22,0.0]},{"f":"REGUS DO BRASIL LTDA","v":[-0.24,39.07,0.0,0.0]}],"Gastos com Pessoal":[{"f":"FUNCIONARIOS","v":[-107.72,-145.77,-150.39,-144.72]},{"f":"Receita Federal - INSS","v":[-81.33,-62.13,-66.38,-82.77]},{"f":"ZOOP TECNOLOGIA & INSTITUICAO DE PAGAMENTO S.A.","v":[-36.0,-46.53,-46.62,-43.84]},{"f":"GUSTAVO GONCALVES CANDIAN LTDA","v":[-40.0,-53.33,0.0,-40.0]},{"f":"THIAGO BENTO SERVICOS DE TECNOLOGIA E DADOS LTDA","v":[-22.58,-35.0,-35.0,-35.0]},{"f":"BIT TECNOLOGIA LTDA","v":[-23.92,-30.0,-33.0,-30.0]},{"f":"ZEYON DATA TECH LTDA","v":[-28.0,-31.0,-28.0,-28.0]},{"f":"Receita Federal - FGTS","v":[-29.29,-23.19,-25.25,-27.92]},{"f":"BRADESCO SAUDE S/A","v":[-20.55,-16.25,-28.53,-29.54]},{"f":"SALES SPHERE LTDA","v":[0.0,0.0,0.0,-90.0]},{"f":"RAFAEL JUNIOR TAVARES SERVICOS ADMINISTRATIVOS LTD","v":[-21.2,-21.2,-24.2,-21.2]},{"f":"OUTRA FIRMA LTDA","v":[-20.82,-20.85,-23.89,-21.84]},{"f":"MARCO ANTONIO CABRAL JUNIOR","v":[-19.42,-19.42,-19.42,-19.42]},{"f":"EQUUS DATA","v":[-22.58,-22.58,-14.27,-14.27]},{"f":"PEDRO ETCHEBEHERE JUNIOR LTDA","v":[-15.0,-15.0,-15.0,-15.0]},{"f":"THAR CONSULTORIA INFORMATICA S/S LTDA","v":[0.0,-18.77,-18.77,-18.77]},{"f":"LUIZ CARLOS DA SILVA CONSULTORIA EM TECNOLOGIA DA ","v":[-26.0,-26.04,0.0,0.0]},{"f":"WEBER SANCHES LACERDA SOCIEDADE INDIVIDUAL DE ADVO","v":[-11.37,-10.83,-10.83,-10.83]},{"f":"RAUL MARCELO W. STELER LTDA","v":[-10.0,-10.0,-10.6,-10.6]},{"f":"RH EXPERTS SERVICOS COMBINADOS DE ESCRITORIO LTDA","v":[-9.8,-8.9,-10.8,-9.0]},{"f":"ALAN BATISTA AGOSTINHO","v":[0.0,0.0,0.0,-38.42]},{"f":"SANZOVO SERVICOS ADMINISTRATIVOS LTDA","v":[0.0,-37.54,0.0,-0.12]},{"f":"2AG SERVICOS EM TECNOLOGIA","v":[-8.25,-8.25,-8.25,-8.25]},{"f":"ALLAN GUILHERME BEZERRA DE MENDONCA","v":[-1.64,-1.74,-0.7,-22.02]},{"f":"NAYA MARTINS SILVA","v":[-14.73,0.0,0.0,0.0]},{"f":"Outros (42 fornecedores)","v":[-18.95,-52.19,-39.85,-38.18]}],"Repasse Parceiros":[{"f":"NACIONAL CREDITO LTDA","v":[-367.63,-286.78,-286.22,0.0]},{"f":"CONFFIE SERVICO DE INFORMACAO LTDA","v":[-406.29,-143.7,-143.7,-115.0]},{"f":"CONFFIE TECNOLOGIA E INFORMACAO LTDA","v":[0.0,-143.7,-143.7,-115.0]},{"f":"BRASIL BROKER SOLUCOES EMPRESARIAIS LTDA","v":[-88.44,-59.02,-62.02,-60.34]},{"f":"GILNEI MACHADO 09201895801","v":[-49.96,-112.56,-38.0,-38.0]},{"f":"LIDER DIGITAL SERVIÇOS PARA EMPRESAS LTDA","v":[-19.71,-65.08,-75.4,-65.08]},{"f":"VERIFIK ANALISE DE CREDITO LTDA","v":[-82.12,-65.02,-37.93,-37.93]},{"f":"RIOSAMPA SERVICOS DE MARKETING LTDA","v":[-29.02,-22.84,-26.2,-124.69]},{"f":"DNC CONSULTORIA EMPRESARIAL LTDA","v":[-54.67,-43.54,-46.35,-42.93]},{"f":"WEBMARKETING COMUNICACAO E SERVICOS PUBLICITARIOS ","v":[-53.5,-42.56,-41.17,-39.58]},{"f":"SCB SERVICOS DE CREDITO DO BRASIL LTDA","v":[-54.44,-35.92,-34.33,-41.12]},{"f":"CHECK MAX - ANALISE DE CREDITO E COBRANCA LTDA","v":[-54.43,-51.57,-36.91,0.0]},{"f":"GAMP ANALISE DE CREDITO LTDA","v":[-59.63,-38.02,-20.0,-20.0]},{"f":"ATENDEBR SERVICOS DE DADOS EIRELI","v":[-43.55,-25.39,-30.55,-37.25]},{"f":"CONFIDENCE REPRESENTACOES EM SOLUCOES PARA ANALISE","v":[-38.68,-30.79,-44.99,-16.36]},{"f":"MRX SOLUCOES LTDA","v":[-37.01,-31.18,-28.35,-31.04]},{"f":"C F DE PAULA INFORM ACOES E T ECNOLOGIA LT DA","v":[-37.52,-24.66,-41.75,-12.54]},{"f":"SNCC - SERVICOS NACIONAL DE CREDITO E COBRANCA LTD","v":[-36.51,-22.94,-28.33,-27.39]},{"f":"SITUE SERVICO BRASILEIRO DE ANALISE DE CREDITO E S","v":[-34.12,-25.39,-26.23,-19.14]},{"f":"WAGNER CRISTIANO AZEVEDO DA CRUZ","v":[-32.71,-23.6,-29.91,-10.24]},{"f":"FRANCISCA LEITE SILVA DOS ANJOS","v":[-32.84,-27.56,-17.15,-17.15]},{"f":"SGC SERVICOS DE GESTAO DE CREDITO","v":[-25.95,-15.66,-19.53,-20.34]},{"f":"AMANDA OLIVEIRA CORREIA","v":[-27.63,-20.6,-19.82,0.0]},{"f":"THRONYUS PROMOCAO DE VENDAS E COMUNICACAO LTDA","v":[-15.63,-18.45,-21.13,-3.01]},{"f":"VALORIZANDO GJR MARKETING LTDA","v":[-10.2,-6.63,-10.26,-9.58]},{"f":"Outros (11 fornecedores)","v":[-77.83,-50.35,-7.68,-18.04]}],"Tecnologia & Telecom":[{"f":"PARS PRODUTOS DE PROCESSAMENTO DE DADOS LTDA","v":[-31.14,-0.25,-16.34,-15.62]},{"f":"ORACLE DO BRASIL SISTEMAS LTDA","v":[-10.42,-10.72,-10.7,-9.73]},{"f":"OMIEXPERIENCE S.A.","v":[-3.35,-3.35,-3.35,-3.35]},{"f":"SALESFORCE TECNOLOGIA LTDA","v":[-3.35,-3.35,0.0,-5.03]},{"f":"GOOGLE CLOUD BRASIL COMPUTACAO E SERVICOS DE DADOS","v":[-2.44,-2.41,-2.41,-2.41]},{"f":"QULTURE INFORMATICA S.A.","v":[0.0,-2.84,-2.84,-2.84]},{"f":"ANTHROPIC  CLAUDE TEAM","v":[0.0,0.0,-1.66,-5.08]},{"f":"LUSHA","v":[0.0,0.0,0.0,-6.44]},{"f":"MANUS AI","v":[0.0,-1.18,-2.75,-2.2]},{"f":"VERCEL PRO","v":[-1.5,-1.17,-1.48,-1.54]},{"f":"ASAAS*BLUE OCEAN AG","v":[-4.0,0.0,0.0,0.0]},{"f":"GLOBALTEL BR TELECOMUNICACOES LTDA","v":[0.0,-1.99,-0.9,-0.9]},{"f":"TIMELINESAI","v":[-1.17,-1.15,-0.14,-0.55]},{"f":"Clicksign","v":[-0.64,-0.6,-0.59,-0.59]},{"f":"TELEFONICA BRASIL S.A.","v":[-0.73,-0.18,-0.73,-0.6]},{"f":"CONTENTSQUARE.COM","v":[0.0,-2.16,0.0,0.0]},{"f":"Docker, Inc (Indianapolis)","v":[-0.46,-0.46,-0.45,-0.45]},{"f":"GITHUB INC.","v":[-0.44,-0.45,-0.42,-0.42]},{"f":"GENSPARK.AI","v":[0.0,0.0,-1.38,0.0]},{"f":"MSFT * E0500YLG1N","v":[-1.21,0.0,0.0,0.0]},{"f":"WWW.MAKE.COM","v":[0.0,0.0,-1.06,0.0]},{"f":"MICROSOFT DO BRASIL IMPORTACAO E COMERCIO DE SOFTW","v":[0.0,-0.61,0.0,0.0]},{"f":"MSFT * E0500YUHUS","v":[0.0,0.0,0.0,-0.61]},{"f":"MSFT * E0500Z3NW2","v":[0.0,0.0,0.0,-0.61]},{"f":"CLAUDE.AI SUBSCRIPTION","v":[0.0,-0.59,0.0,0.0]},{"f":"BANCO DO BRASIL","v":[0.0,10.55,0.0,0.0]},{"f":"Outros (9 fornecedores)","v":[-1.22,-0.53,-0.65,-0.62]}],"Gastos com Viagem":[{"f":"SALES SPHERE LTDA","v":[0.0,0.0,0.0,-2.96]},{"f":"Europlus Operadora","v":[-1.07,0.0,0.0,0.0]},{"f":"FERNANDO JORGE WOSNIAK STELER","v":[0.0,0.0,-1.07,0.0]},{"f":"VIAGGIO TURISMO LTDA","v":[-1.0,0.0,0.0,0.0]},{"f":"ODONTOPREV S.A.","v":[0.0,0.0,-0.77,0.0]},{"f":"DANIEL CARVALHO","v":[0.0,0.0,0.0,-0.29]},{"f":"ALBERTO DE ARAUJO VIEIRA","v":[0.0,-0.25,0.0,0.0]},{"f":"INGRID SANTOS MONSUETO","v":[0.0,-0.04,-0.19,0.0]},{"f":"FELIPPE CATHOUD DE QUEIROZ","v":[-0.22,0.0,0.0,0.0]},{"f":"RAPHAEL OLIVEIRA DE SILOS SANTOS","v":[0.0,-0.2,0.0,0.0]},{"f":"FERNANDO FERREIRA PASSE","v":[-0.2,0.0,0.0,0.0]},{"f":"YURI BARBOSA SANTOS","v":[0.0,-0.16,0.0,0.0]},{"f":"VITORIA KAROLINA SOUZA BATISTA","v":[0.0,0.0,0.0,-0.13]},{"f":"JOICE LORRANE NOGUEIRA DOS SANTOS","v":[0.0,0.0,0.0,-0.06]},{"f":"DANIELA JULIO RIBEIRO","v":[0.0,0.0,0.0,-0.05]},{"f":"PAULO SERGIO SANT ANNA PASINATO","v":[0.0,-0.05,0.0,0.0]},{"f":"ALLPARK EMPREENDIMENTOS,","v":[0.0,0.0,0.0,-0.04]},{"f":"FEA PARK","v":[0.0,0.0,-0.04,0.0]},{"f":"WASHINGTON OLIVEIRA DE SOUZA","v":[0.0,-0.04,0.0,0.0]}],"Impostos e Contribuições":[{"f":"Receita Federal","v":[-181.62,-128.12,-103.64,-210.95]},{"f":"PREFEITURA MUNICIPAL DE BARUERI","v":[-188.44,-87.33,-86.79,-95.7]}],"Outros":[{"f":"SECRETARIA DA FAZENDA SP","v":[0.0,0.0,-5.95,0.0]},{"f":"GIRO PAGAMENTOS E TECNOLOGIA LTDA","v":[-4.23,0.0,0.0,0.0]},{"f":"MUNICIPIO DE PRESIDENTE VENCESLAU","v":[0.0,-1.15,0.0,0.0]},{"f":"SECRETARIA DA FAZENDA E PLANEJAMENTO","v":[0.0,0.0,0.0,-1.09]},{"f":"RESOMA COMERCIO DE PRODUTOS DESCARTAVEIS E MATERIA","v":[0.0,0.0,-0.43,-0.65]},{"f":"TEK DISTRIBUIDOR LTDA","v":[0.0,0.0,-1.06,0.0]},{"f":"UNITHER INDUSTRIA FARMACEUTICA LTDA.","v":[0.0,-0.83,0.0,0.0]},{"f":"EBAZAR.COM.BR. LTDA","v":[-0.1,-0.32,-0.12,0.0]},{"f":"MUNICIPIO DE ASSIS","v":[0.0,-0.51,0.0,0.0]},{"f":"LOTUS CENTRAL DE DISTRIBUICAO DE HIGIENICOS LTDA","v":[0.0,-0.43,0.0,0.0]},{"f":"IFD*R.A. SERVICOS ADMINIS","v":[-0.37,0.0,0.0,0.0]},{"f":"SABELLA INDUSTRIA E COMERCIO DE CONFECCOES LTDA","v":[0.0,0.0,0.0,-0.36]},{"f":"BPS SHOPPING CENTER LTDA","v":[0.0,0.0,-0.35,0.0]},{"f":"COOPERVISION DO BRASIL LTDA.","v":[0.0,-0.22,0.0,0.0]},{"f":"MULTPAINEL EXC LOUSAS E PAINEIS DE VIDRO LTDA","v":[0.0,-0.2,0.0,0.0]},{"f":"MADCAPITALPARK","v":[-0.14,0.0,0.0,0.0]},{"f":"ADMINISTRADORA SHOPPING NOVA IGUACU LTDA","v":[0.0,0.0,0.0,-0.13]},{"f":"MAGALU LOG SERVICOS LOGISTICOS LTDA","v":[0.0,-0.14,0.0,0.14]}]},"DEL":{"Terceiros & Marketing":[{"f":"BARBOSA, MUSSNICH & ARAGAO","v":[0.0,-98.46,-105.07,-105.07]},{"f":"CLAVIS BBR CONSULTORIA EM INFORMATICA S.A.","v":[-40.36,-20.27,-20.27,-20.27]},{"f":"EVERIFY OPUS SOFTWARE","v":[-17.9,-17.9,-17.9,0.0]},{"f":"BDO RCS AUDITORES INDEPENDENTES","v":[0.0,-9.05,-9.05,0.0]},{"f":"EVERIFY OPUS SOFTWARE SERVICOS DE INFORMATICA LTDA","v":[0.0,0.0,0.0,-17.9]},{"f":"PORTAL ASSESSORIA CONTABIL LTDA","v":[-4.8,-4.59,-4.59,-0.76]},{"f":"IGNIS CONTABIL LTDA","v":[-4.4,-4.4,0.0,0.0]},{"f":"CORPSERVICES PARTICIPACOES E SERVICOS LTDA.","v":[0.0,0.0,-4.4,-4.4]},{"f":"INICIADOR INSTITUICAO DE PAGAMENTO LTDA","v":[0.0,0.0,0.0,-7.85]},{"f":"SOAR3S ASSESSORIA CONTABIL LTDA","v":[0.0,0.0,0.0,-3.83]},{"f":"ASSOCIACAO OPEN FINANCE","v":[-2.0,-1.06,0.0,0.0]},{"f":"TELEFONICA BRASIL S.A.","v":[0.0,0.0,0.0,-0.29]}],"Gastos com Locação":[{"f":"CUBO COWORKING ITAU","v":[-2.9,-2.9,-2.9,0.0]},{"f":"ASSOCIACAO CUBO COWORKING ITAU","v":[0.0,0.0,0.0,-2.96]},{"f":"ENEL DISTRIBUICAO SAO PAULO","v":[-0.4,-0.06,0.0,0.0]}],"Gastos com Pessoal":[{"f":"BRADESCO SAUDE S/A","v":[-32.42,-63.58,-55.24,-62.09]},{"f":"Receita Federal - INSS","v":[-73.41,-10.58,0.0,0.0]},{"f":"FUNCIONÁRIOS","v":[-69.08,0.0,0.0,0.0]},{"f":"FERNANDO FERREIRA PASSE","v":[-41.92,0.0,0.0,0.0]},{"f":"PAULO SERGIO SANT ANNA PASINATO","v":[0.0,-41.78,0.0,0.0]},{"f":"Receita Federal - FGTS","v":[-30.09,0.0,0.0,0.0]},{"f":"FELIPPE CATHOUD DE QUEIROZ","v":[-23.51,0.0,0.0,0.0]},{"f":"WASHINGTON OLIVEIRA DE SOUZA","v":[-18.99,0.0,0.0,0.0]},{"f":"RECEITA FEDERAL - FGTS","v":[-11.18,0.0,0.0,0.0]},{"f":"PORTO SEGURO","v":[-8.35,0.0,0.0,0.0]},{"f":"IFOOD","v":[-6.3,0.0,0.0,0.0]},{"f":"PREFEITURA DO MUNICIPIO DE SP","v":[0.0,-0.63,0.0,0.0]},{"f":"SINDIESP","v":[0.0,-0.2,0.0,0.0]}],"Tecnologia & Telecom":[{"f":"CONTA SIMPLES SOLUCOES DE PAGAMENTOS LTDA","v":[-41.17,-43.67,-38.15,-45.7]},{"f":"INICIADOR INSTITUICAO","v":[-41.52,-23.3,-21.98,0.0]},{"f":"SECURISOFT DO BRASIL","v":[-2.33,-2.33,-2.33,0.0]},{"f":"OMIEXPERIENCE LTDA.","v":[-0.48,-0.49,-0.49,-0.48]},{"f":"VIVO EMRESAS","v":[-0.16,-0.15,-0.15,0.0]},{"f":"CLICKSIGN GESTAO DE DOCUMENTOS S/A","v":[-0.12,-0.09,-0.09,-0.09]},{"f":"CLARO SA","v":[-0.11,0.0,-0.07,0.0]}],"Impostos e Contribuições":[{"f":"Receita Federal","v":[-56.47,-20.87,-21.64,-12.88]},{"f":"Prefeitura Municipal de São Paulo","v":[-0.38,0.0,-0.71,-0.36]}],"Outros":[{"f":"SAFE2PAY","v":[0.0,-0.2,0.0,0.0]},{"f":"SAFE2PAY INTERMEDIACAO DE NEGOCIOS LTDA","v":[0.0,0.0,0.0,-0.2]},{"f":"SALU","v":[-0.1,0.0,-0.1,0.0]}]},"REG":{"Serviços de Informações Cadastrais":[{"f":"SERASA S.A.","v":[0.0,-2.11,-2.31,-1.42]}],"Terceiros & Marketing":[{"f":"SOAR3S ASSESSORIA CONTABIL LTDA","v":[0.0,-2.17,-2.17,-2.17]},{"f":"PORTAL ASSESSORIA","v":[-2.03,0.0,0.0,0.0]}],"Gastos com Locação":[{"f":"Regus - Sao Paulo, Alphaville - Castelo Branco - T","v":[0.0,-1.16,-0.57,-0.57]}],"Gastos com Pessoal":[{"f":"SANZOVO SERVICOS ADMINISTRATIVOS LTDA","v":[-43.55,-37.54,-37.54,-43.55]},{"f":"LICIO C CARVALHO LTDA","v":[0.0,-80.0,-40.0,-40.0]},{"f":"LITHIUM TECH - LICIO","v":[-40.0,0.0,0.0,0.0]},{"f":"GUSTAVO GONCALVES CANDIAN LTDA","v":[0.0,0.0,-40.0,0.0]},{"f":"THAR_ Harry","v":[-18.77,-18.77,0.0,0.0]}],"Tecnologia & Telecom":[{"f":"CONTA SIMPLES SOLUCOES DE PAGAMENTOS LTDA","v":[0.0,-4.01,-4.97,-6.06]},{"f":"Omiexperience S/A","v":[0.0,0.0,-7.69,-4.74]},{"f":"NEW VOICE TELECOMUNICACOES EIRELI","v":[0.0,-1.72,-1.37,-1.63]},{"f":"CONTA SIMPLES SOLUCOES","v":[-4.04,0.0,0.0,0.0]},{"f":"LWSA S/A","v":[0.0,-0.85,-0.48,-0.43]},{"f":"OpenHaus Tecnologia LTDA","v":[0.0,-0.53,-0.53,-0.53]},{"f":"New Voice Telecom","v":[-1.42,0.0,0.0,0.0]},{"f":"I7 TEC SOLUCOES LTDA","v":[0.0,-0.47,-0.23,-0.15]},{"f":"OpenHaus","v":[-0.49,0.0,0.0,0.0]},{"f":"I7 Solution Ltda","v":[-0.31,0.0,0.0,0.0]},{"f":"SAFE2PAY","v":[-0.2,0.0,0.0,0.0]}],"Impostos e Contribuições":[{"f":"Receita Federal do Brasil","v":[-4.96,-10.85,-10.7,-9.38]},{"f":"MUNICIPIO DE BARUERI","v":[0.0,-3.11,-3.11,-3.15]},{"f":"Prefeitura Municipal de Barueri","v":[-2.7,0.0,0.0,0.0]}],"Outros":[{"f":"BR BRINDES","v":[-3.59,0.0,0.0,0.0]}]}};
 
 const SECS={
   'Consolidado':{id:'consolidado',rows:{'Saldo Inicial':199,'Recebimentos':201,'Pagamentos Operacionais':203,'Geração Operacional':213,'CAPEX':216,'Aquisição de Empresas':217,'Ger. após CAPEX':219,'Desp. Não Recorrentes':221,'Ger. após Desp.n.r.':223,'Total Dívidas':225,'Saldo Final':240,'Disp. Tesouraria':241,'Bloq. Garantia':242}},
@@ -325,7 +319,7 @@ const DFC_ROWS=[
   {k:'Pagamentos Operacionais',t:'normal',drill:true},
   {k:'Geração Operacional',t:'bold'},
   {k:'Aquisição de Empresas / Capex',t:'normal'},
-  {k:'Ger. após CAPEX',t:'bold',label:'Ger. após Aquisição de Empresas / Capex'},
+  {k:'Ger. após CAPEX',t:'bold'},
   {k:'Desp. Não Recorrentes',t:'normal',dnr:true},
   {k:'Ger. após Desp.n.r.',t:'bold'},
   {k:'Total Dívidas',t:'bold',divDrill:true},
@@ -400,10 +394,9 @@ function buildDrillRows(id,isCon,coKey){
     const catTot=sa(catV);
     const hasSubs=isCon?['ROK','DEL','REG'].some(k=>(val[k]||[]).length>0):(val||[]).length>0;
     rows+=`<tr class="d1-row${hasSubs?' d2-toggle':''}" data-d1="d1-${id}"${hasSubs?` onclick="tD2('${d2key}',this)"`:''}>`;
-    rows+=`<td>${cat}</td>`;
-    if(isCon){rows+=`<td class="col2025td col2025t-${id}"></td>`;for(let _m=0;_m<12;_m++)rows+=`<td class="col2025md col2025m-${id}"></td>`;}
+    rows+=`<td>${cat}</td>`;for(let m=0;m<12;m++)rows+=``;
     for(let i=0;i<REAL;i++){const v=catV[i];rows+=`<td class="${vcls(v)}" style="background:rgba(10,94,64,.025)">${v!==0?fmt(v):'—'}</td>`;}
-    for(let i=REAL;i<N;i++)rows+=`<td class="fc-cell${i===REAL?' boundary-fc':''}">FC</td>`;
+    for(let i=REAL;i<N;i++)rows+=`<td class="fc-cell">FC</td>`;
     rows+=`<td class="tcol ${vcls(catTot)}">${fmt(catTot)}</td></tr>`;
     if(isCon){
       [{k:'ROK',l:'Rede OK',rc:'d2-rok',sc:'d3-rok'},{k:'DEL',l:'Delend',rc:'d2-del',sc:'d3-del'},{k:'REG',l:'Régua',rc:'d2-reg',sc:'d3-reg'}].forEach(({k,l,rc,sc})=>{
@@ -411,26 +404,23 @@ function buildDrillRows(id,isCon,coKey){
         const cV=Array(REAL).fill(0);cF.forEach(x=>x.v.forEach((v,i)=>cV[i]+=v));
         const cT=sa(cV);const d3key=`d3-${id}-${catKey}-${k}`;
         rows+=`<tr class="d2-row d2-toggle ${rc}" data-d2="${d2key}" onclick="tD3('${d3key}',this)"><td>${l}</td>`;
-        rows+=`<td class="col2025td col2025t-${id}"></td>`;for(let _m=0;_m<12;_m++)rows+=`<td class="col2025md col2025m-${id}"></td>`;
         for(let i=0;i<REAL;i++){const v=cV[i];rows+=`<td class="${vcls(v)}">${v!==0?fmt(v):'—'}</td>`;}
-        for(let i=REAL;i<N;i++)rows+=`<td class="${i===REAL?'boundary-fc':''}"></td>`;
+        for(let i=REAL;i<N;i++)rows+=`<td></td>`;
         rows+=`<td class="tcol ${vcls(cT)}">${fmt(cT)}</td></tr>`;
         cF.forEach(({f,v:vs})=>{
           const tot=sa(vs);
-          rows+=`<tr class="d3-row ${sc}" data-d3="${d3key}"><td>${f}</td>`;
-          if(isCon){rows+=`<td class="col2025td col2025t-${id}"></td>`;for(let _m=0;_m<12;_m++)rows+=`<td class="col2025md col2025m-${id}"></td>`;}
+          rows+=`<tr class="d3-row ${sc}" data-d3="${d3key}"><td>${f}</td><td class="col2025td col2025t-${id}"></td>`;for(let _m=0;_m<12;_m++)rows+=`<td class="col2025md col2025m-${id}"></td>`;
           for(let i=0;i<REAL;i++){const v=vs[i];rows+=`<td class="${vcls(v)}">${v!==0?fmt(v):'—'}</td>`;}
-          for(let i=REAL;i<N;i++)rows+=`<td class="${i===REAL?'boundary-fc':''}"></td>`;
+          for(let i=REAL;i<N;i++)rows+=`<td></td>`;
           rows+=`<td class="tcol ${vcls(tot)}">${fmt(tot)}</td></tr>`;
         });
       });
     }else{
       (val||[]).forEach(({f,v:vs})=>{
         const tot=sa(vs);
-        rows+=`<tr class="d2-row d2-sup" data-d2="${d2key}"><td>${f}</td>`;
-        if(isCon){rows+=`<td class="col2025td col2025t-${id}"></td>`;for(let _m=0;_m<12;_m++)rows+=`<td class="col2025md col2025m-${id}"></td>`;}
+        rows+=`<tr class="d2-row d2-sup" data-d2="${d2key}"><td>${f}</td><td class="col2025td col2025t-${id}"></td>`;for(let _m=0;_m<12;_m++)rows+=`<td class="col2025md col2025m-${id}"></td>`;
         for(let i=0;i<REAL;i++){const v=vs[i];rows+=`<td class="${vcls(v)}">${v!==0?fmt(v):'—'}</td>`;}
-        for(let i=REAL;i<N;i++)rows+=`<td class="${i===REAL?'boundary-fc':''}"></td>`;
+        for(let i=REAL;i<N;i++)rows+=`<td></td>`;
         rows+=`<td class="tcol ${vcls(tot)}">${fmt(tot)}</td></tr>`;
       });
     }
@@ -474,30 +464,22 @@ function buildSection(company,data){
   ];
 
   // Table
-  let thead='<thead><tr><th><div class="i"> </div></th>';
-  if(isCon){
-    // Banda vazia sobre os meses de 2025 (escondidos por padrão)
-    thead+=`<th class="col2025m-${id}" colspan="12" style="display:none;background:rgba(107,98,88,.04)"><div class="i" style="color:#6b6258"> </div></th>`;
-    // Banda vazia sobre a coluna ▶ 2025 (totalizadora)
-    thead+=`<th style="background:var(--paper);border-left:2px solid #a89e8b;border-right:2px solid #a89e8b"><div class="i"> </div></th>`;
-  }
-  thead+=`<th colspan="${REAL}" class="band-real"><div class="i" style="text-align:center;color:inherit">▓ REALIZADO</div></th><th colspan="${N-REAL}" class="band-fc"><div class="i" style="text-align:center;color:inherit">░ FORECAST</div></th><th class="tcol" style="border-left:2px solid #a89e8b;background:var(--paper)"><div class="i"> </div></th></tr><tr><th><div class="i">Linha</div></th>`
+  let thead=`<th colspan="${REAL}" class="band-real"><div class="i" style="text-align:center;color:inherit">▓ REALIZADO</div></th><th colspan="${N-REAL}" class="band-fc"><div class="i" style="text-align:center;color:inherit">░ FORECAST</div></th><th class="tcol" style="border-left:2px solid var(--rule2);background:var(--paper)"><div class="i"> </div></th></tr><tr><th><div class="i">Linha</div></th>`
   if(isCon){
     ['Jan','Fev','Mar','Abr','Mai','Jun','Jul','Ago','Set','Out','Nov','Dez'].forEach(m=>{
       thead+=`<th class="col2025m-${id}" style="display:none;min-width:72px;background:rgba(107,98,88,.05)"><div class="i" style="color:#6b6258">${m}/25</div></th>`;
     });
-    thead+=`<th id="hdr25-${id}" onclick="tog25('${id}')" style="background:var(--paper);cursor:pointer;white-space:nowrap;min-width:80px;border-left:2px solid #a89e8b;border-right:2px solid #a89e8b"><div class="i" style="color:var(--ink)">&#9658; 2025</div></th>`;
+    thead+=`<th id="hdr25-${id}" onclick="tog25('${id}')" style="background:var(--paper);cursor:pointer;white-space:nowrap;min-width:80px;border-left:2px solid var(--rule2);border-right:2px solid var(--rule2)"><div class="i" style="color:var(--ink)">&#9658; 2025</div></th>`;
   }
-  MM.forEach((_,i)=>{const bd=i===REAL?'border-left:2px solid #a89e8b;':'';thead+=`<th style="${bd}background:${i<REAL?'rgba(10,94,64,.08)':'rgba(154,108,24,.06)'}"><div class="i">${MM[i]}/26</div></th>`;}  );
-  thead+=`<th class="tcol" style="background:var(--paper);border-left:2px solid #a89e8b"><div class="i">2026</div></th></tr></thead>`;
+  MM.forEach((_,i)=>{thead+=`<th style="background:${i<REAL?'rgba(10,94,64,.05)':'rgba(154,108,24,.03)'}"><div class="i">${MM[i]}/26</div></th>`;}  );
+  thead+=`<th class="tcol" style="background:var(--paper);border-left:2px solid var(--rule2)"><div class="i">2026</div></th></tr></thead>`;
 
   let tbody='<tbody>';
-  DFC_ROWS.forEach(({k,t,drill,saldo,dnr,divDrill,label})=>{
+  DFC_ROWS.forEach(({k,t,drill,saldo,dnr,divDrill})=>{
     const vals=data[k];if(!vals)return;
-    const displayLabel=label||k;
     const rc=t==='bold'?'r-bold':t==='sub'?'r-sub':'r-normal';
     const isSF=k==='Saldo Final';
-    tbody+=`<tr class="${rc}${drill?' d1-toggle':''}${dnr?' d1-toggle':''}${divDrill?' d1-toggle':''}"${drill?` onclick="tD1('d1-${id}',this)"`:dnr?` onclick="tD1('d1dnr-${id}',this)"`:divDrill?` onclick="tD1('d1div-${id}',this)"`:''} ><td>${displayLabel}</td>`;
+    tbody+=`<tr class="${rc}${drill?' d1-toggle':''}${dnr?' d1-toggle':''}${divDrill?' d1-toggle':''}"${drill?` onclick="tD1('d1-${id}',this)"`:dnr?` onclick="tD1('d1dnr-${id}',this)"`:divDrill?` onclick="tD1('d1div-${id}',this)"`:''} ><td>${k}</td>`;
     if(isCon){
       for(let _m=0;_m<12;_m++){
         const _vm=DFC_2025[k]!=null?DFC_2025[k][_m]:null;
@@ -509,7 +491,7 @@ function buildSection(company,data){
     for(let i=0;i<N;i++){
       const v=vals[i];
       const hl=isSF&&v<0;
-      tbody+=`<td class="${vcls(v,hl)}${i===REAL?' boundary-fc':''}" style="background:${i<REAL?'rgba(10,94,64,.02)':'rgba(154,108,24,.015)'}">${fmt(v)}</td>`;
+      tbody+=`<td class="${vcls(v,hl)}" style="background:${i<REAL?'rgba(10,94,64,.02)':'rgba(154,108,24,.015)'}">${fmt(v)}</td>`;
     }
     tbody+=`<td class="tcol ${vcls(vals[N])}">${fmt(vals[N])}</td></tr>`;
     if(divDrill&&isCon){
@@ -531,7 +513,7 @@ function buildSection(company,data){
         tbody+=`<tr class="d1-row${hasBancos?' d2-toggle':''}" data-d1="${ddKey}"${hasBancos?` onclick="tD2('${subKey}',this)"`:''}>`;
         tbody+=`<td>${sub.k}</td>`;
         if(isCon){tbody+='<td class="col2025td col2025t-'+id+'"></td>';for(let _m=0;_m<12;_m++)tbody+='<td class="col2025md col2025m-'+id+'"></td>';}
-        for(let i=0;i<N;i++){const v=subVals[i];tbody+=`<td class="${vcls(v)}${i===REAL?' boundary-fc':''}" style="background:rgba(22,61,120,.025)">${v!==0?fmt(v):'—'}</td>`;}
+        for(let i=0;i<N;i++){const v=subVals[i];tbody+=`<td class="${vcls(v)}" style="background:rgba(22,61,120,.025)">${v!==0?fmt(v):'—'}</td>`;}
         tbody+=`<td class="tcol ${vcls(subTotal)}">${fmt(subTotal)}</td></tr>`;
         if(hasBancos&&LOANS_DRILL.ROK&&LOANS_DRILL.ROK[sub.drillBancos]){
           const bancos=LOANS_DRILL.ROK[sub.drillBancos].bancos||{};
@@ -540,7 +522,7 @@ function buildSection(company,data){
             const bTotal=vals.reduce((a,b)=>a+b,0);
             tbody+=`<tr class="d2-row d2-rok" data-d2="${subKey}"><td>${banco}</td>`;
             if(isCon){tbody+='<td class="col2025td col2025t-'+id+'"></td>';for(let _m=0;_m<12;_m++)tbody+='<td class="col2025md col2025m-'+id+'"></td>';}
-            for(let i=0;i<N;i++){const v=vals[i]||0;tbody+=`<td class="${vcls(v)}${i===REAL?' boundary-fc':''}">${v!==0?fmt(v):'—'}</td>`;}
+            for(let i=0;i<N;i++){const v=vals[i]||0;tbody+=`<td class="${vcls(v)}">${v!==0?fmt(v):'—'}</td>`;}
             tbody+=`<td class="tcol ${vcls(bTotal)}">${fmt(bTotal)}</td></tr>`;
           });
         }
@@ -552,48 +534,27 @@ function buildSection(company,data){
       tbody+=`<tr class="d1-row drill-fc-note" data-d1="d1-${id}"><td colspan="${isCon?N+14:N+2}">⚠ Fornecedores disponíveis apenas para Jan–Abr (realizados). Forecast usa totais projetados da planilha DFC.</td></tr>`;
     }
     if(dnr){
-      // Desp. Não Recorrentes breakdown by company + fornecedores
+      // Desp. Não Recorrentes breakdown by company (simple sub-rows)
       const dnrKey='d1dnr-'+id;
       const coLabels={ROK:'Rede OK',DEL:'Delend',REG:'Régua'};
       ['ROK','DEL','REG'].forEach(co=>{
         const coV=DNR_DATA[co];
         if(!coV||coV.every(v=>v===0))return;
-        // Total considera apenas realizado (Jan-Abr)
-        const coTotal=coV.slice(0,REAL).reduce((a,b)=>a+b,0);
-        // Verifica se tem fornecedores ao vivo no DRILL[co]['Desp. Não Recorrentes']
-        const fornecedores=(DRILL[co]&&DRILL[co]['Desp. Não Recorrentes'])||[];
-        const hasForn=fornecedores.length>0;
-        const dnrSubKey=`d2dnr-${id}-${co}`;
-        const rowClass=`d1-row d2-${co.toLowerCase()}${hasForn?' d2-toggle':''}`;
-        const clickHandler=hasForn?` onclick="tD2('${dnrSubKey}',this)"`:'';
-        tbody+=`<tr class="${rowClass}" data-d1="${dnrKey}"${clickHandler}><td>${coLabels[co]}</td>`;
-        if(isCon){tbody+=`<td class="col2025td col2025t-${id}"></td>`;for(let _m=0;_m<12;_m++)tbody+=`<td class="col2025md col2025m-${id}"></td>`;}
-        for(let i=0;i<REAL;i++){const v=coV[i];tbody+=`<td class="${vcls(v)}">${v!==0?fmt(v):'—'}</td>`;}
-        for(let i=REAL;i<N;i++)tbody+=`<td class="fc-cell${i===REAL?' boundary-fc':''}">FC</td>`;
+        const coTotal=coV.reduce((a,b)=>a+b,0);
+        tbody+=`<tr class="d1-row d2-${co.toLowerCase()}" data-d1="${dnrKey}"><td>${coLabels[co]}</td><td class="col2025td col2025t-${id}"></td>`;for(let _m=0;_m<12;_m++)tbody+=`<td class="col2025md col2025m-${id}"></td>`;
+        for(let i=0;i<N;i++){const v=coV[i];tbody+=`<td class="${vcls(v)}">${v!==0?fmt(v):'—'}</td>`;}
         tbody+=`<td class="tcol ${vcls(coTotal)}">${fmt(coTotal)}</td></tr>`;
-        // Fornecedores dessa empresa (ocultos até clicar)
-        if(hasForn){
-          const sc=co==='ROK'?'d3-rok':co==='DEL'?'d3-del':'d3-reg';
-          fornecedores.forEach(({f,v:vs})=>{
-            const tot=vs.reduce((a,b)=>a+b,0);
-            tbody+=`<tr class="d2-row ${sc}" data-d2="${dnrSubKey}"><td>${f}</td>`;
-            if(isCon){tbody+=`<td class="col2025td col2025t-${id}"></td>`;for(let _m=0;_m<12;_m++)tbody+=`<td class="col2025md col2025m-${id}"></td>`;}
-            for(let i=0;i<REAL;i++){const v=vs[i];tbody+=`<td class="${vcls(v)}">${v!==0?fmt(v):'—'}</td>`;}
-            for(let i=REAL;i<N;i++)tbody+=`<td class="fc-cell${i===REAL?' boundary-fc':''}">FC</td>`;
-            tbody+=`<td class="tcol ${vcls(tot)}">${fmt(tot)}</td></tr>`;
-          });
-        }
       });
     }
     if(saldo&&data['Disp. Tesouraria']&&data['Bloq. Garantia']){
       const disp=data['Disp. Tesouraria'],bloq=data['Bloq. Garantia'];
       tbody+=`<tr class="r-saldo-sub r-saldo-disp"><td>↳ Disponível na Tesouraria</td>`;
       if(isCon){const _s25=DFC_2025['Disp. Tesouraria'];for(let _m=0;_m<12;_m++)tbody+='<td class="col2025md col2025m-'+id+'">'+(_s25&&_s25[_m]!==0?fmt(_s25[_m]):'—')+'</td>';tbody+='<td class="col2025td col2025t-'+id+'">'+(_s25?fmt(_s25[12]):'—')+'</td>';}
-      for(let i=0;i<N;i++){const v=disp[i];tbody+=`<td class="${vcls(v,v<0)}${i===REAL?' boundary-fc':''}">${fmt(v)}</td>`;}
+      for(let i=0;i<N;i++){const v=disp[i];tbody+=`<td class="${vcls(v,v<0)}">${fmt(v)}</td>`;}
       tbody+=`<td class="tcol ${vcls(disp[N])}">${fmt(disp[N])}</td></tr>`;
       tbody+=`<tr class="r-saldo-sub r-saldo-bloq"><td>↳ Bloqueado em Garantia</td>`;
       if(isCon){const _s25=DFC_2025['Bloq. Garantia'];for(let _m=0;_m<12;_m++)tbody+='<td class="col2025md col2025m-'+id+'">'+(_s25&&_s25[_m]!==0?fmt(_s25[_m]):'—')+'</td>';tbody+='<td class="col2025td col2025t-'+id+'">'+(_s25?fmt(_s25[12]):'—')+'</td>';}
-      for(let i=0;i<N;i++)tbody+=`<td${i===REAL?' class="boundary-fc"':''}>${fmt(bloq[i])}</td>`;
+      for(let i=0;i<N;i++)tbody+=`<td>${fmt(bloq[i])}</td>`;
       tbody+=`<td class="tcol">${fmt(bloq[N])}</td></tr>`;
     }
   });
@@ -809,131 +770,14 @@ function buildDivida(){
 function showErr(msg){document.getElementById('loading').style.display='none';const el=document.getElementById('error');el.style.display='block';el.innerHTML='⚠ '+msg;}
 function switchTab(id,el){document.querySelectorAll('.section').forEach(s=>s.classList.remove('active'));document.querySelectorAll('.tab').forEach(t=>t.classList.remove('active'));document.getElementById('sec-'+id).classList.add('active');el.classList.add('active');}
 
-// Parse aba de "Pagamentos {Empresa}" e monta estrutura {Descricao: [{f:fornecedor, v:[jan,fev,mar,abr]}]}
-// Esperado: linhas com colunas [Data, Fornecedor, categoria, Descrição Fluxo, histórico, Valor]
-// Filtra: valores negativos (pagamentos), datas em 2026 jan-abr
-// Agrupa por Descrição Fluxo > Fornecedor; Top 25 + "Outros (X)"
-function parsePagAba(rows){
-  if(!rows||rows.length<3)return null;
-  const norm=s=>(s||'').toString().normalize('NFD').replace(/[\u0300-\u036f]/g,'').toLowerCase().replace(/\s+/g,' ').trim();
-  // Detecta automaticamente em qual linha (entre 0 e 4) está o cabeçalho real.
-  // Procura a 1ª linha que contenha algo começando com "data" E "fornecedor".
-  let headerRow=-1;
-  for(let r=0;r<Math.min(5,rows.length);r++){
-    const cells=(rows[r]||[]).map(norm);
-    const hasData=cells.some(c=>c.startsWith('data'));
-    const hasForn=cells.some(c=>c.startsWith('fornecedor'));
-    if(hasData&&hasForn){headerRow=r;break;}
-  }
-  if(headerRow<0){console.warn('Pag: não achei linha de cabeçalho com Data+Fornecedor nas primeiras 5 linhas');return null;}
-  const header=rows[headerRow].map(c=>norm(c));
-  const findCol=(...needles)=>{
-    const ns=needles.map(norm);
-    for(const n of ns){const i=header.indexOf(n);if(i>=0)return i;}
-    for(const n of ns){const i=header.findIndex(h=>h&&(h.startsWith(n)||h.includes(n)));if(i>=0)return i;}
-    return -1;
-  };
-  const ciData=findCol('data','data de crédito','data de credito','data de crédito ou débito','data de credito ou debito','data crédito','data credito','data pgto','data pagamento');
-  const ciForn=findCol('fornecedor');
-  const ciDesc=findCol('descrição fluxo','descricao fluxo','descrição do fluxo','descricao do fluxo','fluxo','descrição','descricao');
-  const ciValor=findCol('valor','valor pago','valor pgto','vlr','vl pago');
-  if(ciData<0||ciForn<0||ciDesc<0||ciValor<0){console.warn('Pag: colunas não encontradas. Cabeçalho na linha',headerRow,':',header,'| Indices: data=',ciData,'fornec=',ciForn,'fluxo=',ciDesc,'valor=',ciValor);return null;}
-  // Parse data: aceita Date object, string ISO, ou D/M/YYYY (e DD/MM/YYYY)
-  const parseD=s=>{
-    if(!s)return null;
-    if(s instanceof Date){return{d:s.getDate(),mo:s.getMonth()+1,y:s.getFullYear()};}
-    const str=String(s).trim();
-    let m=str.match(/^(\d{4})-(\d{1,2})-(\d{1,2})/); // ISO
-    if(m)return{y:+m[1],mo:+m[2],d:+m[3]};
-    m=str.match(/^(\d{1,2})\/(\d{1,2})\/(\d{4})/); // D/M/YYYY ou DD/MM/YYYY
-    if(m)return{d:+m[1],mo:+m[2],y:+m[3]};
-    return null;
-  };
-  // Parse valor: aceita number, ou string BR (1.234,56 / -40.000,00) ou US (1234.56)
-  const parseV=s=>{
-    if(typeof s==='number')return s;
-    if(!s)return 0;
-    let t=String(s).trim().replace(/\s/g,'').replace('R$','');
-    if(t.includes(',')&&t.includes('.')){t=t.replace(/\./g,'').replace(',','.');}
-    else if(t.includes(','))t=t.replace(',','.');
-    return parseFloat(t)||0;
-  };
-  // Normaliza nomes de fluxo para casar com as categorias do dashboard
-  const normalizaDesc=desc=>{
-    const dN=desc.toLowerCase().normalize('NFD').replace(/[\u0300-\u036f]/g,'');
-    if(dN.includes('despesas nao recorrentes')||dN.includes('desp. nao recorrentes')||dN.includes('desp nao recorrentes'))return 'Desp. Não Recorrentes';
-    if(dN==='aquisicao de empresas')return 'Aquisição de Empresas';
-    if(dN==='capex')return 'CAPEX';
-    if(dN.includes('despesas bancarias'))return 'Despesas Bancárias';
-    return desc;
-  };
-  // Agrega: agg[fluxo][fornecedor] = [jan,fev,mar,abr]
-  const agg={};
-  for(let i=headerRow+1;i<rows.length;i++){
-    const row=rows[i];if(!row||row[ciData]==null||row[ciData]==='')continue;
-    const d=parseD(row[ciData]);if(!d)continue;
-    if(d.y!==2026)continue;
-    if(d.mo<1||d.mo>4)continue;
-    const v=parseV(row[ciValor]);
-    if(!(v<0))continue;
-    let desc=String(row[ciDesc]||'').trim();
-    if(!desc)continue;
-    desc=normalizaDesc(desc);
-    const forn=String(row[ciForn]||'Não informado').trim()||'Não informado';
-    const vMil=v/1000;
-    if(!agg[desc])agg[desc]={};
-    if(!agg[desc][forn])agg[desc][forn]=[0,0,0,0];
-    agg[desc][forn][d.mo-1]+=vMil;
-  }
-  // Monta saída no formato DRILL.REG
-  const out={};
-  for(const desc of Object.keys(agg)){
-    const forns=Object.entries(agg[desc]).map(([f,vs])=>({f,v:vs.map(x=>Math.round(x*100)/100),tot:vs.reduce((a,b)=>a+b,0)}));
-    // Ordena por valor absoluto (mais negativo primeiro)
-    forns.sort((a,b)=>a.tot-b.tot);
-    const TOP=25;
-    if(forns.length<=TOP){
-      out[desc]=forns.map(({f,v})=>({f,v}));
-    }else{
-      const top=forns.slice(0,TOP).map(({f,v})=>({f,v}));
-      const restos=forns.slice(TOP);
-      const outros=[0,0,0,0];
-      restos.forEach(r=>r.v.forEach((x,i)=>outros[i]+=x));
-      top.push({f:`Outros (${restos.length} fornecedores)`,v:outros.map(x=>Math.round(x*100)/100)});
-      out[desc]=top;
-    }
-  }
-  return out;
-}
-
 function loadAll(){
   const btn=document.getElementById('btn-r');
   if(btn)btn.classList.add('spin');
   document.getElementById('loading').style.display='block';
   document.querySelectorAll('.section').forEach(s=>s.classList.remove('active'));
-  // Fetch em paralelo: DFC principal + 3 abas Pagamentos (REG, ROK, DEL)
-  const pDFC=new Promise((resolve,reject)=>{Papa.parse(CSV_DFC,{download:true,complete:r=>resolve(r),error:e=>reject(e)});});
-  const pREG=new Promise(resolve=>{Papa.parse(CSV_PAG_REG,{download:true,complete:r=>resolve(r),error:()=>resolve(null)});});
-  const pROK=new Promise(resolve=>{Papa.parse(CSV_PAG_ROK,{download:true,complete:r=>resolve(r),error:()=>resolve(null)});});
-  const pDEL=new Promise(resolve=>{Papa.parse(CSV_PAG_DEL,{download:true,complete:r=>resolve(r),error:()=>resolve(null)});});
-  Promise.all([pDFC,pREG,pROK,pDEL]).then(([resDFC,resREG,resROK,resDEL])=>{
-    const rows=resDFC.data;
+  Papa.parse(CSV_DFC,{download:true,complete:function(res){
+    const rows=res.data;
     if(!rows||rows.length<200){showErr('Planilha retornou dados insuficientes.');return;}
-    // Tenta sobrescrever DRILL.REG / ROK / DEL com dados ao vivo. Se falhar, mantém hard-coded.
-    const tryLive=(res,key,label)=>{
-      try{
-        if(res&&res.data&&res.data.length>1){
-          const live=parsePagAba(res.data);
-          if(live&&Object.keys(live).length>0){DRILL[key]=live;console.log(`DRILL.${key} ao vivo: ${Object.keys(live).length} categorias (${label})`);return true;}
-          else console.warn(`Pag ${label} retornou vazio, usando fallback hard-coded`);
-        }else console.warn(`Pag ${label} sem dados, usando fallback hard-coded`);
-      }catch(e){console.error(`Erro ao parsear Pag ${label}, usando fallback:`,e);}
-      return false;
-    };
-    // Leitura ao vivo das 3 abas Pagamentos (REG, ROK, DEL)
-    tryLive(resREG,'REG','Regua');
-    tryLive(resROK,'ROK','Rede OK');
-    tryLive(resDEL,'DEL','Delend');
     try{
       document.getElementById('loading').style.display='none';
       // Extract debt sub-rows for drill
@@ -973,7 +817,8 @@ function loadAll(){
       document.getElementById('tr-info').textContent='Atualização: '+now.toLocaleDateString('pt-BR');
       if(btn)btn.classList.remove('spin');
     }catch(e){showErr('Erro: '+e.message);}
-  }).catch(e=>{showErr('Não foi possível buscar o CSV.<br>'+(e&&e.message?e.message:''));});
+  },error:function(e){showErr('Não foi possível buscar o CSV.<br>'+e.message);}
+  });
 }
 function refreshAll(){loadAll();}
 loadAll();
