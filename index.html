@@ -464,7 +464,14 @@ function buildSection(company,data){
   ];
 
   // Table
-  let thead=`<th colspan="${REAL}" class="band-real"><div class="i" style="text-align:center;color:inherit">▓ REALIZADO</div></th><th colspan="${N-REAL}" class="band-fc"><div class="i" style="text-align:center;color:inherit">░ FORECAST</div></th><th class="tcol" style="border-left:2px solid var(--rule2);background:var(--paper)"><div class="i"> </div></th></tr><tr><th><div class="i">Linha</div></th>`
+  let thead='<thead><tr><th><div class="i"> </div></th>';
+  if(isCon){
+    // Banda vazia sobre os meses de 2025 (escondidos por padrão)
+    thead+=`<th class="col2025m-${id}" colspan="12" style="display:none;background:rgba(107,98,88,.04)"><div class="i" style="color:#6b6258"> </div></th>`;
+    // Banda vazia sobre a coluna ▶ 2025 (totalizadora)
+    thead+=`<th style="background:var(--paper);border-left:2px solid var(--rule2);border-right:2px solid var(--rule2)"><div class="i"> </div></th>`;
+  }
+  thead+=`<th colspan="${REAL}" class="band-real"><div class="i" style="text-align:center;color:inherit">▓ REALIZADO</div></th><th colspan="${N-REAL}" class="band-fc"><div class="i" style="text-align:center;color:inherit">░ FORECAST</div></th><th class="tcol" style="border-left:2px solid var(--rule2);background:var(--paper)"><div class="i"> </div></th></tr><tr><th><div class="i">Linha</div></th>`
   if(isCon){
     ['Jan','Fev','Mar','Abr','Mai','Jun','Jul','Ago','Set','Out','Nov','Dez'].forEach(m=>{
       thead+=`<th class="col2025m-${id}" style="display:none;min-width:72px;background:rgba(107,98,88,.05)"><div class="i" style="color:#6b6258">${m}/25</div></th>`;
