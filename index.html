@@ -666,11 +666,18 @@ function buildCharts(id,data){
     const pOp=m12('Pagamentos Operacionais').map(Math.abs);
     const aEmp=m12('Aquisição de Empresas').map(Math.abs);
     const dNR=m12('Desp. Não Recorrentes').map(Math.abs);
-    const div=m12('Total Dívidas').map(v=>v<0?Math.abs(v):0);
+    // Dívidas SEM captação: apenas pagamento de empréstimos + parcelamentos + desp. bancárias
+    const divPag=m12('_div_pagDFC');
+    const divParl=m12('_div_parlDFC');
+    const divDesp=m12('_div_despDFC');
+    const div=divPag.map((v,i)=>{
+      const soma=(v||0)+(divParl[i]||0)+(divDesp[i]||0);
+      return soma<0?Math.abs(soma):0;
+    });
     const legItems=[
       {c:C_RECV_R,l:'Recebimentos Real'},{c:C_RECV_F,l:'Recebimentos FC'},
       {c:C_OPER_R,l:'Operacionais'},{c:C_AQUI_R,l:'Aquisição'},
-      {c:C_DNRR_R,l:'Desp. N. Rec.'},{c:C_DIVD_R,l:'NET Dívidas'}
+      {c:C_DNRR_R,l:'Desp. N. Rec.'},{c:C_DIVD_R,l:'Pgto Dívidas'}
     ];
     const legEl=document.getElementById('leg-'+id);
     if(legEl)legEl.innerHTML=legItems.map(l=>`<div class="cl-item"><div class="cl-dot" style="background:${l.c}"></div><span>${l.l}</span></div>`).join('');
@@ -688,7 +695,7 @@ function buildCharts(id,data){
       {label:'Operacionais',data:pOp,backgroundColor:MM.map((_,i)=>i<REAL?C_OPER_R:C_OPER_F),borderRadius:0,borderSkipped:false,stack:'p'},
       {label:'Aquisição',data:aEmp,backgroundColor:MM.map((_,i)=>i<REAL?C_AQUI_R:C_AQUI_F),borderRadius:0,borderSkipped:false,stack:'p'},
       {label:'Desp. N. Rec.',data:dNR,backgroundColor:MM.map((_,i)=>i<REAL?C_DNRR_R:C_DNRR_F),borderRadius:0,borderSkipped:false,stack:'p'},
-      {label:'NET Dívidas',data:div,backgroundColor:MM.map((_,i)=>i<REAL?C_DIVD_R:C_DIVD_F),borderRadius:3,borderSkipped:false,stack:'p'},
+      {label:'Pgto Dívidas',data:div,backgroundColor:MM.map((_,i)=>i<REAL?C_DIVD_R:C_DIVD_F),borderRadius:3,borderSkipped:false,stack:'p'},
     ]},options:o});
     // Label plugin - each label above its own bar
     const fmtM=v=>(v/1000).toFixed(1).replace('.',',');
