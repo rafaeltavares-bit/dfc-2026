@@ -150,8 +150,8 @@ table.dfc th .i{padding:9px 13px;display:block;text-align:right;font-size:11px;l
 table.dfc th:first-child .i{text-align:left;min-width:240px;}
 table.dfc th.tcol .i{color:var(--ink2);font-weight:700;}
 .band-row th{border-bottom:none;}
-.band-real{background:rgba(10,94,64,.16);color:var(--em);text-align:center;}
-.band-fc{background:rgba(154,108,24,.16);color:var(--am);text-align:center;}
+.band-real{background:rgba(10,94,64,.25);color:var(--em);text-align:center;}
+.band-fc{background:rgba(154,108,24,.22);color:var(--am);text-align:center;}
 table.dfc td{padding:8px 13px;text-align:right;border-bottom:1px solid rgba(200,191,176,.35);white-space:nowrap;color:var(--ink2);font-size:13px;}
 table.dfc td:first-child{text-align:left;color:var(--ink3);}
 table.dfc tr:last-child td{border-bottom:none;}
@@ -172,7 +172,7 @@ table.dfc td.fc-cell{color:var(--ink3)!important;font-style:italic;font-size:11p
 .d1-toggle.open td:first-child::before{content:"▼ ";}
 .d1-row{display:none;}
 .d1-row.vis{display:table-row;}
-.d1-row td{font-size:12px;padding:7px 13px;}
+.d1-row td{font-size:12px;padding:7px 13px;border-bottom:1px solid rgba(168,158,139,.4)!important;}
 .d1-row td:first-child{padding-left:24px;color:var(--ink3);}
 
 .d2-toggle{cursor:pointer;}
@@ -180,6 +180,7 @@ table.dfc td.fc-cell{color:var(--ink3)!important;font-style:italic;font-size:11p
 .d2-toggle.open td:first-child::before{content:"▼ ";}
 .d2-row{display:none;}
 .d2-row.vis{display:table-row;}
+.d2-row td{border-bottom:1px solid rgba(168,158,139,.4)!important;}
 .d2-rok td{background:rgba(22,61,120,.04);}
 .d2-rok td:first-child{padding-left:40px;color:var(--sp);font-weight:700;font-size:12px;}
 .d2-rok.d2-toggle td:first-child::before{color:var(--sp);}
@@ -191,6 +192,7 @@ table.dfc td.fc-cell{color:var(--ink3)!important;font-style:italic;font-size:11p
 .d2-reg.d2-toggle td:first-child::before{color:var(--em);}
 .d3-row{display:none;}
 .d3-row.vis{display:table-row;}
+.d3-row td{border-bottom:1px solid rgba(168,158,139,.3)!important;}
 .d3-rok td{font-size:12px;padding:5px 13px;background:rgba(22,61,120,.02);}
 .d3-rok td:first-child{padding-left:58px;color:var(--ink3);}
 .d3-del td{font-size:12px;padding:5px 13px;background:rgba(10,79,244,.02);}
@@ -397,7 +399,8 @@ function buildDrillRows(id,isCon,coKey){
     const catTot=sa(catV);
     const hasSubs=isCon?['ROK','DEL','REG'].some(k=>(val[k]||[]).length>0):(val||[]).length>0;
     rows+=`<tr class="d1-row${hasSubs?' d2-toggle':''}" data-d1="d1-${id}"${hasSubs?` onclick="tD2('${d2key}',this)"`:''}>`;
-    rows+=`<td>${cat}</td>`;for(let m=0;m<12;m++)rows+=``;
+    rows+=`<td>${cat}</td>`;
+    if(isCon){rows+=`<td class="col2025td col2025t-${id}"></td>`;for(let _m=0;_m<12;_m++)rows+=`<td class="col2025md col2025m-${id}"></td>`;}
     for(let i=0;i<REAL;i++){const v=catV[i];rows+=`<td class="${vcls(v)}" style="background:rgba(10,94,64,.025)">${v!==0?fmt(v):'—'}</td>`;}
     for(let i=REAL;i<N;i++)rows+=`<td class="fc-cell">FC</td>`;
     rows+=`<td class="tcol ${vcls(catTot)}">${fmt(catTot)}</td></tr>`;
@@ -407,12 +410,14 @@ function buildDrillRows(id,isCon,coKey){
         const cV=Array(REAL).fill(0);cF.forEach(x=>x.v.forEach((v,i)=>cV[i]+=v));
         const cT=sa(cV);const d3key=`d3-${id}-${catKey}-${k}`;
         rows+=`<tr class="d2-row d2-toggle ${rc}" data-d2="${d2key}" onclick="tD3('${d3key}',this)"><td>${l}</td>`;
+        rows+=`<td class="col2025td col2025t-${id}"></td>`;for(let _m=0;_m<12;_m++)rows+=`<td class="col2025md col2025m-${id}"></td>`;
         for(let i=0;i<REAL;i++){const v=cV[i];rows+=`<td class="${vcls(v)}">${v!==0?fmt(v):'—'}</td>`;}
         for(let i=REAL;i<N;i++)rows+=`<td></td>`;
         rows+=`<td class="tcol ${vcls(cT)}">${fmt(cT)}</td></tr>`;
         cF.forEach(({f,v:vs})=>{
           const tot=sa(vs);
-          rows+=`<tr class="d3-row ${sc}" data-d3="${d3key}"><td>${f}</td><td class="col2025td col2025t-${id}"></td>`;for(let _m=0;_m<12;_m++)rows+=`<td class="col2025md col2025m-${id}"></td>`;
+          rows+=`<tr class="d3-row ${sc}" data-d3="${d3key}"><td>${f}</td>`;
+          if(isCon){rows+=`<td class="col2025td col2025t-${id}"></td>`;for(let _m=0;_m<12;_m++)rows+=`<td class="col2025md col2025m-${id}"></td>`;}
           for(let i=0;i<REAL;i++){const v=vs[i];rows+=`<td class="${vcls(v)}">${v!==0?fmt(v):'—'}</td>`;}
           for(let i=REAL;i<N;i++)rows+=`<td></td>`;
           rows+=`<td class="tcol ${vcls(tot)}">${fmt(tot)}</td></tr>`;
@@ -421,7 +426,8 @@ function buildDrillRows(id,isCon,coKey){
     }else{
       (val||[]).forEach(({f,v:vs})=>{
         const tot=sa(vs);
-        rows+=`<tr class="d2-row d2-sup" data-d2="${d2key}"><td>${f}</td><td class="col2025td col2025t-${id}"></td>`;for(let _m=0;_m<12;_m++)rows+=`<td class="col2025md col2025m-${id}"></td>`;
+        rows+=`<tr class="d2-row d2-sup" data-d2="${d2key}"><td>${f}</td>`;
+        if(isCon){rows+=`<td class="col2025td col2025t-${id}"></td>`;for(let _m=0;_m<12;_m++)rows+=`<td class="col2025md col2025m-${id}"></td>`;}
         for(let i=0;i<REAL;i++){const v=vs[i];rows+=`<td class="${vcls(v)}">${v!==0?fmt(v):'—'}</td>`;}
         for(let i=REAL;i<N;i++)rows+=`<td></td>`;
         rows+=`<td class="tcol ${vcls(tot)}">${fmt(tot)}</td></tr>`;
@@ -481,7 +487,7 @@ function buildSection(company,data){
     });
     thead+=`<th id="hdr25-${id}" onclick="tog25('${id}')" style="background:var(--paper);cursor:pointer;white-space:nowrap;min-width:80px;border-left:2px solid #a89e8b;border-right:2px solid #a89e8b"><div class="i" style="color:var(--ink)">&#9658; 2025</div></th>`;
   }
-  MM.forEach((_,i)=>{thead+=`<th style="background:${i<REAL?'rgba(10,94,64,.08)':'rgba(154,108,24,.06)'}"><div class="i">${MM[i]}/26</div></th>`;}  );
+  MM.forEach((_,i)=>{const bd=i===REAL?'border-left:2px solid #a89e8b;':'';thead+=`<th style="${bd}background:${i<REAL?'rgba(10,94,64,.08)':'rgba(154,108,24,.06)'}"><div class="i">${MM[i]}/26</div></th>`;}  );
   thead+=`<th class="tcol" style="background:var(--paper);border-left:2px solid #a89e8b"><div class="i">2026</div></th></tr></thead>`;
 
   let tbody='<tbody>';
@@ -551,7 +557,8 @@ function buildSection(company,data){
         const coV=DNR_DATA[co];
         if(!coV||coV.every(v=>v===0))return;
         const coTotal=coV.reduce((a,b)=>a+b,0);
-        tbody+=`<tr class="d1-row d2-${co.toLowerCase()}" data-d1="${dnrKey}"><td>${coLabels[co]}</td><td class="col2025td col2025t-${id}"></td>`;for(let _m=0;_m<12;_m++)tbody+=`<td class="col2025md col2025m-${id}"></td>`;
+        tbody+=`<tr class="d1-row d2-${co.toLowerCase()}" data-d1="${dnrKey}"><td>${coLabels[co]}</td>`;
+        if(isCon){tbody+=`<td class="col2025td col2025t-${id}"></td>`;for(let _m=0;_m<12;_m++)tbody+=`<td class="col2025md col2025m-${id}"></td>`;}
         for(let i=0;i<N;i++){const v=coV[i];tbody+=`<td class="${vcls(v)}">${v!==0?fmt(v):'—'}</td>`;}
         tbody+=`<td class="tcol ${vcls(coTotal)}">${fmt(coTotal)}</td></tr>`;
       });
