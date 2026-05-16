@@ -674,8 +674,15 @@ function buildCharts(id,data){
       const soma=(v||0)+(divParl[i]||0)+(divDesp[i]||0);
       return soma<0?Math.abs(soma):0;
     });
+    // Ajuste gerencial: rolagem de dívida Itaú (5,2M captação em Fev + 5,2M pgto em Mar = caixa neutro).
+    // Não é pagamento real, é renegociação. Abate apenas do gráfico, não do DFC.
+    // Aplicado apenas no Consolidado e Rede OK (onde a operação aconteceu).
+    if(id==='consolidado'||id==='redeok'){
+      const ROLAGEM_ITAU_MAR=5200; // valores em milhares
+      if(div[2]>=ROLAGEM_ITAU_MAR)div[2]-=ROLAGEM_ITAU_MAR;
+    }
     const legItems=[
-      {c:C_RECV_R,l:'Recebimentos Real'},{c:C_RECV_F,l:'Recebimentos FC'},
+      {c:C_RECV_R,l:'Recebimentos'},
       {c:C_OPER_R,l:'Operacionais'},{c:C_AQUI_R,l:'Aquisição'},
       {c:C_DNRR_R,l:'Desp. N. Rec.'},{c:C_DIVD_R,l:'Pgto Dívidas'}
     ];
@@ -691,7 +698,7 @@ function buildCharts(id,data){
       }
     }};
     CH[id+'m']=new Chart(ctx1,{type:'bar',data:{labels:MM,datasets:[
-      {label:'Recebimentos',data:recv,backgroundColor:MM.map((_,i)=>i<REAL?C_RECV_R:C_RECV_F),borderRadius:3,borderSkipped:false,stack:'r'},
+      {label:'Recebimentos',data:recv,backgroundColor:C_RECV_R,borderRadius:3,borderSkipped:false,stack:'r'},
       {label:'Operacionais',data:pOp,backgroundColor:MM.map((_,i)=>i<REAL?C_OPER_R:C_OPER_F),borderRadius:0,borderSkipped:false,stack:'p'},
       {label:'Aquisição',data:aEmp,backgroundColor:MM.map((_,i)=>i<REAL?C_AQUI_R:C_AQUI_F),borderRadius:0,borderSkipped:false,stack:'p'},
       {label:'Desp. N. Rec.',data:dNR,backgroundColor:MM.map((_,i)=>i<REAL?C_DNRR_R:C_DNRR_F),borderRadius:0,borderSkipped:false,stack:'p'},
