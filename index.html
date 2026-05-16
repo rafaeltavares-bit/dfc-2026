@@ -370,7 +370,23 @@ function sa(a){return a.reduce((x,y)=>x+y,0);}
 function vcls(v,hl){if(hl&&v<0)return'neg neg-hl';return v<0?'neg':v>0?'pos':'';}
 
 function copts(){return{responsive:true,maintainAspectRatio:false,
-  plugins:{legend:{display:false},tooltip:{position:'nearest',yAlign:'bottom',xAlign:'left',caretPadding:12,backgroundColor:'#fff',borderColor:'#ddd5c8',borderWidth:1,titleColor:'#1a1612',bodyColor:'#6b6258',padding:10,cornerRadius:8,titleFont:{family:'Outfit',size:13,weight:'600'},bodyFont:{family:'Outfit',size:12}}},
+  plugins:{legend:{display:false},tooltip:{enabled:false,external:function(context){
+    const{chart,tooltip}=context;
+    const wrap=chart.canvas.parentNode;
+    let el=wrap.querySelector('.chart-tt');
+    if(!el){
+      el=document.createElement('div');el.className='chart-tt';
+      el.style.cssText='position:absolute;top:8px;right:8px;background:#fff;border:1px solid #ddd5c8;border-radius:8px;padding:10px 12px;font-family:Outfit,sans-serif;font-size:12px;color:#6b6258;box-shadow:0 4px 12px rgba(0,0,0,.08);pointer-events:none;z-index:10;min-width:180px;transition:opacity .15s';
+      wrap.style.position='relative';wrap.appendChild(el);
+    }
+    if(tooltip.opacity===0){el.style.opacity='0';return;}
+    const title=(tooltip.title||[])[0]||'';
+    const lines=(tooltip.body||[]).flatMap(b=>b.lines);
+    const after=tooltip.afterBody||[];
+    el.innerHTML=`<div style="font-weight:600;color:#1a1612;margin-bottom:6px;font-size:13px">${title}</div>`+
+      after.filter(l=>l.trim()).map(l=>`<div style="line-height:1.5">${l}</div>`).join('');
+    el.style.opacity='1';
+  }}},
   scales:{x:{ticks:{color:'#6b6258',font:{family:'Outfit',size:12}},grid:{display:false},border:{display:false}},
            y:{ticks:{color:'#6b6258',font:{family:'Outfit',size:11},callback:v=>v===0?'0':Math.abs(v/1000).toFixed(0)+'M'},grid:{display:false},border:{display:false}}}
 };}
@@ -689,14 +705,14 @@ function buildCharts(id,data){
     const legEl=document.getElementById('leg-'+id);
     if(legEl)legEl.innerHTML=legItems.map(l=>`<div class="cl-item"><div class="cl-dot" style="background:${l.c}"></div><span>${l.l}</span></div>`).join('');
     const o=copts();
-    o.plugins.tooltip={...o.plugins.tooltip,callbacks:{
+    o.plugins.tooltip.callbacks={
       title:items=>`${MM[items[0].dataIndex]}`,
       afterBody:items=>{
         const mi=items[0].dataIndex;
         const tp=pOp[mi]+aEmp[mi]+dNR[mi]+div[mi];
         return['',`📥 Recebimentos: ${recv[mi].toLocaleString('pt-BR')} R$ mil`,`📤 Total saídas: ${tp.toLocaleString('pt-BR')} R$ mil`,`⚖ Resultado: ${(recv[mi]-tp).toLocaleString('pt-BR')} R$ mil`];
       }
-    }};
+    };
     CH[id+'m']=new Chart(ctx1,{type:'bar',data:{labels:MM,datasets:[
       {label:'Recebimentos',data:recv,backgroundColor:C_RECV_R,borderRadius:3,borderSkipped:false,stack:'r'},
       {label:'Operacionais',data:pOp,backgroundColor:MM.map((_,i)=>i<REAL?C_OPER_R:C_OPER_F),borderRadius:0,borderSkipped:false,stack:'p'},
