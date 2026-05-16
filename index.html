@@ -243,6 +243,7 @@ table.dfc td.col2025td.pos{color:var(--em)!important;}
 table.dfc td.col2025td.neg{color:var(--rd)!important;}
 .col2025m{display:none;min-width:72px;background:rgba(107,98,88,.035);}
 .col2025md{display:none;background:rgba(107,98,88,.02);}
+table.dfc th.boundary-fc,table.dfc td.boundary-fc{border-left:2px solid #a89e8b!important;}
 </style>
 </head>
 <body>
@@ -324,7 +325,7 @@ const DFC_ROWS=[
   {k:'Pagamentos Operacionais',t:'normal',drill:true},
   {k:'Geração Operacional',t:'bold'},
   {k:'Aquisição de Empresas / Capex',t:'normal'},
-  {k:'Ger. após CAPEX',t:'bold'},
+  {k:'Ger. após CAPEX',t:'bold',label:'Ger. após Aquisição de Empresas / Capex'},
   {k:'Desp. Não Recorrentes',t:'normal',dnr:true},
   {k:'Ger. após Desp.n.r.',t:'bold'},
   {k:'Total Dívidas',t:'bold',divDrill:true},
@@ -402,7 +403,7 @@ function buildDrillRows(id,isCon,coKey){
     rows+=`<td>${cat}</td>`;
     if(isCon){rows+=`<td class="col2025td col2025t-${id}"></td>`;for(let _m=0;_m<12;_m++)rows+=`<td class="col2025md col2025m-${id}"></td>`;}
     for(let i=0;i<REAL;i++){const v=catV[i];rows+=`<td class="${vcls(v)}" style="background:rgba(10,94,64,.025)">${v!==0?fmt(v):'—'}</td>`;}
-    for(let i=REAL;i<N;i++)rows+=`<td class="fc-cell">FC</td>`;
+    for(let i=REAL;i<N;i++)rows+=`<td class="fc-cell${i===REAL?' boundary-fc':''}">FC</td>`;
     rows+=`<td class="tcol ${vcls(catTot)}">${fmt(catTot)}</td></tr>`;
     if(isCon){
       [{k:'ROK',l:'Rede OK',rc:'d2-rok',sc:'d3-rok'},{k:'DEL',l:'Delend',rc:'d2-del',sc:'d3-del'},{k:'REG',l:'Régua',rc:'d2-reg',sc:'d3-reg'}].forEach(({k,l,rc,sc})=>{
@@ -412,14 +413,14 @@ function buildDrillRows(id,isCon,coKey){
         rows+=`<tr class="d2-row d2-toggle ${rc}" data-d2="${d2key}" onclick="tD3('${d3key}',this)"><td>${l}</td>`;
         rows+=`<td class="col2025td col2025t-${id}"></td>`;for(let _m=0;_m<12;_m++)rows+=`<td class="col2025md col2025m-${id}"></td>`;
         for(let i=0;i<REAL;i++){const v=cV[i];rows+=`<td class="${vcls(v)}">${v!==0?fmt(v):'—'}</td>`;}
-        for(let i=REAL;i<N;i++)rows+=`<td></td>`;
+        for(let i=REAL;i<N;i++)rows+=`<td class="${i===REAL?'boundary-fc':''}"></td>`;
         rows+=`<td class="tcol ${vcls(cT)}">${fmt(cT)}</td></tr>`;
         cF.forEach(({f,v:vs})=>{
           const tot=sa(vs);
           rows+=`<tr class="d3-row ${sc}" data-d3="${d3key}"><td>${f}</td>`;
           if(isCon){rows+=`<td class="col2025td col2025t-${id}"></td>`;for(let _m=0;_m<12;_m++)rows+=`<td class="col2025md col2025m-${id}"></td>`;}
           for(let i=0;i<REAL;i++){const v=vs[i];rows+=`<td class="${vcls(v)}">${v!==0?fmt(v):'—'}</td>`;}
-          for(let i=REAL;i<N;i++)rows+=`<td></td>`;
+          for(let i=REAL;i<N;i++)rows+=`<td class="${i===REAL?'boundary-fc':''}"></td>`;
           rows+=`<td class="tcol ${vcls(tot)}">${fmt(tot)}</td></tr>`;
         });
       });
@@ -429,7 +430,7 @@ function buildDrillRows(id,isCon,coKey){
         rows+=`<tr class="d2-row d2-sup" data-d2="${d2key}"><td>${f}</td>`;
         if(isCon){rows+=`<td class="col2025td col2025t-${id}"></td>`;for(let _m=0;_m<12;_m++)rows+=`<td class="col2025md col2025m-${id}"></td>`;}
         for(let i=0;i<REAL;i++){const v=vs[i];rows+=`<td class="${vcls(v)}">${v!==0?fmt(v):'—'}</td>`;}
-        for(let i=REAL;i<N;i++)rows+=`<td></td>`;
+        for(let i=REAL;i<N;i++)rows+=`<td class="${i===REAL?'boundary-fc':''}"></td>`;
         rows+=`<td class="tcol ${vcls(tot)}">${fmt(tot)}</td></tr>`;
       });
     }
@@ -491,11 +492,12 @@ function buildSection(company,data){
   thead+=`<th class="tcol" style="background:var(--paper);border-left:2px solid #a89e8b"><div class="i">2026</div></th></tr></thead>`;
 
   let tbody='<tbody>';
-  DFC_ROWS.forEach(({k,t,drill,saldo,dnr,divDrill})=>{
+  DFC_ROWS.forEach(({k,t,drill,saldo,dnr,divDrill,label})=>{
     const vals=data[k];if(!vals)return;
+    const displayLabel=label||k;
     const rc=t==='bold'?'r-bold':t==='sub'?'r-sub':'r-normal';
     const isSF=k==='Saldo Final';
-    tbody+=`<tr class="${rc}${drill?' d1-toggle':''}${dnr?' d1-toggle':''}${divDrill?' d1-toggle':''}"${drill?` onclick="tD1('d1-${id}',this)"`:dnr?` onclick="tD1('d1dnr-${id}',this)"`:divDrill?` onclick="tD1('d1div-${id}',this)"`:''} ><td>${k}</td>`;
+    tbody+=`<tr class="${rc}${drill?' d1-toggle':''}${dnr?' d1-toggle':''}${divDrill?' d1-toggle':''}"${drill?` onclick="tD1('d1-${id}',this)"`:dnr?` onclick="tD1('d1dnr-${id}',this)"`:divDrill?` onclick="tD1('d1div-${id}',this)"`:''} ><td>${displayLabel}</td>`;
     if(isCon){
       for(let _m=0;_m<12;_m++){
         const _vm=DFC_2025[k]!=null?DFC_2025[k][_m]:null;
@@ -507,7 +509,7 @@ function buildSection(company,data){
     for(let i=0;i<N;i++){
       const v=vals[i];
       const hl=isSF&&v<0;
-      tbody+=`<td class="${vcls(v,hl)}" style="background:${i<REAL?'rgba(10,94,64,.02)':'rgba(154,108,24,.015)'}">${fmt(v)}</td>`;
+      tbody+=`<td class="${vcls(v,hl)}${i===REAL?' boundary-fc':''}" style="background:${i<REAL?'rgba(10,94,64,.02)':'rgba(154,108,24,.015)'}">${fmt(v)}</td>`;
     }
     tbody+=`<td class="tcol ${vcls(vals[N])}">${fmt(vals[N])}</td></tr>`;
     if(divDrill&&isCon){
@@ -556,10 +558,12 @@ function buildSection(company,data){
       ['ROK','DEL','REG'].forEach(co=>{
         const coV=DNR_DATA[co];
         if(!coV||coV.every(v=>v===0))return;
-        const coTotal=coV.reduce((a,b)=>a+b,0);
+        // Total considera apenas realizado (Jan-Abr)
+        const coTotal=coV.slice(0,REAL).reduce((a,b)=>a+b,0);
         tbody+=`<tr class="d1-row d2-${co.toLowerCase()}" data-d1="${dnrKey}"><td>${coLabels[co]}</td>`;
         if(isCon){tbody+=`<td class="col2025td col2025t-${id}"></td>`;for(let _m=0;_m<12;_m++)tbody+=`<td class="col2025md col2025m-${id}"></td>`;}
-        for(let i=0;i<N;i++){const v=coV[i];tbody+=`<td class="${vcls(v)}">${v!==0?fmt(v):'—'}</td>`;}
+        for(let i=0;i<REAL;i++){const v=coV[i];tbody+=`<td class="${vcls(v)}">${v!==0?fmt(v):'—'}</td>`;}
+        for(let i=REAL;i<N;i++)tbody+=`<td class="fc-cell${i===REAL?' boundary-fc':''}">FC</td>`;
         tbody+=`<td class="tcol ${vcls(coTotal)}">${fmt(coTotal)}</td></tr>`;
       });
     }
