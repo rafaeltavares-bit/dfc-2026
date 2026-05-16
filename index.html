@@ -467,7 +467,11 @@ function buildSection(company,data){
   ];
 
   // Table
-  let thead=`<th colspan="${REAL}" class="band-real"><div class="i" style="text-align:center;color:inherit">▓ REALIZADO</div></th><th colspan="${N-REAL}" class="band-fc"><div class="i" style="text-align:center;color:inherit">░ FORECAST</div></th><th class="tcol" style="border-left:2px solid var(--rule2);background:var(--paper)"><div class="i"> </div></th></tr><tr><th><div class="i">Linha</div></th>`
+  // Banda REALIZADO/FORECAST: precisa cobrir corretamente apenas as colunas Jan-Abr/26 (REAL) e Mai-Dez/26 (N-REAL).
+  // À esquerda da banda fica área neutra: LINHA + (se Consolidado: 12 col25 ocultas + ▶2025).
+  // À direita da banda fica área neutra: 2026.
+  const leftNeutral = isCon ? (1 + 12 + 1) : 1; // LINHA + 12 col25 + ▶2025  OU  só LINHA
+  let thead=`<thead><tr class="band-row"><th colspan="${leftNeutral}" style="background:var(--paper);border-right:2px solid var(--rule2)"></th><th colspan="${REAL}" class="band-real"><div class="i" style="text-align:center;color:inherit">▓ REALIZADO</div></th><th colspan="${N-REAL}" class="band-fc" style="border-left:2px solid #a89e8b"><div class="i" style="text-align:center;color:inherit">░ FORECAST</div></th><th class="tcol" style="border-left:2px solid var(--rule2);background:var(--paper)"><div class="i"> </div></th></tr><tr><th><div class="i">Linha</div></th>`
   if(isCon){
     ['Jan','Fev','Mar','Abr','Mai','Jun','Jul','Ago','Set','Out','Nov','Dez'].forEach(m=>{
       thead+=`<th class="col2025m-${id}" style="display:none;min-width:72px;background:rgba(107,98,88,.05)"><div class="i" style="color:#6b6258">${m}/25</div></th>`;
