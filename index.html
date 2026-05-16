@@ -565,6 +565,7 @@ function buildDrillRows(id,isCon,coKey){
 }
 
 function buildSection(company,data){
+  try{
   // Add debt sub-rows for drill
   // These come from DFC rows 226-229 (Consolidado)
   // We'll inject them as special keys in data via dfcExtraRows
@@ -826,6 +827,7 @@ function buildSection(company,data){
     </div>
     `;
   buildCharts(id,data);
+  }catch(e){console.error('Erro buildSection company='+company,e);throw e;}
 }
 
 function buildCharts(id,data){
