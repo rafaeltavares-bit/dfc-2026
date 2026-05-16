@@ -404,7 +404,8 @@ function buildDrillRows(id,isCon,coKey){
     const catTot=sa(catV);
     const hasSubs=isCon?['ROK','DEL','REG'].some(k=>(val[k]||[]).length>0):(val||[]).length>0;
     rows+=`<tr class="d1-row${hasSubs?' d2-toggle':''}" data-d1="d1-${id}"${hasSubs?` onclick="tD2('${d2key}',this)"`:''}>`;
-    rows+=`<td>${cat}</td><td class="col2025td col2025t-${id}"></td>`;for(let _m=0;_m<12;_m++)rows+=`<td class="col2025md col2025m-${id}"></td>`;
+    rows+=`<td>${cat}</td>`;
+    if(isCon){rows+=`<td class="col2025td col2025t-${id}"></td>`;for(let _m=0;_m<12;_m++)rows+=`<td class="col2025md col2025m-${id}"></td>`;}
     for(let i=0;i<REAL;i++){const v=catV[i];rows+=`<td class="${vcls(v)}" style="background:rgba(10,94,64,.025)">${v!==0?fmt(v):'—'}</td>`;}
     for(let i=REAL;i<N;i++)rows+=`<td class="fc-cell${i===REAL?' boundary-fc':''}">FC</td>`;
     rows+=`<td class="tcol ${vcls(catTot)}">${fmt(catTot)}</td></tr>`;
@@ -413,13 +414,15 @@ function buildDrillRows(id,isCon,coKey){
         const cF=val[k]||[];if(!cF.length)return;
         const cV=Array(REAL).fill(0);cF.forEach(x=>x.v.forEach((v,i)=>cV[i]+=v));
         const cT=sa(cV);const d3key=`d3-${id}-${catKey}-${k}`;
-        rows+=`<tr class="d2-row d2-toggle ${rc}" data-d2="${d2key}" onclick="tD3('${d3key}',this)"><td>${l}</td><td class="col2025td col2025t-${id}"></td>`;for(let _m=0;_m<12;_m++)rows+=`<td class="col2025md col2025m-${id}"></td>`;
+        rows+=`<tr class="d2-row d2-toggle ${rc}" data-d2="${d2key}" onclick="tD3('${d3key}',this)"><td>${l}</td>`;
+        if(isCon){rows+=`<td class="col2025td col2025t-${id}"></td>`;for(let _m=0;_m<12;_m++)rows+=`<td class="col2025md col2025m-${id}"></td>`;}
         for(let i=0;i<REAL;i++){const v=cV[i];rows+=`<td class="${vcls(v)}">${v!==0?fmt(v):'—'}</td>`;}
         for(let i=REAL;i<N;i++)rows+=`<td class="${i===REAL?'boundary-fc':''}"></td>`;
         rows+=`<td class="tcol ${vcls(cT)}">${fmt(cT)}</td></tr>`;
         cF.forEach(({f,v:vs})=>{
           const tot=sa(vs);
-          rows+=`<tr class="d3-row ${sc}" data-d3="${d3key}"><td>${f}</td><td class="col2025td col2025t-${id}"></td>`;for(let _m=0;_m<12;_m++)rows+=`<td class="col2025md col2025m-${id}"></td>`;
+          rows+=`<tr class="d3-row ${sc}" data-d3="${d3key}"><td>${f}</td>`;
+          if(isCon){rows+=`<td class="col2025td col2025t-${id}"></td>`;for(let _m=0;_m<12;_m++)rows+=`<td class="col2025md col2025m-${id}"></td>`;}
           for(let i=0;i<REAL;i++){const v=vs[i];rows+=`<td class="${vcls(v)}">${v!==0?fmt(v):'—'}</td>`;}
           for(let i=REAL;i<N;i++)rows+=`<td class="${i===REAL?'boundary-fc':''}"></td>`;
           rows+=`<td class="tcol ${vcls(tot)}">${fmt(tot)}</td></tr>`;
@@ -428,7 +431,8 @@ function buildDrillRows(id,isCon,coKey){
     }else{
       (val||[]).forEach(({f,v:vs})=>{
         const tot=sa(vs);
-        rows+=`<tr class="d2-row d2-sup" data-d2="${d2key}"><td>${f}</td><td class="col2025td col2025t-${id}"></td>`;for(let _m=0;_m<12;_m++)rows+=`<td class="col2025md col2025m-${id}"></td>`;
+        rows+=`<tr class="d2-row d2-sup" data-d2="${d2key}"><td>${f}</td>`;
+        if(isCon){rows+=`<td class="col2025td col2025t-${id}"></td>`;for(let _m=0;_m<12;_m++)rows+=`<td class="col2025md col2025m-${id}"></td>`;}
         for(let i=0;i<REAL;i++){const v=vs[i];rows+=`<td class="${vcls(v)}">${v!==0?fmt(v):'—'}</td>`;}
         for(let i=REAL;i<N;i++)rows+=`<td class="${i===REAL?'boundary-fc':''}"></td>`;
         rows+=`<td class="tcol ${vcls(tot)}">${fmt(tot)}</td></tr>`;
@@ -948,27 +952,39 @@ function buildDrillFromCSV(rows,empKey){
   console.log('['+empKey+'] Estatísticas:',{totalLinhas,linhasValidas,linhasForaFluxo,linhasForaAno,linhasForaMes,linhasDataInvalida,primeiraDataLida,primeiraDataParsed});
   const out={};
   Object.entries(acc).forEach(([cat,forns])=>{
-    // Lista de fornecedores ordenada pelo total (mais negativo primeiro)
-    const lista=Object.entries(forns).map(([f,v])=>({f,v:v.map(x=>Math.round(x*100)/100)}))
-      .sort((a,b)=>a.v.reduce((s,x)=>s+x,0)-b.v.reduce((s,x)=>s+x,0));
-    // Total absoluto da categoria (somando todos os meses de todos os fornecedores)
-    const totalCatAbs=lista.reduce((s,it)=>s+Math.abs(it.v.reduce((a,b)=>a+b,0)),0);
-    if(totalCatAbs===0){out[cat]=lista;return;}
-    // Separar: principais (>=5%) e outros (<5%)
-    const principais=[],outros=[];
-    lista.forEach(it=>{
-      const peso=Math.abs(it.v.reduce((a,b)=>a+b,0))/totalCatAbs;
-      if(peso>=0.05)principais.push(it);else outros.push(it);
+    // Lista ordenada por peso ABSOLUTO (do menor pro maior)
+    const lista=Object.entries(forns).map(([f,v])=>{
+      const arr=v.map(x=>Math.round(x*100)/100);
+      const total=arr.reduce((a,b)=>a+b,0);
+      return {f,v:arr,total,abs:Math.abs(total)};
     });
-    // Se sobrar mais de 1 outro, agrega numa linha "Outros (N fornecedores)"
+    const totalCatAbs=lista.reduce((s,it)=>s+it.abs,0);
+    if(totalCatAbs===0){out[cat]=lista.sort((a,b)=>a.total-b.total).map(({f,v})=>({f,v}));return;}
+    // Ordena do menor peso para o maior (assim acumulamos os "menores" no Outros)
+    lista.sort((a,b)=>a.abs-b.abs);
+    const limiteOutros=totalCatAbs*0.05; // Outros não pode passar de 5% do total da categoria
+    const outros=[];
+    let somaOutros=0;
+    let idx=0;
+    while(idx<lista.length-1){ // sempre deixa pelo menos 1 principal
+      const proximo=lista[idx];
+      if(somaOutros+proximo.abs<=limiteOutros){
+        outros.push(proximo);
+        somaOutros+=proximo.abs;
+        idx++;
+      }else break;
+    }
+    const principais=lista.slice(idx).sort((a,b)=>a.total-b.total); // ordena principais mais negativo primeiro
+    const resultado=principais.map(({f,v})=>({f,v}));
     if(outros.length>1){
       const soma=[0,0,0,0];
       outros.forEach(it=>it.v.forEach((v,i)=>soma[i]+=v));
-      principais.push({f:`Outros (${outros.length} fornecedores)`,v:soma.map(x=>Math.round(x*100)/100)});
+      resultado.push({f:`Outros (${outros.length} fornecedores)`,v:soma.map(x=>Math.round(x*100)/100)});
     }else if(outros.length===1){
-      principais.push(outros[0]); // se só tem 1, não vale fazer "Outros"
+      // Se só tem 1 "outro", melhor mostrar ele direto
+      resultado.push({f:outros[0].f,v:outros[0].v});
     }
-    out[cat]=principais;
+    out[cat]=resultado;
   });
   return out;
 }
