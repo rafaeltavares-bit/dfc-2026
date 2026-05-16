@@ -254,6 +254,10 @@ table.dfc th.boundary-fc,table.dfc td.boundary-fc{border-left:2px solid #a89e8b!
 .btn-collapse-all{position:fixed;bottom:24px;right:24px;z-index:100;background:var(--ink);color:#fff;border:none;border-radius:24px;padding:12px 18px;font-family:Outfit,sans-serif;font-size:13px;font-weight:600;cursor:pointer;box-shadow:0 4px 16px rgba(0,0,0,.18);display:flex;align-items:center;gap:8px;transition:transform .12s,box-shadow .12s;}
 .btn-collapse-all:hover{transform:translateY(-2px);box-shadow:0 6px 20px rgba(0,0,0,.24);}
 .btn-collapse-all:active{transform:translateY(0);}
+.section.y25-open .drill-fc-note{display:none;}
+.h-scroll-fixed{position:fixed;bottom:0;left:0;right:0;height:16px;background:var(--paper);border-top:1px solid var(--rule);overflow-x:auto;overflow-y:hidden;z-index:90;display:none;}
+.h-scroll-fixed.active{display:block;}
+.h-scroll-fixed > div{height:1px;}
 </style>
 </head>
 <body>
@@ -765,7 +769,7 @@ function buildSection(company,data){
         </div>
         <div class="th-note">▶ Pagamentos → Categorias →${isCon?' Empresa →':''} Fornecedores (Jan–Abr realizados, conciliado)</div>
       </div>
-      <div style="overflow-x:auto"><table class="dfc">${thead}${tbody}</table></div>
+      <div class="dfc-wrap" style="overflow-x:auto"><table class="dfc">${thead}${tbody}</table></div>
     </div>
     `;
   buildCharts(id,data);
@@ -916,6 +920,9 @@ function tog25(id){
   cols.forEach(el=>el.style.display=show?'table-cell':'none');
   document.querySelectorAll('.col2025md-'+id).forEach(el=>el.style.display=show?'table-cell':'none');
   if(hdr)hdr.querySelector('.i').innerHTML=(show?'&#9660;':'&#9658;')+' 2025';
+  // Adiciona/remove classe na seção para esconder a mensagem "Em 2026, fornecedores..."
+  const sec=document.getElementById('sec-'+id);
+  if(sec)sec.classList.toggle('y25-open',show);
   // Move o rótulo REALIZADO entre Fev/26 (fechado) e Set/25 (expandido)
   const lblCol=document.getElementById('lbl-real-col-'+id); // Fev/26
   const lblExp=document.getElementById('lbl-real-exp-'+id); // Set/25
@@ -928,10 +935,35 @@ function tog25(id){
       lblCol.innerHTML='▓ REALIZADO';
     }
   }
+  setTimeout(syncHScroll,50);
 }
 function tD1(k,el){document.querySelectorAll(`tr[data-d1="${k}"]`).forEach(r=>r.classList.toggle('vis',!el.classList.contains('open')));el.classList.toggle('open');}
 function tD2(k,el){if(el.classList.contains('open')){document.querySelectorAll(`tr[data-d3^="${k}"]`).forEach(r=>r.classList.remove('vis'));document.querySelectorAll(`tr[data-d2="${k}"].open`).forEach(r=>r.classList.remove('open'));}document.querySelectorAll(`tr[data-d2="${k}"]`).forEach(r=>r.classList.toggle('vis',!el.classList.contains('open')));el.classList.toggle('open');}
 function tD3(k,el){document.querySelectorAll(`tr[data-d3="${k}"]`).forEach(r=>r.classList.toggle('vis',!el.classList.contains('open')));el.classList.toggle('open');}
+function syncHScroll(){
+  const bar=document.getElementById('h-scroll-fixed');
+  const inner=document.getElementById('h-scroll-fixed-inner');
+  if(!bar||!inner)return;
+  const sec=document.querySelector('.section.active');
+  if(!sec){bar.classList.remove('active');return;}
+  const wrap=sec.querySelector('.dfc-wrap');
+  if(!wrap){bar.classList.remove('active');return;}
+  const table=wrap.querySelector('table.dfc');
+  if(!table){bar.classList.remove('active');return;}
+  inner.style.width=table.scrollWidth+'px';
+  if(table.scrollWidth>wrap.clientWidth){
+    bar.classList.add('active');
+    bar.scrollLeft=wrap.scrollLeft;
+  }else{
+    bar.classList.remove('active');
+  }
+  if(!wrap._hScrollBound){
+    wrap.addEventListener('scroll',()=>{bar.scrollLeft=wrap.scrollLeft;});
+    bar.addEventListener('scroll',()=>{wrap.scrollLeft=bar.scrollLeft;});
+    wrap._hScrollBound=true;
+  }
+}
+window.addEventListener('resize',syncHScroll);
 function recolherTudo(){
   // Fecha todas as linhas expandidas (d2, d3) e recolhe ▶2025 se aberto
   document.querySelectorAll('tr.d2-row.vis,tr.d3-row.vis').forEach(r=>r.classList.remove('vis'));
@@ -990,7 +1022,7 @@ function buildDivida(){
 }
 
 function showErr(msg){document.getElementById('loading').style.display='none';const el=document.getElementById('error');el.style.display='block';el.innerHTML='⚠ '+msg;}
-function switchTab(id,el){document.querySelectorAll('.section').forEach(s=>s.classList.remove('active'));document.querySelectorAll('.tab').forEach(t=>t.classList.remove('active'));document.getElementById('sec-'+id).classList.add('active');el.classList.add('active');}
+function switchTab(id,el){document.querySelectorAll('.section').forEach(s=>s.classList.remove('active'));document.querySelectorAll('.tab').forEach(t=>t.classList.remove('active'));document.getElementById('sec-'+id).classList.add('active');el.classList.add('active');setTimeout(syncHScroll,50);}
 
 // =========================================================================
 // LEITURA DINÂMICA DE FORNECEDORES (abas Pagamentos ROK/Delend/Régua)
@@ -1302,6 +1334,7 @@ function loadAll(){
       document.getElementById('last-upd').textContent='Atualizado às '+now.toLocaleTimeString('pt-BR',{hour:'2-digit',minute:'2-digit'});
       document.getElementById('tr-info').textContent='Atualização: '+now.toLocaleDateString('pt-BR');
       if(btn)btn.classList.remove('spin');
+      setTimeout(syncHScroll,100);
     }catch(e){showErr('Erro: '+e.message);}
   },error:function(e){showErr('Não foi possível buscar o CSV.<br>'+e.message);}
   });
@@ -1310,6 +1343,7 @@ function loadAll(){
 function refreshAll(){loadAll();}
 loadAll();
 </script>
+<div class="h-scroll-fixed" id="h-scroll-fixed"><div id="h-scroll-fixed-inner"></div></div>
 <button class="btn-collapse-all" onclick="recolherTudo()" title="Recolhe todas as expansões e volta ao topo">↑ Recolher tudo</button>
 </body>
 </html>
