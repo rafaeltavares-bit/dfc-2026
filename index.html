@@ -552,7 +552,7 @@ function buildSection(company,data){
       tbody+=`<tr class="d1-row drill-fc-note" data-d1="d1-${id}"><td colspan="${isCon?N+14:N+2}">⚠ Fornecedores disponíveis apenas para Jan–Abr (realizados). Forecast usa totais projetados da planilha DFC.</td></tr>`;
     }
     if(dnr){
-      // Desp. Não Recorrentes breakdown by company (simple sub-rows)
+      // Desp. Não Recorrentes breakdown by company + fornecedores
       const dnrKey='d1dnr-'+id;
       const coLabels={ROK:'Rede OK',DEL:'Delend',REG:'Régua'};
       ['ROK','DEL','REG'].forEach(co=>{
@@ -560,11 +560,29 @@ function buildSection(company,data){
         if(!coV||coV.every(v=>v===0))return;
         // Total considera apenas realizado (Jan-Abr)
         const coTotal=coV.slice(0,REAL).reduce((a,b)=>a+b,0);
-        tbody+=`<tr class="d1-row d2-${co.toLowerCase()}" data-d1="${dnrKey}"><td>${coLabels[co]}</td>`;
+        // Verifica se tem fornecedores ao vivo no DRILL[co]['Desp. Não Recorrentes']
+        const fornecedores=(DRILL[co]&&DRILL[co]['Desp. Não Recorrentes'])||[];
+        const hasForn=fornecedores.length>0;
+        const dnrSubKey=`d2dnr-${id}-${co}`;
+        const rowClass=`d1-row d2-${co.toLowerCase()}${hasForn?' d2-toggle':''}`;
+        const clickHandler=hasForn?` onclick="tD2('${dnrSubKey}',this)"`:'';
+        tbody+=`<tr class="${rowClass}" data-d1="${dnrKey}"${clickHandler}><td>${coLabels[co]}</td>`;
         if(isCon){tbody+=`<td class="col2025td col2025t-${id}"></td>`;for(let _m=0;_m<12;_m++)tbody+=`<td class="col2025md col2025m-${id}"></td>`;}
         for(let i=0;i<REAL;i++){const v=coV[i];tbody+=`<td class="${vcls(v)}">${v!==0?fmt(v):'—'}</td>`;}
         for(let i=REAL;i<N;i++)tbody+=`<td class="fc-cell${i===REAL?' boundary-fc':''}">FC</td>`;
         tbody+=`<td class="tcol ${vcls(coTotal)}">${fmt(coTotal)}</td></tr>`;
+        // Fornecedores dessa empresa (ocultos até clicar)
+        if(hasForn){
+          const sc=co==='ROK'?'d3-rok':co==='DEL'?'d3-del':'d3-reg';
+          fornecedores.forEach(({f,v:vs})=>{
+            const tot=vs.reduce((a,b)=>a+b,0);
+            tbody+=`<tr class="d2-row ${sc}" data-d2="${dnrSubKey}"><td>${f}</td>`;
+            if(isCon){tbody+=`<td class="col2025td col2025t-${id}"></td>`;for(let _m=0;_m<12;_m++)tbody+=`<td class="col2025md col2025m-${id}"></td>`;}
+            for(let i=0;i<REAL;i++){const v=vs[i];tbody+=`<td class="${vcls(v)}">${v!==0?fmt(v):'—'}</td>`;}
+            for(let i=REAL;i<N;i++)tbody+=`<td class="fc-cell${i===REAL?' boundary-fc':''}">FC</td>`;
+            tbody+=`<td class="tcol ${vcls(tot)}">${fmt(tot)}</td></tr>`;
+          });
+        }
       });
     }
     if(saldo&&data['Disp. Tesouraria']&&data['Bloq. Garantia']){
