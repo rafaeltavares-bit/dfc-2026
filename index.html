@@ -467,16 +467,33 @@ function buildSection(company,data){
   ];
 
   // Table
-  // Banda REALIZADO/FORECAST: estratégia segura para alinhamento.
-  // Linha 1 (banda) divide em 5 segmentos que SEMPRE batem com as células abaixo:
-  //   [LINHA neutra] [Área 2025 neutra: 12 ocultas + ▶2025] [REALIZADO: Jan-Abr/26] [FORECAST: Mai-Dez/26] [2026 neutra]
-  // colspan conta TODAS as células (visíveis ou ocultas), então o alinhamento se mantém
-  // tanto com ▶2025 fechado quanto expandido.
-  let thead=`<thead><tr class="band-row"><th style="background:var(--paper)"></th>`;
+  // ABORDAGEM SEGURA: linha 1 (banda) tem EXATAMENTE 1 célula por coluna da linha 2.
+  // Sem colspan, sem problema de display:none. Cada célula é independente.
+  // As células dos meses Jan-Abr ganham fundo verde (REALIZADO),
+  // as de Mai-Dez ganham fundo bege (FORECAST).
+  // O rótulo "REALIZADO" aparece na célula de Fev (centro de Jan-Abr).
+  // O rótulo "FORECAST" aparece na célula de Ago/Set (centro de Mai-Dez).
+  let thead=`<thead>`;
+  // Linha 1: banda
+  thead+=`<tr class="band-row"><th style="background:var(--paper)"></th>`; // LINHA
   if(isCon){
-    thead+=`<th colspan="13" style="background:var(--paper);border-left:2px solid var(--rule2);border-right:2px solid var(--rule2)"></th>`;
+    for(let _i=0;_i<12;_i++) thead+=`<th class="col2025m-${id}" style="display:none;background:var(--paper)"></th>`;
+    thead+=`<th style="background:var(--paper);border-left:2px solid var(--rule2);border-right:2px solid var(--rule2)"></th>`; // ▶2025
   }
-  thead+=`<th colspan="${REAL}" class="band-real"><div class="i" style="text-align:center;color:inherit">▓ REALIZADO</div></th><th colspan="${N-REAL}" class="band-fc" style="border-left:2px solid #a89e8b"><div class="i" style="text-align:center;color:inherit">░ FORECAST</div></th><th class="tcol" style="border-left:2px solid var(--rule2);background:var(--paper)"><div class="i"> </div></th></tr><tr><th><div class="i">Linha</div></th>`
+  // 12 células de meses 2026 com cor + rótulos
+  for(let i=0;i<N;i++){
+    const isReal=i<REAL;
+    const bg=isReal?'rgba(10,94,64,.25)':'rgba(154,108,24,.22)';
+    const col=isReal?'var(--em)':'var(--am)';
+    const bdL=i===REAL?'border-left:2px solid #a89e8b;':'';
+    let label='';
+    if(i===1) label='▓ REALIZADO';
+    if(i===7) label='░ FORECAST';
+    thead+=`<th style="${bdL}background:${bg};color:${col};text-align:center;font-size:11px;letter-spacing:.07em;font-weight:700;padding:6px 0">${label}</th>`;
+  }
+  thead+=`<th style="background:var(--paper);border-left:2px solid var(--rule2)"></th></tr>`; // 2026
+  // Linha 2: cabeçalhos das colunas
+  thead+=`<tr><th><div class="i">Linha</div></th>`
   if(isCon){
     ['Jan','Fev','Mar','Abr','Mai','Jun','Jul','Ago','Set','Out','Nov','Dez'].forEach(m=>{
       thead+=`<th class="col2025m-${id}" style="display:none;min-width:72px;background:rgba(107,98,88,.05)"><div class="i" style="color:#6b6258">${m}/25</div></th>`;
