@@ -475,10 +475,20 @@ function buildSection(company,data){
   // O rótulo "FORECAST" aparece na célula de Ago/Set (centro de Mai-Dez).
   let thead=`<thead>`;
   // Linha 1: banda
+  // 2025 inteiro é histórico/realizado: 12 col mensais 2025 + ▶2025 + Jan-Abr/26 ficam verdes.
+  // Rótulo REALIZADO se move conforme estado de ▶2025:
+  //  - Fechado: na célula Fev/26 (centro visual de [▶2025, Jan, Fev, Mar, Abr])
+  //  - Expandido: na célula Set/25 (centro visual de 17 células verdes)
   thead+=`<tr class="band-row"><th style="background:var(--paper)"></th>`; // LINHA
   if(isCon){
-    for(let _i=0;_i<12;_i++) thead+=`<th class="col2025m-${id}" style="display:none;background:var(--paper)"></th>`;
-    thead+=`<th style="background:var(--paper);border-left:2px solid var(--rule2);border-right:2px solid var(--rule2)"></th>`; // ▶2025
+    // 12 colunas mensais de 2025 → verdes (REALIZADO). Set/25 (índice 8) recebe ID para rótulo dinâmico
+    const monthNames25=['Jan','Fev','Mar','Abr','Mai','Jun','Jul','Ago','Set','Out','Nov','Dez'];
+    for(let _i=0;_i<12;_i++){
+      const isLabelCell=(_i===8); // Set/25 é o centro do bloco verde quando expandido
+      thead+=`<th class="col2025m-${id}" ${isLabelCell?`id="lbl-real-exp-${id}"`:''} style="display:none;background:rgba(10,94,64,.25);color:var(--em);text-align:center;font-size:11px;letter-spacing:.07em;font-weight:700;padding:6px 0"></th>`;
+    }
+    // ▶2025 (total) → verde, sem rótulo
+    thead+=`<th style="background:rgba(10,94,64,.25);border-left:2px solid var(--rule2);border-right:2px solid var(--rule2)"></th>`;
   }
   // 12 células de meses 2026 com cor + rótulos
   for(let i=0;i<N;i++){
@@ -487,9 +497,15 @@ function buildSection(company,data){
     const col=isReal?'var(--em)':'var(--am)';
     const bdL=i===REAL?'border-left:2px solid #a89e8b;':'';
     let label='';
-    if(i===1) label='▓ REALIZADO';
+    let extraId='';
+    // Fev/26 (i=1) recebe rótulo REALIZADO por padrão (estado inicial = fechado)
+    if(i===1){
+      label=isCon?'▓ REALIZADO':'▓ REALIZADO';
+      if(isCon) extraId=`id="lbl-real-col-${id}"`;
+    }
+    if(!isCon && i===1) label='▓ REALIZADO';
     if(i===7) label='░ FORECAST';
-    thead+=`<th style="${bdL}background:${bg};color:${col};text-align:center;font-size:11px;letter-spacing:.07em;font-weight:700;padding:6px 0">${label}</th>`;
+    thead+=`<th ${extraId} style="${bdL}background:${bg};color:${col};text-align:center;font-size:11px;letter-spacing:.07em;font-weight:700;padding:6px 0">${label}</th>`;
   }
   thead+=`<th style="background:var(--paper);border-left:2px solid var(--rule2)"></th></tr>`; // 2026
   // Linha 2: cabeçalhos das colunas
@@ -753,6 +769,18 @@ function tog25(id){
   cols.forEach(el=>el.style.display=show?'table-cell':'none');
   document.querySelectorAll('.col2025md-'+id).forEach(el=>el.style.display=show?'table-cell':'none');
   if(hdr)hdr.querySelector('.i').innerHTML=(show?'&#9660;':'&#9658;')+' 2025';
+  // Move o rótulo REALIZADO entre Fev/26 (fechado) e Set/25 (expandido)
+  const lblCol=document.getElementById('lbl-real-col-'+id); // Fev/26
+  const lblExp=document.getElementById('lbl-real-exp-'+id); // Set/25
+  if(lblCol&&lblExp){
+    if(show){
+      lblCol.innerHTML='';
+      lblExp.innerHTML='▓ REALIZADO';
+    }else{
+      lblExp.innerHTML='';
+      lblCol.innerHTML='▓ REALIZADO';
+    }
+  }
 }
 function tD1(k,el){document.querySelectorAll(`tr[data-d1="${k}"]`).forEach(r=>r.classList.toggle('vis',!el.classList.contains('open')));el.classList.toggle('open');}
 function tD2(k,el){if(el.classList.contains('open')){document.querySelectorAll(`tr[data-d3^="${k}"]`).forEach(r=>r.classList.remove('vis'));document.querySelectorAll(`tr[data-d2="${k}"].open`).forEach(r=>r.classList.remove('open'));}document.querySelectorAll(`tr[data-d2="${k}"]`).forEach(r=>r.classList.toggle('vis',!el.classList.contains('open')));el.classList.toggle('open');}
