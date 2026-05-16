@@ -531,7 +531,7 @@ function buildSection(company,data){
         tbody+=`<tr class="d1-row${hasBancos?' d2-toggle':''}" data-d1="${ddKey}"${hasBancos?` onclick="tD2('${subKey}',this)"`:''}>`;
         tbody+=`<td>${sub.k}</td>`;
         if(isCon){tbody+='<td class="col2025td col2025t-'+id+'"></td>';for(let _m=0;_m<12;_m++)tbody+='<td class="col2025md col2025m-'+id+'"></td>';}
-        for(let i=0;i<N;i++){const v=subVals[i];tbody+=`<td class="${vcls(v)}" style="background:rgba(22,61,120,.025)">${v!==0?fmt(v):'—'}</td>`;}
+        for(let i=0;i<N;i++){const v=subVals[i];tbody+=`<td class="${vcls(v)}${i===REAL?' boundary-fc':''}" style="background:rgba(22,61,120,.025)">${v!==0?fmt(v):'—'}</td>`;}
         tbody+=`<td class="tcol ${vcls(subTotal)}">${fmt(subTotal)}</td></tr>`;
         if(hasBancos&&LOANS_DRILL.ROK&&LOANS_DRILL.ROK[sub.drillBancos]){
           const bancos=LOANS_DRILL.ROK[sub.drillBancos].bancos||{};
@@ -540,7 +540,7 @@ function buildSection(company,data){
             const bTotal=vals.reduce((a,b)=>a+b,0);
             tbody+=`<tr class="d2-row d2-rok" data-d2="${subKey}"><td>${banco}</td>`;
             if(isCon){tbody+='<td class="col2025td col2025t-'+id+'"></td>';for(let _m=0;_m<12;_m++)tbody+='<td class="col2025md col2025m-'+id+'"></td>';}
-            for(let i=0;i<N;i++){const v=vals[i]||0;tbody+=`<td class="${vcls(v)}">${v!==0?fmt(v):'—'}</td>`;}
+            for(let i=0;i<N;i++){const v=vals[i]||0;tbody+=`<td class="${vcls(v)}${i===REAL?' boundary-fc':''}">${v!==0?fmt(v):'—'}</td>`;}
             tbody+=`<td class="tcol ${vcls(bTotal)}">${fmt(bTotal)}</td></tr>`;
           });
         }
@@ -571,11 +571,11 @@ function buildSection(company,data){
       const disp=data['Disp. Tesouraria'],bloq=data['Bloq. Garantia'];
       tbody+=`<tr class="r-saldo-sub r-saldo-disp"><td>↳ Disponível na Tesouraria</td>`;
       if(isCon){const _s25=DFC_2025['Disp. Tesouraria'];for(let _m=0;_m<12;_m++)tbody+='<td class="col2025md col2025m-'+id+'">'+(_s25&&_s25[_m]!==0?fmt(_s25[_m]):'—')+'</td>';tbody+='<td class="col2025td col2025t-'+id+'">'+(_s25?fmt(_s25[12]):'—')+'</td>';}
-      for(let i=0;i<N;i++){const v=disp[i];tbody+=`<td class="${vcls(v,v<0)}">${fmt(v)}</td>`;}
+      for(let i=0;i<N;i++){const v=disp[i];tbody+=`<td class="${vcls(v,v<0)}${i===REAL?' boundary-fc':''}">${fmt(v)}</td>`;}
       tbody+=`<td class="tcol ${vcls(disp[N])}">${fmt(disp[N])}</td></tr>`;
       tbody+=`<tr class="r-saldo-sub r-saldo-bloq"><td>↳ Bloqueado em Garantia</td>`;
       if(isCon){const _s25=DFC_2025['Bloq. Garantia'];for(let _m=0;_m<12;_m++)tbody+='<td class="col2025md col2025m-'+id+'">'+(_s25&&_s25[_m]!==0?fmt(_s25[_m]):'—')+'</td>';tbody+='<td class="col2025td col2025t-'+id+'">'+(_s25?fmt(_s25[12]):'—')+'</td>';}
-      for(let i=0;i<N;i++)tbody+=`<td>${fmt(bloq[i])}</td>`;
+      for(let i=0;i<N;i++)tbody+=`<td${i===REAL?' class="boundary-fc"':''}>${fmt(bloq[i])}</td>`;
       tbody+=`<td class="tcol">${fmt(bloq[N])}</td></tr>`;
     }
   });
