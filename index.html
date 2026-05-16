@@ -376,7 +376,7 @@ function copts(){return{responsive:true,maintainAspectRatio:false,
     let el=wrap.querySelector('.chart-tt');
     if(!el){
       el=document.createElement('div');el.className='chart-tt';
-      el.style.cssText='position:absolute;top:8px;right:8px;background:#fff;border:1px solid #ddd5c8;border-radius:8px;padding:10px 12px;font-family:Outfit,sans-serif;font-size:12px;color:#6b6258;box-shadow:0 4px 12px rgba(0,0,0,.08);pointer-events:none;z-index:10;min-width:180px;transition:opacity .15s';
+      el.style.cssText='position:absolute;top:-8px;right:-8px;background:#fff;border:1px solid #ddd5c8;border-radius:8px;padding:10px 12px;font-family:Outfit,sans-serif;font-size:12px;color:#6b6258;box-shadow:0 4px 12px rgba(0,0,0,.08);pointer-events:none;z-index:10;min-width:180px;transition:opacity .15s';
       wrap.style.position='relative';wrap.appendChild(el);
     }
     if(tooltip.opacity===0){el.style.opacity='0';return;}
