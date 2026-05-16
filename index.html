@@ -1369,14 +1369,17 @@ function loadAll(){
           d25[lbl]=exR25(rows,ri);
         }
         Object.assign(d,DR[cfg.id]||{});
+        // Merge CAPEX + Aquisição em uma linha (tanto para 2026 quanto 2025)
+        const capex=d['CAPEX']||Array(13).fill(0);
+        const aquis=d['Aquisição de Empresas']||Array(13).fill(0);
+        d['Aquisição de Empresas / Capex']=capex.map((v,i)=>v+aquis[i]);
+        const capex25=d25['CAPEX']||Array(13).fill(0);
+        const aquis25=d25['Aquisição de Empresas']||Array(13).fill(0);
+        d25['Aquisição de Empresas / Capex']=capex25.map((v,i)=>v+aquis25[i]);
         // Armazena 2025 por empresa para uso na renderização
         DFC_2025_BY_CO[cfg.id]=d25;
         // Armazena 2026 por empresa (antes das sobrescritas) para conciliação
         DFC_2026_BY_CO[cfg.id]={...d};
-        // Merge CAPEX + Aquisição into one line
-        const capex=d['CAPEX']||Array(13).fill(0);
-        const aquis=d['Aquisição de Empresas']||Array(13).fill(0);
-        d['Aquisição de Empresas / Capex']=capex.map((v,i)=>v+aquis[i]);
         // === CONCILIAÇÃO: Pagamentos Operacionais Jan-Abr = soma do DRILL ===
         // Garante que a soma dos fornecedores bata com o total da categoria,
         // e o total dos Pagamentos Operacionais = soma das categorias.
