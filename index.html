@@ -815,13 +815,21 @@ function switchTab(id,el){document.querySelectorAll('.section').forEach(s=>s.cla
 // Agrupa por Descrição Fluxo > Fornecedor; Top 25 + "Outros (X)"
 function parsePagAba(rows){
   if(!rows||rows.length<2)return null;
-  const header=rows[0].map(c=>(c||'').toString().trim().toLowerCase());
-  const findCol=(...names)=>{for(const n of names){const i=header.indexOf(n.toLowerCase());if(i>=0)return i;}return -1;};
-  const ciData=findCol('data');
+  const norm=s=>(s||'').toString().normalize('NFD').replace(/[\u0300-\u036f]/g,'').toLowerCase().replace(/\s+/g,' ').trim();
+  const header=rows[0].map(c=>norm(c));
+  const findCol=(...names)=>{
+    const ns=names.map(norm);
+    // 1) match exato
+    for(const n of ns){const i=header.indexOf(n);if(i>=0)return i;}
+    // 2) match parcial: header começa com o nome, ou contém o nome
+    for(const n of ns){const i=header.findIndex(h=>h.startsWith(n)||h.includes(n));if(i>=0)return i;}
+    return -1;
+  };
+  const ciData=findCol('data','data de crédito c','data de credito c','data de crédito','data de credito','data crédito','data credito','data pgto','data pagamento');
   const ciForn=findCol('fornecedor');
-  const ciDesc=findCol('descrição fluxo','descricao fluxo','descrição do fluxo');
-  const ciValor=findCol('valor');
-  if(ciData<0||ciForn<0||ciDesc<0||ciValor<0){console.warn('Pag Regua: cabeçalho não encontrado',header);return null;}
+  const ciDesc=findCol('descrição fluxo','descricao fluxo','descrição do fluxo','fluxo','descrição','descricao');
+  const ciValor=findCol('valor','valor pago','valor pgto','vlr','vl pago');
+  if(ciData<0||ciForn<0||ciDesc<0||ciValor<0){console.warn('Pag: cabeçalho não encontrado. Esperado: data, fornecedor, fluxo/descrição, valor. Achado:',header,'| Indices: data=',ciData,'fornec=',ciForn,'desc/fluxo=',ciDesc,'valor=',ciValor);return null;}
   // Parse data dd/mm/yyyy ou d/m/yyyy
   const parseD=s=>{if(!s)return null;const m=String(s).match(/(\d{1,2})\/(\d{1,2})\/(\d{4})/);if(!m)return null;return{d:+m[1],mo:+m[2],y:+m[3]};};
   // Parse valor (BR: 1.234,56 ou -40.000,00). Se já vier como número (Papa pode autoparsear), aceita.
@@ -835,8 +843,14 @@ function parsePagAba(rows){
     if(d.mo<1||d.mo>4)continue; // só jan-abr realizado
     const v=parseV(row[ciValor]);
     if(!(v<0))continue; // só pagamentos
-    const desc=String(row[ciDesc]||'').trim();
+    let desc=String(row[ciDesc]||'').trim();
     if(!desc)continue;
+    // Normalizar: variações de nomes da planilha → nomes canônicos do dashboard
+    const descNorm=desc.toLowerCase();
+    if(descNorm==='despesas não recorrentes'||descNorm==='despesas nao recorrentes'||descNorm==='desp. não recorrentes'||descNorm==='desp nao recorrentes')desc='Desp. Não Recorrentes';
+    else if(descNorm==='aquisição de empresas'||descNorm==='aquisicao de empresas')desc='Aquisição de Empresas';
+    else if(descNorm==='capex')desc='CAPEX';
+    else if(descNorm==='despesas bancárias'||descNorm==='despesas bancarias')desc='Despesas Bancárias';
     const forn=String(row[ciForn]||'Não informado').trim()||'Não informado';
     // Converte para milhares (planilha está em R$, dashboard usa R$ mil)
     const vMil=v/1000;
