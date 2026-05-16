@@ -923,6 +923,7 @@ function buildDrillFromCSV(rows,empKey){
   }
   const acc={};
   let totalLinhas=0,linhasValidas=0,linhasForaFluxo=0,linhasForaAno=0,linhasForaMes=0,linhasDataInvalida=0;
+  let primeiraDataLida=null,primeiraDataParsed=null;
   const ANO_PAINEL=2026;
   for(let r=headerRow+1;r<rows.length;r++){
     const row=rows[r];if(!row||!row.length)continue;
@@ -931,6 +932,7 @@ function buildDrillFromCSV(rows,empKey){
     if(!fluxo)continue;
     if(!DFC_FLUXOS.includes(fluxo)){linhasForaFluxo++;continue;}
     const dt=parseMonth(row[iData]);
+    if(!primeiraDataLida){primeiraDataLida=row[iData];primeiraDataParsed=dt;}
     if(!dt){linhasDataInvalida++;continue;}
     if(dt.ano!==ANO_PAINEL){linhasForaAno++;continue;}
     if(dt.mes<0||dt.mes>=REAL){linhasForaMes++;continue;}
@@ -943,7 +945,7 @@ function buildDrillFromCSV(rows,empKey){
     acc[fluxo][forn][dt.mes]+=valor;
     linhasValidas++;
   }
-  console.log('['+empKey+'] Estatísticas:',{totalLinhas,linhasValidas,linhasForaFluxo,linhasForaAno,linhasForaMes,linhasDataInvalida});
+  console.log('['+empKey+'] Estatísticas:',{totalLinhas,linhasValidas,linhasForaFluxo,linhasForaAno,linhasForaMes,linhasDataInvalida,primeiraDataLida,primeiraDataParsed});
   const out={};
   Object.entries(acc).forEach(([cat,forns])=>{
     out[cat]=Object.entries(forns).map(([f,v])=>({f,v:v.map(x=>Math.round(x*100)/100)}))
@@ -967,10 +969,7 @@ async function rebuildDRILL(){
     loadPaymentsCSV(CSV_PAG_DEL,'DEL'),
     loadPaymentsCSV(CSV_PAG_REG,'REG')
   ]);
-  const newDRILL={};
-  if(rok&&Object.keys(rok).length)newDRILL.ROK=rok;else newDRILL.ROK=DRILL.ROK||{};
-  if(del&&Object.keys(del).length)newDRILL.DEL=del;else newDRILL.DEL=DRILL.DEL||{};
-  if(reg&&Object.keys(reg).length)newDRILL.REG=reg;else newDRILL.REG=DRILL.REG||{};
+  const newDRILL={ROK:rok||{},DEL:del||{},REG:reg||{}};
   DRILL=newDRILL;
   console.log('DRILL recarregado:',{
     ROK_cats:Object.keys(DRILL.ROK).length,
