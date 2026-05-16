@@ -383,7 +383,7 @@ const LOANS={
 function pN(s){if(!s||s.trim()===''||s.trim()==='-')return 0;const v=parseFloat(s.replace(/\s/g,'').replace(/\./g,'').replace(',','.'));return isNaN(v)?0:v;}
 function exR(rows,idx){const row=rows[idx-1];if(!row)return Array(N+1).fill(0);const m=[];for(let c=COL_JAN;c<COL_JAN+N;c++)m.push(pN(row[c]||'0'));return[...m,pN(row[COL_TOT]||'0')];}
 function fmt(v){if(v===null||v===undefined)return'—';return(v<0?'-':'')+Math.abs(v).toLocaleString('pt-BR',{minimumFractionDigits:0,maximumFractionDigits:0});}
-function sa(a){return a.reduce((x,y)=>x+y,0);}
+function sa(a){return a.reduce((x,y)=>x+(typeof y==='number'&&!isNaN(y)?y:0),0);}
 function vcls(v,hl){if(hl&&v<0)return'neg neg-hl';return v<0?'neg':v>0?'pos':'';}
 
 function copts(){return{responsive:true,maintainAspectRatio:false,
@@ -503,9 +503,9 @@ function buildDrillRows(id,isCon,coKey){
     // Compute cat totals for realized months only
     let catV=Array(REAL).fill(0);
     if(isCon){
-      ['ROK','DEL','REG'].forEach(k=>{(val[k]||[]).forEach(x=>x.v.forEach((v,i)=>catV[i]+=v));});
+      ['ROK','DEL','REG'].forEach(k=>{(val[k]||[]).forEach(x=>x.v.forEach((v,i)=>{if(i<REAL)catV[i]+=v;}));});
     }else{
-      (val||[]).forEach(x=>x.v.forEach((v,i)=>catV[i]+=v));
+      (val||[]).forEach(x=>x.v.forEach((v,i)=>{if(i<REAL)catV[i]+=v;}));
     }
     const catTot=sa(catV);
     const has26=isCon?['ROK','DEL','REG'].some(k=>(val[k]||[]).length>0):(val||[]).length>0;
@@ -513,7 +513,7 @@ function buildDrillRows(id,isCon,coKey){
     const hasSubs=has26||has25;
     rows+=`<tr class="d1-row${hasSubs?' d2-toggle':''}" data-d1="d1-${id}"${hasSubs?` onclick="tD2('${d2key}',this)"`:''}>`;
     rows+=`<td>${cat}</td>`;
-    if(isCon){rows+=cat25Cells(cat);}
+    rows+=cat25Cells(cat);
     for(let i=0;i<REAL;i++){const v=catV[i];rows+=`<td class="${vcls(v)}" style="background:rgba(10,94,64,.025)">${v!==0?fmt(v):'—'}</td>`;}
     for(let i=REAL;i<N;i++)rows+=`<td class="fc-cell${i===REAL?' boundary-fc':''}">FC</td>`;
     rows+=`<td class="tcol ${vcls(catTot)}">${fmt(catTot)}</td></tr>`;
@@ -522,7 +522,7 @@ function buildDrillRows(id,isCon,coKey){
         const cF=val[k]||[];
         const cF25=(DRILL_2025[k]||{})[cat]||[];
         if(!cF.length&&!cF25.length)return;
-        const cV=Array(REAL).fill(0);cF.forEach(x=>x.v.forEach((v,i)=>cV[i]+=v));
+        const cV=Array(REAL).fill(0);cF.forEach(x=>x.v.forEach((v,i)=>{if(i<REAL)cV[i]+=v;}));
         const cT=sa(cV);const d3key=`d3-${id}-${catKey}-${k}`;
         rows+=`<tr class="d2-row d2-toggle ${rc}" data-d2="${d2key}" onclick="tD3('${d3key}',this)"><td>${l}</td>`;
         rows+=emp25Cells(cat,k);
@@ -554,7 +554,7 @@ function buildDrillRows(id,isCon,coKey){
         const tot=sa(vs);
         const vs25=findForn25(cat,coKey,f);
         rows+=`<tr class="d2-row d2-sup" data-d2="${d2key}"><td>${f}</td>`;
-        if(isCon){rows+=forn25Cells(vs25);}
+        rows+=forn25Cells(vs25);
         for(let i=0;i<REAL;i++){const v=vs[i];rows+=`<td class="${vcls(v)}">${v!==0?fmt(v):'—'}</td>`;}
         for(let i=REAL;i<N;i++)rows+=`<td class="${i===REAL?'boundary-fc':''}"></td>`;
         rows+=`<td class="tcol ${vcls(tot)}">${fmt(tot)}</td></tr>`;
@@ -613,16 +613,14 @@ function buildSection(company,data){
   //  - Fechado: na célula Fev/26 (centro visual de [▶2025, Jan, Fev, Mar, Abr])
   //  - Expandido: na célula Set/25 (centro visual de 17 células verdes)
   thead+=`<tr class="band-row"><th style="background:var(--paper)"></th>`; // LINHA
-  if(isCon){
-    // 12 colunas mensais de 2025 → verdes (REALIZADO). Set/25 (índice 8) recebe ID para rótulo dinâmico
-    const monthNames25=['Jan','Fev','Mar','Abr','Mai','Jun','Jul','Ago','Set','Out','Nov','Dez'];
-    for(let _i=0;_i<12;_i++){
-      const isLabelCell=(_i===8); // Set/25 é o centro do bloco verde quando expandido
-      thead+=`<th class="col2025m-${id}" ${isLabelCell?`id="lbl-real-exp-${id}"`:''} style="display:none;background:rgba(10,94,64,.25);color:var(--em);text-align:center;font-size:11px;letter-spacing:.07em;font-weight:700;padding:6px 0"></th>`;
-    }
-    // ▶2025 (total) → verde, sem rótulo
-    thead+=`<th style="background:rgba(10,94,64,.25);border-left:2px solid var(--rule2);border-right:2px solid var(--rule2)"></th>`;
+  // 12 colunas mensais de 2025 → verdes (REALIZADO). Set/25 (índice 8) recebe ID para rótulo dinâmico
+  const monthNames25=['Jan','Fev','Mar','Abr','Mai','Jun','Jul','Ago','Set','Out','Nov','Dez'];
+  for(let _i=0;_i<12;_i++){
+    const isLabelCell=(_i===8); // Set/25 é o centro do bloco verde quando expandido
+    thead+=`<th class="col2025m-${id}" ${isLabelCell?`id="lbl-real-exp-${id}"`:''} style="display:none;background:rgba(10,94,64,.25);color:var(--em);text-align:center;font-size:11px;letter-spacing:.07em;font-weight:700;padding:6px 0"></th>`;
   }
+  // ▶2025 (total) → verde, sem rótulo
+  thead+=`<th style="background:rgba(10,94,64,.25);border-left:2px solid var(--rule2);border-right:2px solid var(--rule2)"></th>`;
   // 12 células de meses 2026 com cor + rótulos
   for(let i=0;i<N;i++){
     const isReal=i<REAL;
@@ -631,24 +629,20 @@ function buildSection(company,data){
     const bdL=i===REAL?'border-left:2px solid #a89e8b;':'';
     let label='';
     let extraId='';
-    // Fev/26 (i=1) recebe rótulo REALIZADO por padrão (estado inicial = fechado)
     if(i===1){
-      label=isCon?'▓ REALIZADO':'▓ REALIZADO';
-      if(isCon) extraId=`id="lbl-real-col-${id}"`;
+      label='▓ REALIZADO';
+      extraId=`id="lbl-real-col-${id}"`;
     }
-    if(!isCon && i===1) label='▓ REALIZADO';
     if(i===7) label='░ FORECAST';
     thead+=`<th ${extraId} style="${bdL}background:${bg};color:${col};text-align:center;font-size:11px;letter-spacing:.07em;font-weight:700;padding:6px 0">${label}</th>`;
   }
   thead+=`<th style="background:var(--paper);border-left:2px solid var(--rule2)"></th></tr>`; // 2026
   // Linha 2: cabeçalhos das colunas
   thead+=`<tr><th><div class="i">Linha</div></th>`
-  if(isCon){
-    ['Jan','Fev','Mar','Abr','Mai','Jun','Jul','Ago','Set','Out','Nov','Dez'].forEach(m=>{
-      thead+=`<th class="col2025m-${id}" style="display:none;min-width:72px;background:rgba(107,98,88,.05)"><div class="i" style="color:#6b6258">${m}/25</div></th>`;
-    });
-    thead+=`<th id="hdr25-${id}" onclick="tog25('${id}')" style="background:var(--paper);cursor:pointer;white-space:nowrap;min-width:80px;border-left:2px solid var(--rule2);border-right:2px solid var(--rule2)"><div class="i" style="color:var(--ink)">&#9658; 2025</div></th>`;
-  }
+  ['Jan','Fev','Mar','Abr','Mai','Jun','Jul','Ago','Set','Out','Nov','Dez'].forEach(m=>{
+    thead+=`<th class="col2025m-${id}" style="display:none;min-width:72px;background:rgba(107,98,88,.05)"><div class="i" style="color:#6b6258">${m}/25</div></th>`;
+  });
+  thead+=`<th id="hdr25-${id}" onclick="tog25('${id}')" style="background:var(--paper);cursor:pointer;white-space:nowrap;min-width:80px;border-left:2px solid var(--rule2);border-right:2px solid var(--rule2)"><div class="i" style="color:var(--ink)">&#9658; 2025</div></th>`;
   MM.forEach((_,i)=>{const bd=i===REAL?'border-left:2px solid #a89e8b;':'';thead+=`<th style="${bd}background:${i<REAL?'rgba(10,94,64,.05)':'rgba(154,108,24,.03)'}"><div class="i">${MM[i]}/26</div></th>`;}  );
   thead+=`<th class="tcol" style="background:var(--paper);border-left:2px solid var(--rule2)"><div class="i">2026</div></th></tr></thead>`;
 
@@ -659,13 +653,34 @@ function buildSection(company,data){
     const rc=t==='bold'?'r-bold':t==='sub'?'r-sub':'r-normal';
     const isSF=k==='Saldo Final';
     tbody+=`<tr class="${rc}${drill?' d1-toggle':''}${dnr?' d1-toggle':''}${divDrill?' d1-toggle':''}"${drill?` onclick="tD1('d1-${id}',this)"`:dnr?` onclick="tD1('d1dnr-${id}',this)"`:divDrill?` onclick="tD1('d1div-${id}',this)"`:''} ><td>${displayLabel}</td>`;
-    if(isCon){
+    // Valores de 2025 (linha pai)
+    let arr25=null;
+    if(isCon&&DFC_2025[k]){
+      arr25=DFC_2025[k];
+    }else if(!isCon&&coKey){
+      // Para abas individuais: só sabemos calcular Pagamentos Operacionais e Despesas não recorrentes
+      if(k==='Pagamentos Operacionais'){
+        const v12=Array(12).fill(0);
+        Object.entries(DRILL_2025[coKey]||{}).forEach(([cat,forns])=>{
+          if(!DFC_FLUXOS_OP.includes(cat))return;
+          forns.forEach(({v})=>v.forEach((x,i)=>{if(i<12)v12[i]+=x;}));
+        });
+        arr25=[...v12,sa(v12)];
+      }else if(k==='Desp. Não Recorrentes'){
+        const v12=(DNR_DATA_2025[coKey]||Array(12).fill(0)).slice();
+        arr25=[...v12,sa(v12)];
+      }
+    }
+    if(arr25){
       for(let _m=0;_m<12;_m++){
-        const _vm=DFC_2025[k]!=null?DFC_2025[k][_m]:null;
+        const _vm=arr25[_m];
         tbody+='<td class="col2025md col2025m-'+id+' '+(_vm!=null?(_vm<0?'neg':_vm>0?'pos':''):'')+'">'+(_vm!=null&&_vm!==0?fmt(_vm):'—')+'</td>';
       }
-      const _v25t=DFC_2025[k]!=null?DFC_2025[k][12]:null;
+      const _v25t=arr25[12];
       tbody+='<td class="col2025td col2025t-'+id+' '+(_v25t!=null?(_v25t<0?'neg':_v25t>0?'pos':''):'')+'">'+(_v25t!=null?fmt(_v25t):'—')+'</td>';
+    }else{
+      for(let _m=0;_m<12;_m++)tbody+='<td class="col2025md col2025m-'+id+'"></td>';
+      tbody+='<td class="col2025td col2025t-'+id+'"></td>';
     }
     for(let i=0;i<N;i++){
       const v=vals[i];
@@ -691,7 +706,8 @@ function buildSection(company,data){
         const subKey='d2div-'+id+'-'+sub.row;
         tbody+=`<tr class="d1-row${hasBancos?' d2-toggle':''}" data-d1="${ddKey}"${hasBancos?` onclick="tD2('${subKey}',this)"`:''}>`;
         tbody+=`<td>${sub.k}</td>`;
-        if(isCon){tbody+='<td class="col2025td col2025t-'+id+'"></td>';for(let _m=0;_m<12;_m++)tbody+='<td class="col2025md col2025m-'+id+'"></td>';}
+        for(let _m=0;_m<12;_m++)tbody+='<td class="col2025md col2025m-'+id+'"></td>';
+        tbody+='<td class="col2025td col2025t-'+id+'"></td>';
         for(let i=0;i<N;i++){const v=subVals[i];tbody+=`<td class="${vcls(v)}${i===REAL?' boundary-fc':''}" style="background:rgba(22,61,120,.025)">${v!==0?fmt(v):'—'}</td>`;}
         tbody+=`<td class="tcol ${vcls(subTotal)}">${fmt(subTotal)}</td></tr>`;
         if(hasBancos&&LOANS_DRILL.ROK&&LOANS_DRILL.ROK[sub.drillBancos]){
@@ -700,7 +716,8 @@ function buildSection(company,data){
             if(!vals.some(v=>v!==0))return;
             const bTotal=vals.reduce((a,b)=>a+b,0);
             tbody+=`<tr class="d2-row d2-rok" data-d2="${subKey}"><td>${banco}</td>`;
-            if(isCon){tbody+='<td class="col2025td col2025t-'+id+'"></td>';for(let _m=0;_m<12;_m++)tbody+='<td class="col2025md col2025m-'+id+'"></td>';}
+            for(let _m=0;_m<12;_m++)tbody+='<td class="col2025md col2025m-'+id+'"></td>';
+            tbody+='<td class="col2025td col2025t-'+id+'"></td>';
             for(let i=0;i<N;i++){const v=vals[i]||0;tbody+=`<td class="${vcls(v)}${i===REAL?' boundary-fc':''}">${v!==0?fmt(v):'—'}</td>`;}
             tbody+=`<td class="tcol ${vcls(bTotal)}">${fmt(bTotal)}</td></tr>`;
           });
@@ -765,11 +782,15 @@ function buildSection(company,data){
     if(saldo&&data['Disp. Tesouraria']&&data['Bloq. Garantia']){
       const disp=data['Disp. Tesouraria'],bloq=data['Bloq. Garantia'];
       tbody+=`<tr class="r-saldo-sub r-saldo-disp"><td>↳ Disponível na Tesouraria</td>`;
-      if(isCon){const _s25=DFC_2025['Disp. Tesouraria'];for(let _m=0;_m<12;_m++)tbody+='<td class="col2025md col2025m-'+id+'">'+(_s25&&_s25[_m]!==0?fmt(_s25[_m]):'—')+'</td>';tbody+='<td class="col2025td col2025t-'+id+'">'+(_s25?fmt(_s25[12]):'—')+'</td>';}
+      const _s25d=isCon?DFC_2025['Disp. Tesouraria']:null;
+      if(_s25d){for(let _m=0;_m<12;_m++)tbody+='<td class="col2025md col2025m-'+id+'">'+(_s25d[_m]!==0?fmt(_s25d[_m]):'—')+'</td>';tbody+='<td class="col2025td col2025t-'+id+'">'+fmt(_s25d[12])+'</td>';}
+      else{for(let _m=0;_m<12;_m++)tbody+='<td class="col2025md col2025m-'+id+'"></td>';tbody+='<td class="col2025td col2025t-'+id+'"></td>';}
       for(let i=0;i<N;i++){const v=disp[i];tbody+=`<td class="${vcls(v,v<0)}${i===REAL?' boundary-fc':''}">${fmt(v)}</td>`;}
       tbody+=`<td class="tcol ${vcls(disp[N])}">${fmt(disp[N])}</td></tr>`;
       tbody+=`<tr class="r-saldo-sub r-saldo-bloq"><td>↳ Bloqueado em Garantia</td>`;
-      if(isCon){const _s25=DFC_2025['Bloq. Garantia'];for(let _m=0;_m<12;_m++)tbody+='<td class="col2025md col2025m-'+id+'">'+(_s25&&_s25[_m]!==0?fmt(_s25[_m]):'—')+'</td>';tbody+='<td class="col2025td col2025t-'+id+'">'+(_s25?fmt(_s25[12]):'—')+'</td>';}
+      const _s25b=isCon?DFC_2025['Bloq. Garantia']:null;
+      if(_s25b){for(let _m=0;_m<12;_m++)tbody+='<td class="col2025md col2025m-'+id+'">'+(_s25b[_m]!==0?fmt(_s25b[_m]):'—')+'</td>';tbody+='<td class="col2025td col2025t-'+id+'">'+fmt(_s25b[12])+'</td>';}
+      else{for(let _m=0;_m<12;_m++)tbody+='<td class="col2025md col2025m-'+id+'"></td>';tbody+='<td class="col2025td col2025t-'+id+'"></td>';}
       for(let i=0;i<N;i++)tbody+=`<td${i===REAL?' class="boundary-fc"':''}>${fmt(bloq[i])}</td>`;
       tbody+=`<td class="tcol">${fmt(bloq[N])}</td></tr>`;
     }
