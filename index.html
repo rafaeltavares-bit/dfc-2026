@@ -443,11 +443,12 @@ function buildDrillRows(id,isCon,coKey){
       forns.forEach(({v})=>v.forEach((x,i)=>{if(i<12)totV[i]+=x;}));
     }
     const tot25=sa(totV);
-    let h=`<td class="col2025td col2025t-${id} ${vcls(tot25)}">${tot25!==0?fmt(tot25):'—'}</td>`;
+    let h='';
     for(let _m=0;_m<12;_m++){
       const v=totV[_m]||0;
       h+=`<td class="col2025md col2025m-${id} ${vcls(v)}">${v!==0?fmt(v):'—'}</td>`;
     }
+    h+=`<td class="col2025td col2025t-${id} ${vcls(tot25)}">${tot25!==0?fmt(tot25):'—'}</td>`;
     return h;
   };
   // Helper: células 2025 para uma empresa específica (somando seus fornecedores)
@@ -456,22 +457,24 @@ function buildDrillRows(id,isCon,coKey){
     const forns=(DRILL_2025[empKey]||{})[cat]||[];
     forns.forEach(({v})=>v.forEach((x,i)=>{if(i<12)totV[i]+=x;}));
     const tot25=sa(totV);
-    let h=`<td class="col2025td col2025t-${id} ${vcls(tot25)}">${tot25!==0?fmt(tot25):'—'}</td>`;
+    let h='';
     for(let _m=0;_m<12;_m++){
       const v=totV[_m]||0;
       h+=`<td class="col2025md col2025m-${id} ${vcls(v)}">${v!==0?fmt(v):'—'}</td>`;
     }
+    h+=`<td class="col2025td col2025t-${id} ${vcls(tot25)}">${tot25!==0?fmt(tot25):'—'}</td>`;
     return h;
   };
   // Helper: células 2025 para um fornecedor específico
   const forn25Cells=(vs25)=>{
     const arr=vs25||Array(12).fill(0);
     const tot=sa(arr);
-    let h=`<td class="col2025td col2025t-${id} ${vcls(tot)}">${tot!==0?fmt(tot):'—'}</td>`;
+    let h='';
     for(let _m=0;_m<12;_m++){
       const v=arr[_m]||0;
       h+=`<td class="col2025md col2025m-${id} ${vcls(v)}">${v!==0?fmt(v):'—'}</td>`;
     }
+    h+=`<td class="col2025td col2025t-${id} ${vcls(tot)}">${tot!==0?fmt(tot):'—'}</td>`;
     return h;
   };
   // Busca array v de um fornecedor por nome (no DRILL_2025 da empresa)
