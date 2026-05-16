@@ -814,45 +814,72 @@ function switchTab(id,el){document.querySelectorAll('.section').forEach(s=>s.cla
 // Filtra: valores negativos (pagamentos), datas em 2026 jan-abr
 // Agrupa por Descrição Fluxo > Fornecedor; Top 25 + "Outros (X)"
 function parsePagAba(rows){
-  if(!rows||rows.length<2)return null;
+  if(!rows||rows.length<3)return null;
   const norm=s=>(s||'').toString().normalize('NFD').replace(/[\u0300-\u036f]/g,'').toLowerCase().replace(/\s+/g,' ').trim();
-  const header=rows[0].map(c=>norm(c));
-  const findCol=(...names)=>{
-    const ns=names.map(norm);
-    // 1) match exato
+  // Detecta automaticamente em qual linha (entre 0 e 4) está o cabeçalho real.
+  // Procura a 1ª linha que contenha algo começando com "data" E "fornecedor".
+  let headerRow=-1;
+  for(let r=0;r<Math.min(5,rows.length);r++){
+    const cells=(rows[r]||[]).map(norm);
+    const hasData=cells.some(c=>c.startsWith('data'));
+    const hasForn=cells.some(c=>c.startsWith('fornecedor'));
+    if(hasData&&hasForn){headerRow=r;break;}
+  }
+  if(headerRow<0){console.warn('Pag: não achei linha de cabeçalho com Data+Fornecedor nas primeiras 5 linhas');return null;}
+  const header=rows[headerRow].map(c=>norm(c));
+  const findCol=(...needles)=>{
+    const ns=needles.map(norm);
     for(const n of ns){const i=header.indexOf(n);if(i>=0)return i;}
-    // 2) match parcial: header começa com o nome, ou contém o nome
-    for(const n of ns){const i=header.findIndex(h=>h.startsWith(n)||h.includes(n));if(i>=0)return i;}
+    for(const n of ns){const i=header.findIndex(h=>h&&(h.startsWith(n)||h.includes(n)));if(i>=0)return i;}
     return -1;
   };
-  const ciData=findCol('data','data de crédito c','data de credito c','data de crédito','data de credito','data crédito','data credito','data pgto','data pagamento');
+  const ciData=findCol('data','data de crédito','data de credito','data de crédito ou débito','data de credito ou debito','data crédito','data credito','data pgto','data pagamento');
   const ciForn=findCol('fornecedor');
-  const ciDesc=findCol('descrição fluxo','descricao fluxo','descrição do fluxo','fluxo','descrição','descricao');
+  const ciDesc=findCol('descrição fluxo','descricao fluxo','descrição do fluxo','descricao do fluxo','fluxo','descrição','descricao');
   const ciValor=findCol('valor','valor pago','valor pgto','vlr','vl pago');
-  if(ciData<0||ciForn<0||ciDesc<0||ciValor<0){console.warn('Pag: cabeçalho não encontrado. Esperado: data, fornecedor, fluxo/descrição, valor. Achado:',header,'| Indices: data=',ciData,'fornec=',ciForn,'desc/fluxo=',ciDesc,'valor=',ciValor);return null;}
-  // Parse data dd/mm/yyyy ou d/m/yyyy
-  const parseD=s=>{if(!s)return null;const m=String(s).match(/(\d{1,2})\/(\d{1,2})\/(\d{4})/);if(!m)return null;return{d:+m[1],mo:+m[2],y:+m[3]};};
-  // Parse valor (BR: 1.234,56 ou -40.000,00). Se já vier como número (Papa pode autoparsear), aceita.
-  const parseV=s=>{if(typeof s==='number')return s;if(!s)return 0;let t=String(s).trim().replace(/\s/g,'');if(t.includes(',')){t=t.replace(/\./g,'').replace(',','.');}return parseFloat(t)||0;};
-  // Agrega: agg[descFluxo][fornecedor] = [jan,fev,mar,abr]
+  if(ciData<0||ciForn<0||ciDesc<0||ciValor<0){console.warn('Pag: colunas não encontradas. Cabeçalho na linha',headerRow,':',header,'| Indices: data=',ciData,'fornec=',ciForn,'fluxo=',ciDesc,'valor=',ciValor);return null;}
+  // Parse data: aceita Date object, string ISO, ou D/M/YYYY (e DD/MM/YYYY)
+  const parseD=s=>{
+    if(!s)return null;
+    if(s instanceof Date){return{d:s.getDate(),mo:s.getMonth()+1,y:s.getFullYear()};}
+    const str=String(s).trim();
+    let m=str.match(/^(\d{4})-(\d{1,2})-(\d{1,2})/); // ISO
+    if(m)return{y:+m[1],mo:+m[2],d:+m[3]};
+    m=str.match(/^(\d{1,2})\/(\d{1,2})\/(\d{4})/); // D/M/YYYY ou DD/MM/YYYY
+    if(m)return{d:+m[1],mo:+m[2],y:+m[3]};
+    return null;
+  };
+  // Parse valor: aceita number, ou string BR (1.234,56 / -40.000,00) ou US (1234.56)
+  const parseV=s=>{
+    if(typeof s==='number')return s;
+    if(!s)return 0;
+    let t=String(s).trim().replace(/\s/g,'').replace('R$','');
+    if(t.includes(',')&&t.includes('.')){t=t.replace(/\./g,'').replace(',','.');}
+    else if(t.includes(','))t=t.replace(',','.');
+    return parseFloat(t)||0;
+  };
+  // Normaliza nomes de fluxo para casar com as categorias do dashboard
+  const normalizaDesc=desc=>{
+    const dN=desc.toLowerCase().normalize('NFD').replace(/[\u0300-\u036f]/g,'');
+    if(dN.includes('despesas nao recorrentes')||dN.includes('desp. nao recorrentes')||dN.includes('desp nao recorrentes'))return 'Desp. Não Recorrentes';
+    if(dN==='aquisicao de empresas')return 'Aquisição de Empresas';
+    if(dN==='capex')return 'CAPEX';
+    if(dN.includes('despesas bancarias'))return 'Despesas Bancárias';
+    return desc;
+  };
+  // Agrega: agg[fluxo][fornecedor] = [jan,fev,mar,abr]
   const agg={};
-  for(let i=1;i<rows.length;i++){
-    const row=rows[i];if(!row||!row[ciData])continue;
+  for(let i=headerRow+1;i<rows.length;i++){
+    const row=rows[i];if(!row||row[ciData]==null||row[ciData]==='')continue;
     const d=parseD(row[ciData]);if(!d)continue;
     if(d.y!==2026)continue;
-    if(d.mo<1||d.mo>4)continue; // só jan-abr realizado
+    if(d.mo<1||d.mo>4)continue;
     const v=parseV(row[ciValor]);
-    if(!(v<0))continue; // só pagamentos
+    if(!(v<0))continue;
     let desc=String(row[ciDesc]||'').trim();
     if(!desc)continue;
-    // Normalizar: variações de nomes da planilha → nomes canônicos do dashboard
-    const descNorm=desc.toLowerCase();
-    if(descNorm==='despesas não recorrentes'||descNorm==='despesas nao recorrentes'||descNorm==='desp. não recorrentes'||descNorm==='desp nao recorrentes')desc='Desp. Não Recorrentes';
-    else if(descNorm==='aquisição de empresas'||descNorm==='aquisicao de empresas')desc='Aquisição de Empresas';
-    else if(descNorm==='capex')desc='CAPEX';
-    else if(descNorm==='despesas bancárias'||descNorm==='despesas bancarias')desc='Despesas Bancárias';
+    desc=normalizaDesc(desc);
     const forn=String(row[ciForn]||'Não informado').trim()||'Não informado';
-    // Converte para milhares (planilha está em R$, dashboard usa R$ mil)
     const vMil=v/1000;
     if(!agg[desc])agg[desc]={};
     if(!agg[desc][forn])agg[desc][forn]=[0,0,0,0];
