@@ -724,26 +724,24 @@ function buildSection(company,data){
   const pag25=d25['Pagamentos Operacionais']?d25['Pagamentos Operacionais'][N]:0;
   const ger25=d25['Geração Operacional']?d25['Geração Operacional'][N]:0;
   const sf25Dez=d25['Saldo Final']?d25['Saldo Final'][11]:0; // saldo no fim do ano (Dez/25)
-  // Helper YoY: seta segue o MÓDULO (o número que aparece no card), cor diz se é bom ou ruim.
-  // Pensado para público leigo: olho vê -1.621 vs -1.134 e percebe que SUBIU → seta ▲.
-  // Cor: 'receita' = subir é bom (verde); 'custo' = subir é ruim (vermelho).
-  // Caso especial: geração NEGATIVA que ficou MENOS negativa é melhora (módulo caiu, mas é bom).
+  // Helper YoY: SETA segue o JUÍZO (melhorou=▲, piorou=▼). Cor reforça (verde/vermelho).
+  // Leitura natural: "▲ melhorou" ou "▼ piorou", funciona pra leigo.
   function yoyHTML(v26,v25,labelHint){
     if(!v25||v25===0)return '';
     const m26=Math.abs(v26), m25=Math.abs(v25);
-    const dPct=((m26-m25)/m25)*100; // variação do módulo
+    const dPct=((m26-m25)/m25)*100; // variação do módulo (o número visível no card)
     const isUp=dPct>=0;
     const isCusto=labelHint==='custo';
-    // receita/geração/saldo: ▲ é bom. custo (pagamentos): ▲ é ruim.
+    // receita/geração/saldo: subir é bom. custo (pagamentos): subir é ruim.
     let isGood=isCusto?!isUp:isUp;
-    // Caso especial: se valor era negativo em 2025 e ficou menos negativo em 2026 (módulo caiu mas saiu da zona ruim) → bom
+    // Caso especial: valor era negativo em 2025 e ficou menos negativo em 2026 → melhora
     if(!isCusto && v25<0 && v26>v25){ isGood=true; }
-    // E o inverso: era negativo e ficou ainda mais negativo → ruim
     if(!isCusto && v25<0 && v26<v25){ isGood=false; }
-    const cor=Math.abs(dPct)<0.05?'var(--ink3)':(isGood?'var(--em)':'var(--rd)');
-    const seta=Math.abs(dPct)<0.05?'•':(isUp?'▲':'▼');
+    const semVar=Math.abs(dPct)<0.05;
+    const cor=semVar?'var(--ink3)':(isGood?'var(--em)':'var(--rd)');
+    const seta=semVar?'•':(isGood?'▲':'▼'); // seta segue o juízo, não o módulo
     const sinal=isUp?'+':'';
-    const txt=Math.abs(dPct)<0.05?'sem variação':(isGood?'melhorou':'piorou');
+    const txt=semVar?'sem variação':(isGood?'melhorou':'piorou');
     return `<div style="font-size:11px;color:${cor};margin-top:3px;font-weight:600">${seta} ${sinal}${dPct.toFixed(1)}% vs 2025 · ${txt}</div>`;
   }
 
