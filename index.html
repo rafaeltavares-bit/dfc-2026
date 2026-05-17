@@ -592,13 +592,14 @@ function buildDrillRows(id,isCon,coKey,data){
         rows+=`<td class="tcol ${vcls(tot)}">${fmt(tot)}</td></tr>`;
       });
     }
-    // Linha "Não categorizados" dentro da categoria: diferença planilha - fornecedores
-    if(catTotaisPlanilha||catTotais25){
-      const diff26=Array(REAL).fill(0);
-      if(catTotaisPlanilha){
-        for(let i=0;i<REAL;i++)diff26[i]=Math.round(((catTotaisPlanilha[i]||0)-(catSomaFornecedores[i]||0))*100)/100;
-      }
-      // Soma fornecedores 2025 desta categoria
+    // Calcula diferença não categorizada (planilha - fornecedores) por mês
+    // para injetar dentro de "Outros" depois
+    let diff26=Array(REAL).fill(0);
+    let diff25=Array(12).fill(0);
+    if(catTotaisPlanilha){
+      for(let i=0;i<REAL;i++)diff26[i]=Math.round(((catTotaisPlanilha[i]||0)-(catSomaFornecedores[i]||0))*100)/100;
+    }
+    if(catTotais25){
       const somaForn25=Array(12).fill(0);
       if(isCon){
         ['ROK','DEL','REG'].forEach(k=>{
@@ -607,23 +608,7 @@ function buildDrillRows(id,isCon,coKey,data){
       }else if(coKey){
         ((DRILL_2025[coKey]||{})[cat]||[]).forEach(({v})=>v.forEach((x,i)=>{if(i<12)somaForn25[i]+=x;}));
       }
-      const diff25=Array(12).fill(0);
-      if(catTotais25){
-        for(let i=0;i<12;i++)diff25[i]=Math.round(((catTotais25[i]||0)-(somaForn25[i]||0))*100)/100;
-      }
-      const tem26=diff26.some(v=>Math.abs(v)>0.5);
-      const tem25=diff25.some(v=>Math.abs(v)>0.5);
-      if(tem26||tem25){
-        const tot26=sa(diff26);
-        const tot25v=sa(diff25);
-        const labelCls=isCon?'d2-row d2-rok':'d2-row d2-sup';
-        rows+=`<tr class="${labelCls}" data-d2="${d2key}" style="background:rgba(176,48,32,.04)"><td title="Diferença entre o total da categoria na planilha e a soma dos fornecedores categorizados">⚠ Não categorizados</td>`;
-        for(let _m=0;_m<12;_m++){const v=diff25[_m]||0;rows+=`<td class="col2025md col2025m-${id} ${vcls(v)}">${v!==0?fmt(v):'—'}</td>`;}
-        rows+=`<td class="col2025td col2025t-${id} ${vcls(tot25v)}">${tot25v!==0?fmt(tot25v):'—'}</td>`;
-        for(let i=0;i<REAL;i++){const v=diff26[i];rows+=`<td class="${vcls(v)}">${v!==0?fmt(v):'—'}</td>`;}
-        for(let i=REAL;i<N;i++)rows+=`<td class="${i===REAL?'boundary-fc':''}"></td>`;
-        rows+=`<td class="tcol ${vcls(tot26)}">${fmt(tot26)}</td></tr>`;
-      }
+      for(let i=0;i<12;i++)diff25[i]=Math.round(((catTotais25[i]||0)-(somaForn25[i]||0))*100)/100;
     }
   });
   return rows;
@@ -1537,6 +1522,57 @@ function loadAll(){
         CATS_ORDER.forEach((cat,idx)=>{
           d._catTotais26[cat]=exR(rows,cfg.catStartRow+idx);
           d._catTotais25[cat]=exR25(rows,cfg.catStartRow+idx);
+        });
+        // === Injetar diferença "não categorizada" na linha "Outros" do DRILL ===
+        // Para cada categoria, calcula: total_planilha - soma_fornecedores → adiciona em "Outros (N fornecedores)"
+        const empKeyDrill=cfg.id==='consolidado'?null:(cfg.id==='redeok'?'ROK':cfg.id==='delend'?'DEL':cfg.id==='number'?'REG':null);
+        const empresasDrill=cfg.id==='consolidado'?['ROK','DEL','REG']:[empKeyDrill];
+        CATS_ORDER.forEach(cat=>{
+          // Calcula soma fornecedores por mês (2026 e 2025) para esta categoria
+          const somaForn26=Array(N).fill(0);
+          const somaForn25=Array(12).fill(0);
+          empresasDrill.forEach(ek=>{
+            if(!ek)return;
+            ((DRILL[ek]||{})[cat]||[]).forEach(({v})=>v.forEach((x,i)=>{if(i<N)somaForn26[i]+=x;}));
+            ((DRILL_2025[ek]||{})[cat]||[]).forEach(({v})=>v.forEach((x,i)=>{if(i<12)somaForn25[i]+=x;}));
+          });
+          const tot26=d._catTotais26[cat]||Array(N+1).fill(0);
+          const tot25=d._catTotais25[cat]||Array(13).fill(0);
+          const diff26=Array(N).fill(0);
+          const diff25=Array(12).fill(0);
+          for(let i=0;i<N;i++)diff26[i]=Math.round(((tot26[i]||0)-(somaForn26[i]||0))*100)/100;
+          for(let i=0;i<12;i++)diff25[i]=Math.round(((tot25[i]||0)-(somaForn25[i]||0))*100)/100;
+          const tem26=diff26.some(v=>Math.abs(v)>0.5);
+          const tem25=diff25.some(v=>Math.abs(v)>0.5);
+          if(!tem26&&!tem25)return;
+          // Injeta nas listas de cada empresa proporcionalmente (na linha Outros, se existir)
+          empresasDrill.forEach(ek=>{
+            if(!ek)return;
+            const fornsEmp26=(DRILL[ek]||{})[cat]||[];
+            const fornsEmp25=(DRILL_2025[ek]||{})[cat]||[];
+            // Procura linha Outros (...) — pode estar em uma ou outra
+            const idxOut26=fornsEmp26.findIndex(x=>x.f.startsWith('Outros ('));
+            const idxOut25=fornsEmp25.findIndex(x=>x.f.startsWith('Outros ('));
+            // Calcula peso desta empresa pra distribuir a diferença
+            const totalEmp26=fornsEmp26.reduce((s,it)=>s+Math.abs(it.v.reduce((a,b)=>a+b,0)),0);
+            const totalEmp25=fornsEmp25.reduce((s,it)=>s+Math.abs(it.v.reduce((a,b)=>a+b,0)),0);
+            const totalAll26=empresasDrill.reduce((s,e)=>s+((DRILL[e]||{})[cat]||[]).reduce((s2,it)=>s2+Math.abs(it.v.reduce((a,b)=>a+b,0)),0),0);
+            const totalAll25=empresasDrill.reduce((s,e)=>s+((DRILL_2025[e]||{})[cat]||[]).reduce((s2,it)=>s2+Math.abs(it.v.reduce((a,b)=>a+b,0)),0),0);
+            const peso26=totalAll26>0?totalEmp26/totalAll26:(1/empresasDrill.length);
+            const peso25=totalAll25>0?totalEmp25/totalAll25:(1/empresasDrill.length);
+            // Se não há linha Outros mas há diferença, criar uma
+            const criarSeNecessario=(forns,nMeses,diff,peso,idx)=>{
+              if(idx>=0){
+                // Soma direto na linha Outros existente
+                forns[idx].v=forns[idx].v.map((v,i)=>Math.round((v+(diff[i]||0)*peso)*100)/100);
+              }else if(diff.some(v=>Math.abs(v*peso)>0.5)){
+                // Cria linha Outros se não existe
+                forns.push({f:'Outros (não cadastrados)',v:diff.map(v=>Math.round(v*peso*100)/100)});
+              }
+            };
+            if(tem26)criarSeNecessario(fornsEmp26,N,diff26,peso26,idxOut26);
+            if(tem25)criarSeNecessario(fornsEmp25,12,diff25,peso25,idxOut25);
+          });
         });
         Object.assign(d,DR[cfg.id]||{});
         // Merge CAPEX + Aquisição em uma linha (tanto para 2026 quanto 2025)
