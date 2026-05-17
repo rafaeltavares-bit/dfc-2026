@@ -145,9 +145,15 @@ body{background:var(--cream);color:var(--ink);font-family:"Outfit",sans-serif;fo
 .btn-col{padding:4px 12px;border-radius:6px;border:1px solid var(--rule2);background:var(--paper);color:var(--ink3);font-size:11px;font-family:"Outfit",sans-serif;cursor:pointer;font-weight:600;transition:all .15s;}
 .btn-col:hover{background:var(--ink);color:#fff;border-color:var(--ink);}
 table.dfc{width:100%;border-collapse:collapse;font-size:13px;}
-table.dfc thead th{position:sticky;top:0;z-index:5;background:var(--bg);}
-table.dfc tbody td:first-child,table.dfc tbody th:first-child{position:sticky;left:0;z-index:3;background:var(--bg);}
-table.dfc thead th:first-child{position:sticky;left:0;top:0;z-index:6;background:var(--bg);}
+/* Cabeçalho sticky (topo) com fundo opaco + sombra sutil ao rolar */
+table.dfc thead th{position:sticky;top:0;z-index:5;background:var(--cream);box-shadow:0 2px 4px -2px rgba(0,0,0,.15);}
+/* Primeira coluna sticky (esquerda) com fundo opaco */
+table.dfc tbody td:first-child{position:sticky;left:0;z-index:3;background:var(--cream);box-shadow:2px 0 4px -2px rgba(0,0,0,.12);}
+/* Canto superior-esquerdo (cruzamento) tem z-index maior pra ficar acima dos dois */
+table.dfc thead th:first-child{position:sticky;left:0;top:0;z-index:6;background:var(--cream);box-shadow:2px 2px 4px -2px rgba(0,0,0,.18);}
+/* Linhas com cores especiais (saldo, geração) — manter cor de fundo da linha mesmo na coluna sticky */
+table.dfc tbody tr.r-bold td:first-child{background:var(--paper);}
+table.dfc tbody tr.r-saldo td:first-child,table.dfc tbody tr.r-saldo-sub td:first-child{background:var(--paper);}
 table.dfc th{padding:0;white-space:nowrap;border-bottom:2px solid var(--rule);}
 table.dfc th .i{padding:9px 13px;display:block;text-align:right;font-size:11px;letter-spacing:.06em;text-transform:uppercase;color:var(--ink3);font-weight:700;}
 table.dfc th:first-child .i{text-align:left;min-width:240px;}
