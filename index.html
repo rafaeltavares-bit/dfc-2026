@@ -724,15 +724,15 @@ function buildSection(company,data){
   const pag25=d25['Pagamentos Operacionais']?d25['Pagamentos Operacionais'][N]:0;
   const ger25=d25['Geração Operacional']?d25['Geração Operacional'][N]:0;
   const sf25Dez=d25['Saldo Final']?d25['Saldo Final'][11]:0; // saldo no fim do ano (Dez/25)
-  // Helper YoY: retorna HTML com seta + percentual, comparando valor absoluto (assim pgto -46.254 vs -55.820 mostra "queda" como melhora)
+  // Helper YoY: compara valor REAL (com sinal), não módulo. Seta segue direção do número (▲ subiu, ▼ caiu).
+  // Cor: 'receita' (recebimentos/geração/saldo) → subir é bom; 'custo' (pagamentos) → subir em módulo é ruim, mas
+  // como pagamentos são negativos, "subir o valor" = ficar menos negativo = custo caiu = bom. Logo a regra é a MESMA:
+  // ▲ (valor cresceu) → bom = verde / ▼ (valor caiu) → ruim = vermelho. Para receita E para custo.
   function yoyHTML(v26,v25,labelHint){
     if(!v25||v25===0)return '';
-    const dPct=((Math.abs(v26)-Math.abs(v25))/Math.abs(v25))*100;
-    // Para Recebimentos e Geração: subir é bom (verde). Para Pagamentos: subir é ruim (vermelho).
-    const isCustoMode=labelHint==='custo';
+    const dPct=((v26-v25)/Math.abs(v25))*100; // % usando valor com sinal, base sempre positiva
     const isUp=dPct>=0;
-    const isGood=isCustoMode?!isUp:isUp;
-    const cor=Math.abs(dPct)<0.05?'var(--ink3)':(isGood?'var(--em)':'var(--rd)');
+    const cor=Math.abs(dPct)<0.05?'var(--ink3)':(isUp?'var(--em)':'var(--rd)');
     const seta=Math.abs(dPct)<0.05?'•':(isUp?'▲':'▼');
     const sinal=isUp?'+':'';
     return `<div style="font-size:11px;color:${cor};margin-top:3px;font-weight:600">${seta} ${sinal}${dPct.toFixed(1)}% vs 2025</div>`;
