@@ -381,21 +381,91 @@ let DFC_2026_BY_CO={}; // dados 2026 por empresa lidos da aba DFC (colunas AF-AR
 const DFC_2025={"Saldo Inicial":[6612.88,5466.97,4589.06,5896.31,7460.75,6931.65,6188.51,7330.12,7845.95,5756.48,6273.06,6806.42,6612.88],"Recebimentos":[4266.28,4743.71,4732.5,4892.89,4909.29,4918.07,4653.74,4992.02,4768.35,4892.75,4719.85,5327.53,57817.0],"Pagamentos Operacionais":[-5043.69,-4678.02,-4778.42,-4935.57,-4535.58,-4589.41,-5122.68,-3414.95,-5798.85,-4453.04,-3188.73,-5281.46,-55820.4],"Geração Operacional":[-777.4,65.69,-45.92,-42.68,373.71,328.66,-468.94,1577.07,-1030.49,439.72,1531.12,46.07,1996.6],"CAPEX":[0.0,0.0,-0.16,-1.0,-1.0,-9.8,-1.0,-1.0,0.0,0.0,0.0,0.0,-13.96],"Aquisição de Empresas":[-252.17,-324.04,-101.34,-76.34,-101.34,-79.87,-101.34,-101.34,-101.34,-101.34,-101.34,-101.34,-1543.11],"Ger. após CAPEX":[-1029.57,-258.34,-147.42,-120.02,271.37,238.99,-571.28,1474.73,-1131.83,338.38,1429.79,-55.27,439.53],"Desp. Não Recorrentes":[-115.0,-98.51,-80.0,-80.0,-80.0,-80.0,-80.0,-80.0,-80.0,-80.0,-60.06,-40.0,-953.57],"Ger. após Desp.n.r.":[-1144.57,-356.85,-227.42,-200.02,191.37,158.99,-651.28,1394.73,-1211.83,258.38,1369.72,-95.27,-514.04],"Total Dívidas":[-856.34,-891.06,-833.53,-901.15,-912.76,-902.14,-1207.11,-878.9,-984.54,98.04,-861.37,-763.51,-9894.37],"Saldo Final":[5466.97,4589.06,5896.31,7460.75,6931.65,6188.51,7330.12,7845.95,5756.48,6273.06,6806.42,5947.64,5947.64],"Disp. Tesouraria":[4169.48,3232.11,4600.01,6162.55,5610.71,4919.68,6121.5,6630.81,4556.03,5170.73,5554.01,4821.49,4821.49],"Bloq. Garantia":[1297.49,1356.95,1296.3,1298.2,1320.94,1268.83,1208.62,1215.14,1200.45,1102.33,1252.41,1126.15,1126.15]};
 const LOANS_DRILL={"ROK":{"captacao":{"total":[0.0,9200.0,0.0,0.0,0.0,0.0,0.0,0.0,0.0,0.0,0.0,0.0],"bancos":{"Banco Itaú":[0.0,5200.0,0.0,0.0,0.0,0.0,0.0,0.0,0.0,0.0,0.0,0.0],"FIDC - Direta Capital":[0.0,4000.0,0.0,0.0,0.0,0.0,0.0,0.0,0.0,0.0,0.0,0.0]}},"pagamento":{"total":[-844.18,-1221.23,-5531.38,-652.93,-630.04,-847.08,-844.73,-841.31,-835.4,-832.07,-970.61,-958.61],"bancos":{"BNDES":[-192.04,-197.31,-192.69,-206.15,-193.86,-191.74,-191.0,-189.57,-187.56,-186.71,-184.78,-183.38],"Banco Itaú":[-382.23,-553.02,-4891.48,0.0,0.0,-223.64,-223.64,-223.64,-223.64,-223.64,-223.64,-223.64],"Banco Sofisa":[-66.64,-65.96,-63.56,-66.1,-64.45,-62.23,-62.08,-62.35,-60.76,-60.1,-59.84,-58.79],"FIDC - Direta Capital":[0.0,-87.67,-71.26,-71.29,-65.92,-65.92,-65.92,-65.92,-65.92,-65.92,-208.72,-206.37],"Banco Safra":[-102.35,-213.57,-203.67,-203.41,-202.79,-201.01,-200.03,-198.25,-196.41,-195.06,-193.47,-186.75],"Partes Relacionadas":[-13.37,-15.72,-13.37,-18.08,-15.78,-15.78,-15.78,-15.78,-15.78,-15.78,-15.78,-15.78],"Banco Sofisa II":[-32.25,-32.21,-31.13,-31.22,-30.57,-30.09,-29.61,-29.13,-28.66,-28.18,-27.7,-27.23]}},"parcelamentos":[-55.31,-55.78,-56.18,-56.67,-56.67,-56.67,-56.67,-56.67,-56.67,-56.67,-56.67,-56.67],"desp_bancarias":[-42.0,-3.0,14.0,4.0,4.0,5.0,0.0,-5.0,-10.0,-15.0,-20.0,-20.0]},
 "DEL":{"captacao":{"total":[0,0,0,0,0,0,0,0,0,0,0,0],"bancos":{}},"pagamento":{"total":[-88.77,0,-173.74,-101.97,-101.97,-101.97,-101.97,-101.97,-101.97,-101.97,-101.97,-101.97],"bancos":{"Banco Safra":[-69.25,0,-138.5,-69.25,-69.25,-69.25,-69.25,-69.25,-69.25,-69.25,-69.25,-69.25],"Banco Itaú":[-19.52,0,-35.24,-32.72,-32.72,-32.72,-32.72,-32.72,-32.72,-32.72,-32.72,-32.72]}},"parcelamentos":[0,0,0,0,0,0,0,0,0,0,0,0],"desp_bancarias":[10,5,-7,-3,-2,-5,-5,-5,-5,-5,-5,-5]}};
-const LOANS={
-  'Rede OK':{saldo:19016.3,caixa:4030,dl:14986.3,loans:[
-    {i:'Banco Itaú',d:'Capital de Giro',taxa:'1,70% a.m.',s:5393,a26:944.6,a27:1902.8,a28:2329.4},
-    {i:'FIDC - Direta Capital',d:'Nota Comercial',taxa:'CDI + 0,70% a.m.',s:4000,a26:285.6,a27:1713.6,a28:1713.6},
-    {i:'BNDES',d:'Contrato Financiamento',taxa:'IPCA + 5,88% a.a.',s:3166.7,a26:1500,a27:1833.3,a28:0},
-    {i:'Banco Sofisa',d:'Capital de Giro (FGI)',taxa:'1,85% a.m.',s:2662,a26:1093,a27:1196,a28:191.1},
-    {i:'Banco Safra',d:'Capital de Giro (FGI)',taxa:'CDI + 0,62% a.m.',s:3328.4,a26:1847.3,a27:1057.7,a28:634.6},
-    {i:'Partes Relacionadas',d:'Mútuo',taxa:'1,85% a.m.',s:1116.7,a26:0,a27:250,a28:866.7},
-    {i:'Receita Federal',d:'Parcelamento Tributário',taxa:'100% SELIC',s:1055.4,a26:493.3,a27:457.5,a28:96.4}
-  ]},
-  'Delend':{saldo:2745.6,caixa:424,dl:2321.6,loans:[
-    {i:'Banco Safra',d:'Capital de Giro (FGI)',taxa:'1,35% a.m.',s:1702,a26:547.2,a27:666.2,a28:647.6},
-    {i:'Banco Itaú',d:'Capital de Giro (FGI)',taxa:'1,79% a.m.',s:1043.6,a26:130.5,a27:211.6,a28:261.2}
-  ]}
+let LOANS={
+  'Rede OK':{saldo:0,caixa:0,dl:0,loans:[]},
+  'Delend':{saldo:0,caixa:0,dl:0,loans:[]}
 };
+// Lê CSV de Emprestimos Resumo (Rede OK ou Delend) e popula LOANS
+function pNen(s){
+  // Parser de número com ponto decimal (formato CSV en-US do Sheets publish)
+  if(s===null||s===undefined)return 0;
+  const t=(s+'').trim().replace(/\s/g,'');
+  if(!t||t==='-')return 0;
+  // Detecta ponto + vírgula: "1,234.56" → en-US
+  const lc=t.lastIndexOf(','),ld=t.lastIndexOf('.');
+  let n;
+  if(lc>ld){n=t.replace(/\./g,'').replace(',','.');} // pt-BR
+  else if(ld>lc){n=t.replace(/,/g,'');} // en-US ou misto
+  else n=t;
+  const v=parseFloat(n);
+  return isNaN(v)?0:v;
+}
+function loadLoansCSV(url,empresa){
+  return new Promise(resolve=>{
+    Papa.parse(url,{download:true,complete:res=>{
+      try{
+        const rows=res.data||[];
+        // Procura linha de cabeçalho (contém "Instituição")
+        let h=-1;
+        for(let i=0;i<Math.min(20,rows.length);i++){
+          if((rows[i]||[]).some(c=>(c+'').toLowerCase().includes('instituição'))){h=i;break;}
+        }
+        if(h<0){console.warn('Cabeçalho não encontrado em',empresa);resolve();return;}
+        const loans=[];
+        let cur=null,saldoTotal=0,caixa=0,divLiq=0;
+        for(let i=h+1;i<rows.length;i++){
+          const r=rows[i]||[];
+          const inst=((r[1]||'')+'').trim();
+          const desc=((r[2]||'')+'').trim();
+          const saldo=pNen(r[3]);
+          const a26=pNen(r[4]);
+          const a27=pNen(r[5]);
+          const a28=pNen(r[6]);
+          const taxa=((r[9]||'')+'').trim();
+          // Encerra na linha "Total"
+          if(desc.toLowerCase()==='total'){
+            if(cur){loans.push(cur);cur=null;}
+            saldoTotal=saldo;
+            // Continua a procurar Caixa e Dívida Líquida nas linhas seguintes
+            for(let j=i+1;j<Math.min(rows.length,i+10);j++){
+              const r2=rows[j]||[];
+              const d2=((r2[2]||'')+'').toLowerCase();
+              const v2=pNen(r2[3]);
+              if(d2.includes('caixa')&&d2.includes('aplic'))caixa=v2;
+              else if(d2.includes('dívida líq')||d2.includes('divida liq'))divLiq=v2;
+            }
+            break;
+          }
+          // Nova instituição (B preenchido) - encerra anterior e começa nova
+          if(inst){
+            if(cur)loans.push(cur);
+            cur={i:inst,d:desc||'',taxa:taxa,s:saldo,a26:a26,a27:a27,a28:a28};
+          }else if(cur){
+            // Sub-linha do mesmo banco - acumula (mas só se NÃO for a linha "total do banco")
+            // Heurística: se já tem descrição e saldo, é nova sub-categoria; se descrição vazia
+            // mas saldo grande, é total intermediário e devemos ignorar (substitui pelo saldo)
+            if(desc){
+              // Sub-categoria nomeada: acumula
+              cur.s+=saldo;cur.a26+=a26;cur.a27+=a27;cur.a28+=a28;
+              if(taxa&&!cur.taxa)cur.taxa=taxa;
+              if(cur.d){cur.d=cur.d+' + '+desc;}else cur.d=desc;
+            }else if(saldo){
+              // Linha vazia com saldo: é total do banco - sobrescreve com o total
+              cur.s=saldo;cur.a26=a26;cur.a27=a27;cur.a28=a28;
+            }
+          }
+        }
+        if(cur){loans.push(cur);}
+        // Se não veio total, calcula
+        if(!saldoTotal)saldoTotal=loans.reduce((s,l)=>s+l.s,0);
+        if(!divLiq)divLiq=saldoTotal-caixa;
+        LOANS[empresa]={saldo:Math.round(saldoTotal*100)/100,caixa:Math.round(caixa*100)/100,dl:Math.round(divLiq*100)/100,loans};
+        console.log(`LOANS ${empresa}:`,LOANS[empresa]);
+        resolve();
+      }catch(e){console.error('loadLoansCSV erro',empresa,e);resolve();}
+    },error:()=>{console.warn('Falhou CSV LOANS',empresa);resolve();}});
+  });
+}
 
 function pN(s){if(!s||s.trim()===''||s.trim()==='-')return 0;const v=parseFloat(s.replace(/\s/g,'').replace(/\./g,'').replace(',','.'));return isNaN(v)?0:v;}
 function exR(rows,idx){const row=rows[idx-1];if(!row)return Array(N+1).fill(0);const m=[];for(let c=COL_JAN;c<COL_JAN+N;c++)m.push(pN(row[c]||'0'));return[...m,pN(row[COL_TOT]||'0')];}
@@ -1144,17 +1214,18 @@ function buildDivida(){
   const cT=LOANS['Rede OK'].saldo+LOANS['Delend'].saldo;
   const cL=LOANS['Rede OK'].dl+LOANS['Delend'].dl;
   const cC=LOANS['Rede OK'].caixa+LOANS['Delend'].caixa;
+  const mesAtual=MM[REAL-1]+'/26';
   function lT(loans,tot){
-    let t='<div style="overflow-x:auto"><table class="loan-table"><thead><tr><th>Instituição</th><th>Descrição</th><th>Taxa de Juros</th><th>Saldo Abr/26</th><th>Amort. 2026</th><th>Amort. 2027</th><th>Amort. 2028</th></tr></thead><tbody>';
+    let t=`<div style="overflow-x:auto"><table class="loan-table"><thead><tr><th>Instituição</th><th>Descrição</th><th>Taxa de Juros</th><th>Saldo ${mesAtual}</th><th>Amort. 2026</th><th>Amort. 2027</th><th>Amort. 2028</th></tr></thead><tbody>`;
     loans.forEach(l=>{t+=`<tr><td>${l.i}</td><td>${l.d}</td><td style="color:var(--ink3);font-size:12px">${l.taxa||'—'}</td><td class="money">${fmt(l.s)}</td><td>${fmt(l.a26)}</td><td>${fmt(l.a27)}</td><td>${fmt(l.a28)}</td></tr>`;});
     t+=`<tr><td>Total</td><td></td><td></td><td class="money">${fmt(tot)}</td><td>${fmt(loans.reduce((a,l)=>a+l.a26,0))}</td><td>${fmt(loans.reduce((a,l)=>a+l.a27,0))}</td><td>${fmt(loans.reduce((a,l)=>a+l.a28,0))}</td></tr>`;
     return t+'</tbody></table></div>';
   }
   function pBar(div,cx){const p=Math.min(100,Math.round(cx/div*100));return`<div class="loan-bar"><div class="loan-bar-fill" style="width:${p}%"></div></div><div class="loan-bar-label"><span>Cobertura: ${p}%</span><span>Caixa ${fmt(cx)} · Dívida ${fmt(div)}</span></div>`;}
   el.innerHTML=`
-    <div style="background:var(--sp-l);border:1px solid #b8c8e8;color:var(--sp);padding:12px 18px;border-radius:10px;font-size:13px;margin-bottom:18px;font-weight:500">Posição de dívida com base no Saldo de Abril/26. Valores em R$ mil.</div>
+    <div style="background:var(--sp-l);border:1px solid #b8c8e8;color:var(--sp);padding:12px 18px;border-radius:10px;font-size:13px;margin-bottom:18px;font-weight:500">Posição de dívida com base no Saldo de ${mesAtual}. Valores em R$ mil.</div>
     <div class="kpi-grid" style="grid-template-columns:repeat(3,1fr)">
-      <div class="kpi red"><div class="kpi-ac"></div><div class="kpi-label">Dívida Total Consolidada</div><div class="kpi-value neg">${fmt(cT)}</div><div class="kpi-sub">ROK + Delend · Saldo Abr/26</div></div>
+      <div class="kpi red"><div class="kpi-ac"></div><div class="kpi-label">Dívida Total Consolidada</div><div class="kpi-value neg">${fmt(cT)}</div><div class="kpi-sub">ROK + Delend · Saldo ${mesAtual}</div></div>
       <div class="kpi blue"><div class="kpi-ac"></div><div class="kpi-label">Caixa + Aplicações</div><div class="kpi-value">${fmt(cC)}</div><div class="kpi-sub">Posição de caixa consolidada</div></div>
       <div class="kpi gold"><div class="kpi-ac"></div><div class="kpi-label">Dívida Líquida Consolidada</div><div class="kpi-value neg">${fmt(cL)}</div><div class="kpi-sub">Dívida total menos caixa</div></div>
     </div>
@@ -1173,7 +1244,7 @@ function buildDivida(){
     <div class="tc"><div class="th-row"><div class="th-title">Cronograma de Amortização Consolidado</div><div class="th-note">R$ milhares · Posição Abril/26</div></div>
     <div style="overflow-x:auto"><table class="dfc"><thead><tr>
       <th><div class="i">Instituição</div></th><th><div class="i">Empresa</div></th><th><div class="i">Descrição</div></th><th><div class="i">Taxa</div></th>
-      <th><div class="i">Saldo Abr/26</div></th><th><div class="i">Amort. 2026</div></th><th><div class="i">Amort. 2027</div></th><th><div class="i">Amort. 2028</div></th>
+      <th><div class="i">Saldo ${mesAtual}</div></th><th><div class="i">Amort. 2026</div></th><th><div class="i">Amort. 2027</div></th><th><div class="i">Amort. 2028</div></th>
     </tr></thead><tbody>
     ${[...LOANS['Rede OK'].loans.map(l=>({...l,e:'Rede OK'})),...LOANS['Delend'].loans.map(l=>({...l,e:'Delend'}))].map(l=>`<tr class="r-normal"><td>${l.i}</td><td style="color:var(--ink3)">${l.e}</td><td style="color:var(--ink3)">${l.d}</td><td style="color:var(--ink3);font-size:12px">${l.taxa||'—'}</td><td class="pos">${fmt(l.s)}</td><td>${fmt(l.a26)}</td><td>${fmt(l.a27)}</td><td>${fmt(l.a28)}</td></tr>`).join('')}
     <tr class="r-bold"><td>Total Consolidado</td><td></td><td></td><td></td><td class="neg">${fmt(cT)}</td><td>${fmt([...LOANS['Rede OK'].loans,...LOANS['Delend'].loans].reduce((a,l)=>a+l.a26,0))}</td><td>${fmt([...LOANS['Rede OK'].loans,...LOANS['Delend'].loans].reduce((a,l)=>a+l.a27,0))}</td><td>${fmt([...LOANS['Rede OK'].loans,...LOANS['Delend'].loans].reduce((a,l)=>a+l.a28,0))}</td></tr>
@@ -1490,7 +1561,7 @@ function loadAll(){
   document.querySelectorAll('.section').forEach(s=>s.classList.remove('active'));
   // Primeiro lê Config (define REAL), depois recarrega DRILL, depois processa DFC
   loadConfig().then(()=>rebuildDRILL()).then(()=>{
-  Papa.parse(CSV_DFC,{download:true,complete:function(res){
+  Papa.parse(CSV_DFC,{download:true,complete:async function(res){
     const rows=res.data;
     if(!rows||rows.length<200){showErr('Planilha retornou dados insuficientes.');return;}
     try{
@@ -1697,6 +1768,13 @@ function loadAll(){
         d25._pagFornecedores25=pagJanReal25;
         buildSection(co,d);
       }
+      // Carrega Emprestimos Resumo (ROK e DEL) antes de renderizar painel de Dívida
+      await Promise.all([loadLoansCSV(CSV_LOANS_ROK,'Rede OK'),loadLoansCSV(CSV_LOANS_DEL,'Delend')]);
+      // Caixa: usa o Saldo Final do mês atual (MES_REAL) na DFC, automático
+      const sfROK=DFC_2026_BY_CO.redeok&&DFC_2026_BY_CO.redeok['Saldo Final']?DFC_2026_BY_CO.redeok['Saldo Final'][REAL-1]:0;
+      const sfDEL=DFC_2026_BY_CO.delend&&DFC_2026_BY_CO.delend['Saldo Final']?DFC_2026_BY_CO.delend['Saldo Final'][REAL-1]:0;
+      if(LOANS['Rede OK']){LOANS['Rede OK'].caixa=Math.round(sfROK);LOANS['Rede OK'].dl=Math.round((LOANS['Rede OK'].saldo-LOANS['Rede OK'].caixa)*100)/100;}
+      if(LOANS['Delend']){LOANS['Delend'].caixa=Math.round(sfDEL);LOANS['Delend'].dl=Math.round((LOANS['Delend'].saldo-LOANS['Delend'].caixa)*100)/100;}
       buildDivida();
       // ============== VALIDAÇÃO DE CONCILIAÇÃO ==============
       // Verifica se Consolidado = ROK + DEL + REG para cada linha-chave de 2025
