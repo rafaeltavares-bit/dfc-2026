@@ -255,7 +255,7 @@ table.dfc th.boundary-fc,table.dfc td.boundary-fc{border-left:2px solid #a89e8b!
 .btn-collapse-all:hover{transform:translateY(-2px);box-shadow:0 6px 20px rgba(0,0,0,.24);}
 .btn-collapse-all:active{transform:translateY(0);}
 .section.y25-open .drill-fc-note{display:none;}
-.h-scroll-fixed{position:fixed;bottom:0;left:0;right:0;height:16px;background:var(--paper);border-top:1px solid var(--rule);overflow-x:auto;overflow-y:hidden;z-index:90;display:none;}
+.h-scroll-fixed{position:fixed;bottom:0;left:0;right:0;height:18px;background:rgba(255,255,255,.95);border-top:1px solid var(--rule);overflow-x:auto;overflow-y:hidden;z-index:90;display:none;backdrop-filter:blur(4px);}
 .h-scroll-fixed.active{display:block;}
 .h-scroll-fixed > div{height:1px;}
 </style>
@@ -1103,9 +1103,9 @@ function tog25(id){
   }
   setTimeout(syncHScroll,50);
 }
-function tD1(k,el){document.querySelectorAll(`tr[data-d1="${k}"]`).forEach(r=>r.classList.toggle('vis',!el.classList.contains('open')));el.classList.toggle('open');}
-function tD2(k,el){if(el.classList.contains('open')){document.querySelectorAll(`tr[data-d3^="${k}"]`).forEach(r=>r.classList.remove('vis'));document.querySelectorAll(`tr[data-d2="${k}"].open`).forEach(r=>r.classList.remove('open'));}document.querySelectorAll(`tr[data-d2="${k}"]`).forEach(r=>r.classList.toggle('vis',!el.classList.contains('open')));el.classList.toggle('open');}
-function tD3(k,el){document.querySelectorAll(`tr[data-d3="${k}"]`).forEach(r=>r.classList.toggle('vis',!el.classList.contains('open')));el.classList.toggle('open');}
+function tD1(k,el){document.querySelectorAll(`tr[data-d1="${k}"]`).forEach(r=>r.classList.toggle('vis',!el.classList.contains('open')));el.classList.toggle('open');setTimeout(syncHScroll,30);}
+function tD2(k,el){if(el.classList.contains('open')){document.querySelectorAll(`tr[data-d3^="${k}"]`).forEach(r=>r.classList.remove('vis'));document.querySelectorAll(`tr[data-d2="${k}"].open`).forEach(r=>r.classList.remove('open'));}document.querySelectorAll(`tr[data-d2="${k}"]`).forEach(r=>r.classList.toggle('vis',!el.classList.contains('open')));el.classList.toggle('open');setTimeout(syncHScroll,30);}
+function tD3(k,el){document.querySelectorAll(`tr[data-d3="${k}"]`).forEach(r=>r.classList.toggle('vis',!el.classList.contains('open')));el.classList.toggle('open');setTimeout(syncHScroll,30);}
 function syncHScroll(){
   const bar=document.getElementById('h-scroll-fixed');
   const inner=document.getElementById('h-scroll-fixed-inner');
