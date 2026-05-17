@@ -713,6 +713,11 @@ function buildSection(company,data){
   const rF=data['Recebimentos']?sa(data['Recebimentos'].slice(REAL,N)):0;
   const pR=data['Pagamentos Operacionais']?sa(data['Pagamentos Operacionais'].slice(0,REAL)):0;
   const pF=data['Pagamentos Operacionais']?sa(data['Pagamentos Operacionais'].slice(REAL,N)):0;
+  const gR=data['Geração Operacional']?sa(data['Geração Operacional'].slice(0,REAL)):0;
+  const gF=data['Geração Operacional']?sa(data['Geração Operacional'].slice(REAL,N)):0;
+  // Rótulos dinâmicos dos períodos (Jan–Abr / Mai–Dez), conforme MES_REAL
+  const periodoReal=REAL>0?`${MM[0]}–${MM[REAL-1]} (realizado)`:'(sem realizado)';
+  const periodoFc=REAL<N?`${MM[REAL]}–${MM[N-1]} (projetado)`:'(sem projetado)';
 
   // Caixa strip (realized only, FC placeholder)
   let cs=`<div class="caixa-strip"><span class="cs-label">Tesouraria:</span>`;
@@ -723,9 +728,9 @@ function buildSection(company,data){
   cs+='</div>';
 
   const kpis=[
-    {l:'Recebimentos 2026',v:recv,c:'blue',s:`Real: ${fmt(rR)} · FC: ${fmt(rF)}`},
-    {l:'Pagamentos Operacionais',v:pag,c:'red',s:`Real: ${fmt(pR)} · FC: ${fmt(pF)}`},
-    {l:'Geração Operacional',v:gerOp,c:gerOp>=0?'green':'red',s:'Resultado operacional anual'},
+    {l:'Recebimentos 2026',v:recv,c:'blue',s:`${periodoReal}: ${fmt(rR)}<br>${periodoFc}: ${fmt(rF)}`},
+    {l:'Pagamentos Operacionais',v:pag,c:'red',s:`${periodoReal}: ${fmt(pR)}<br>${periodoFc}: ${fmt(pF)}`},
+    {l:'Geração Operacional',v:gerOp,c:gerOp>=0?'green':'red',s:`${periodoReal}: ${fmt(gR)}<br>${periodoFc}: ${fmt(gF)}`},
     {l:'Saldo Final Dez/26',v:sfDez,c:sfDez>=0?'green':'red',s:negM.length?`⚠ ${negM.length} mês(es) tesouraria negativa`:'Forecast',bd:dispDez!==null?{d:dispDez,b:bloqDez}:null},
   ];
 
