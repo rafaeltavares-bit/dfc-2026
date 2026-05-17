@@ -323,6 +323,8 @@ const CSV_CONFIG='https://docs.google.com/spreadsheets/d/e/2PACX-1vT8sq6GUhsoMtU
 const CSV_PAG_ROK_2025='https://docs.google.com/spreadsheets/d/e/2PACX-1vT8sq6GUhsoMtUzJ2KUh5Ra9UPaJFJENko4XJhyaJs6XEceOH_olouKMRsjFdQE_A/pub?gid=680276322&single=true&output=csv';
 const CSV_PAG_DEL_2025='https://docs.google.com/spreadsheets/d/e/2PACX-1vT8sq6GUhsoMtUzJ2KUh5Ra9UPaJFJENko4XJhyaJs6XEceOH_olouKMRsjFdQE_A/pub?gid=6698327&single=true&output=csv';
 const CSV_PAG_REG_2025='https://docs.google.com/spreadsheets/d/e/2PACX-1vT8sq6GUhsoMtUzJ2KUh5Ra9UPaJFJENko4XJhyaJs6XEceOH_olouKMRsjFdQE_A/pub?gid=319006513&single=true&output=csv';
+const CSV_LOANS_ROK='https://docs.google.com/spreadsheets/d/e/2PACX-1vT8sq6GUhsoMtUzJ2KUh5Ra9UPaJFJENko4XJhyaJs6XEceOH_olouKMRsjFdQE_A/pub?gid=2001669643&single=true&output=csv';
+const CSV_LOANS_DEL='https://docs.google.com/spreadsheets/d/e/2PACX-1vT8sq6GUhsoMtUzJ2KUh5Ra9UPaJFJENko4XJhyaJs6XEceOH_olouKMRsjFdQE_A/pub?gid=169141205&single=true&output=csv';
 const COL_JAN=31,N=12,COL_TOT=43;
 const COL_JAN_25=17,COL_TOT_25=29;
 let REAL=4; // será atualizado pela aba Config (chave MES_REAL)
@@ -373,21 +375,41 @@ const LOANS_DRILL={"ROK":{"captacao":{"total":[0.0,9200.0,0.0,0.0,0.0,0.0,0.0,0.
 "DEL":{"captacao":{"total":[0,0,0,0,0,0,0,0,0,0,0,0],"bancos":{}},"pagamento":{"total":[-88.77,0,-173.74,-101.97,-101.97,-101.97,-101.97,-101.97,-101.97,-101.97,-101.97,-101.97],"bancos":{"Banco Safra":[-69.25,0,-138.5,-69.25,-69.25,-69.25,-69.25,-69.25,-69.25,-69.25,-69.25,-69.25],"Banco Itaú":[-19.52,0,-35.24,-32.72,-32.72,-32.72,-32.72,-32.72,-32.72,-32.72,-32.72,-32.72]}},"parcelamentos":[0,0,0,0,0,0,0,0,0,0,0,0],"desp_bancarias":[10,5,-7,-3,-2,-5,-5,-5,-5,-5,-5,-5]}};
 const LOANS={
   'Rede OK':{saldo:19016.3,caixa:4014.4,dl:15001.9,loans:[
-    {i:'Banco Itaú',d:'Capital de Giro',s:5393,a26:944.6,a27:1902.8,a28:2329.4},
-    {i:'FIDC - Direta Capital',d:'Nota Comercial',s:4000,a26:285.6,a27:1713.6,a28:1713.6},
-    {i:'BNDES',d:'Contrato Financiamento',s:3166.7,a26:1500,a27:1833.3,a28:0},
-    {i:'Banco Sofisa',d:'Capital de Giro (FGI)',s:2662,a26:1093,a27:1196,a28:191.1},
-    {i:'Banco Safra',d:'Capital de Giro (FGI)',s:3328.4,a26:1847.3,a27:1057.7,a28:634.6},
-    {i:'Partes Relacionadas',d:'Mútuo',s:1116.7,a26:0,a27:250,a28:866.7},
-    {i:'Receita Federal',d:'Parcelamento Tributário',s:1055.4,a26:493.3,a27:457.5,a28:96.4}
+    {i:'Banco Itaú',d:'Capital de Giro',taxa:'1,70% a.m.',s:5393,a26:944.6,a27:1902.8,a28:2329.4},
+    {i:'FIDC - Direta Capital',d:'Nota Comercial',taxa:'CDI + 0,70% a.m.',s:4000,a26:285.6,a27:1713.6,a28:1713.6},
+    {i:'BNDES',d:'Contrato Financiamento',taxa:'IPCA + 5,88% a.a.',s:3166.7,a26:1500,a27:1833.3,a28:0},
+    {i:'Banco Sofisa',d:'Capital de Giro (FGI)',taxa:'1,85% a.m.',s:2662,a26:1093,a27:1196,a28:191.1},
+    {i:'Banco Safra',d:'Capital de Giro (FGI)',taxa:'CDI + 0,62% a.m.',s:3328.4,a26:1847.3,a27:1057.7,a28:634.6},
+    {i:'Partes Relacionadas',d:'Mútuo',taxa:'1,85% a.m.',s:1116.7,a26:0,a27:250,a28:866.7},
+    {i:'Receita Federal',d:'Parcelamento Tributário',taxa:'100% SELIC',s:1055.4,a26:493.3,a27:457.5,a28:96.4}
   ]},
   'Delend':{saldo:2745.6,caixa:7.95,dl:2737.6,loans:[
-    {i:'Banco Safra',d:'Capital de Giro (FGI)',s:1702,a26:547.2,a27:666.2,a28:647.6},
-    {i:'Banco Itaú',d:'Capital de Giro (FGI)',s:1043.6,a26:130.5,a27:211.6,a28:261.2}
+    {i:'Banco Safra',d:'Capital de Giro (FGI)',taxa:'1,35% a.m.',s:1702,a26:547.2,a27:666.2,a28:647.6},
+    {i:'Banco Itaú',d:'Capital de Giro (FGI)',taxa:'1,79% a.m.',s:1043.6,a26:130.5,a27:211.6,a28:261.2}
   ]}
 };
 
-function pN(s){if(!s||s.trim()===''||s.trim()==='-')return 0;const v=parseFloat(s.replace(/\s/g,'').replace(/\./g,'').replace(',','.'));return isNaN(v)?0:v;}
+function pN(s){
+  if(s===null||s===undefined)return 0;
+  const t=(s+'').trim();
+  if(!t||t==='-'||t==='—')return 0;
+  // Detecta formato pt-BR (vírgula decimal, ponto separador): "1.234,56"
+  // vs en-US (ponto decimal): "1234.56" ou "1,234.56"
+  const lastComma=t.lastIndexOf(',');
+  const lastDot=t.lastIndexOf('.');
+  let normalized;
+  if(lastComma>lastDot){
+    // pt-BR: vírgula é decimal
+    normalized=t.replace(/\s/g,'').replace(/\./g,'').replace(',','.');
+  }else if(lastDot>lastComma){
+    // en-US: ponto é decimal, vírgula é milhar
+    normalized=t.replace(/\s/g,'').replace(/,/g,'');
+  }else{
+    normalized=t.replace(/\s/g,'');
+  }
+  const v=parseFloat(normalized);
+  return isNaN(v)?0:v;
+}
 function exR(rows,idx){const row=rows[idx-1];if(!row)return Array(N+1).fill(0);const m=[];for(let c=COL_JAN;c<COL_JAN+N;c++)m.push(pN(row[c]||'0'));return[...m,pN(row[COL_TOT]||'0')];}
 function exR25(rows,idx){const row=rows[idx-1];if(!row)return Array(N+1).fill(0);const m=[];for(let c=COL_JAN_25;c<COL_JAN_25+N;c++)m.push(pN(row[c]||'0'));return[...m,pN(row[COL_TOT_25]||'0')];}
 function fmt(v){if(v===null||v===undefined)return'—';return(v<0?'-':'')+Math.abs(v).toLocaleString('pt-BR',{minimumFractionDigits:0,maximumFractionDigits:0});}
@@ -1140,9 +1162,9 @@ function buildDivida(){
   const cL=LOANS['Rede OK'].dl+LOANS['Delend'].dl;
   const cC=LOANS['Rede OK'].caixa+LOANS['Delend'].caixa;
   function lT(loans,tot){
-    let t='<div style="overflow-x:auto"><table class="loan-table"><thead><tr><th>Instituição</th><th>Descrição</th><th>Saldo Abr/26</th><th>Amort. 2026</th><th>Amort. 2027</th><th>Amort. 2028</th></tr></thead><tbody>';
-    loans.forEach(l=>{t+=`<tr><td>${l.i}</td><td>${l.d}</td><td class="money">${fmt(l.s)}</td><td>${fmt(l.a26)}</td><td>${fmt(l.a27)}</td><td>${fmt(l.a28)}</td></tr>`;});
-    t+=`<tr><td>Total</td><td></td><td class="money">${fmt(tot)}</td><td>${fmt(loans.reduce((a,l)=>a+l.a26,0))}</td><td>${fmt(loans.reduce((a,l)=>a+l.a27,0))}</td><td>${fmt(loans.reduce((a,l)=>a+l.a28,0))}</td></tr>`;
+    let t='<div style="overflow-x:auto"><table class="loan-table"><thead><tr><th>Instituição</th><th>Descrição</th><th>Taxa de Juros</th><th>Saldo Abr/26</th><th>Amort. 2026</th><th>Amort. 2027</th><th>Amort. 2028</th></tr></thead><tbody>';
+    loans.forEach(l=>{t+=`<tr><td>${l.i}</td><td>${l.d}</td><td style="color:var(--ink3);font-size:12px">${l.taxa||'—'}</td><td class="money">${fmt(l.s)}</td><td>${fmt(l.a26)}</td><td>${fmt(l.a27)}</td><td>${fmt(l.a28)}</td></tr>`;});
+    t+=`<tr><td>Total</td><td></td><td></td><td class="money">${fmt(tot)}</td><td>${fmt(loans.reduce((a,l)=>a+l.a26,0))}</td><td>${fmt(loans.reduce((a,l)=>a+l.a27,0))}</td><td>${fmt(loans.reduce((a,l)=>a+l.a28,0))}</td></tr>`;
     return t+'</tbody></table></div>';
   }
   function pBar(div,cx){const p=Math.min(100,Math.round(cx/div*100));return`<div class="loan-bar"><div class="loan-bar-fill" style="width:${p}%"></div></div><div class="loan-bar-label"><span>Cobertura: ${p}%</span><span>Caixa ${fmt(cx)} · Dívida ${fmt(div)}</span></div>`;}
@@ -1167,11 +1189,11 @@ function buildDivida(){
     </div>
     <div class="tc"><div class="th-row"><div class="th-title">Cronograma de Amortização Consolidado</div><div class="th-note">R$ milhares · Posição Abril/26</div></div>
     <div style="overflow-x:auto"><table class="dfc"><thead><tr>
-      <th><div class="i">Instituição</div></th><th><div class="i">Empresa</div></th><th><div class="i">Descrição</div></th>
+      <th><div class="i">Instituição</div></th><th><div class="i">Empresa</div></th><th><div class="i">Descrição</div></th><th><div class="i">Taxa</div></th>
       <th><div class="i">Saldo Abr/26</div></th><th><div class="i">Amort. 2026</div></th><th><div class="i">Amort. 2027</div></th><th><div class="i">Amort. 2028</div></th>
     </tr></thead><tbody>
-    ${[...LOANS['Rede OK'].loans.map(l=>({...l,e:'Rede OK'})),...LOANS['Delend'].loans.map(l=>({...l,e:'Delend'}))].map(l=>`<tr class="r-normal"><td>${l.i}</td><td style="color:var(--ink3)">${l.e}</td><td style="color:var(--ink3)">${l.d}</td><td class="pos">${fmt(l.s)}</td><td>${fmt(l.a26)}</td><td>${fmt(l.a27)}</td><td>${fmt(l.a28)}</td></tr>`).join('')}
-    <tr class="r-bold"><td>Total Consolidado</td><td></td><td></td><td class="neg">${fmt(cT)}</td><td>${fmt([...LOANS['Rede OK'].loans,...LOANS['Delend'].loans].reduce((a,l)=>a+l.a26,0))}</td><td>${fmt([...LOANS['Rede OK'].loans,...LOANS['Delend'].loans].reduce((a,l)=>a+l.a27,0))}</td><td>${fmt([...LOANS['Rede OK'].loans,...LOANS['Delend'].loans].reduce((a,l)=>a+l.a28,0))}</td></tr>
+    ${[...LOANS['Rede OK'].loans.map(l=>({...l,e:'Rede OK'})),...LOANS['Delend'].loans.map(l=>({...l,e:'Delend'}))].map(l=>`<tr class="r-normal"><td>${l.i}</td><td style="color:var(--ink3)">${l.e}</td><td style="color:var(--ink3)">${l.d}</td><td style="color:var(--ink3);font-size:12px">${l.taxa||'—'}</td><td class="pos">${fmt(l.s)}</td><td>${fmt(l.a26)}</td><td>${fmt(l.a27)}</td><td>${fmt(l.a28)}</td></tr>`).join('')}
+    <tr class="r-bold"><td>Total Consolidado</td><td></td><td></td><td></td><td class="neg">${fmt(cT)}</td><td>${fmt([...LOANS['Rede OK'].loans,...LOANS['Delend'].loans].reduce((a,l)=>a+l.a26,0))}</td><td>${fmt([...LOANS['Rede OK'].loans,...LOANS['Delend'].loans].reduce((a,l)=>a+l.a27,0))}</td><td>${fmt([...LOANS['Rede OK'].loans,...LOANS['Delend'].loans].reduce((a,l)=>a+l.a28,0))}</td></tr>
     </tbody></table></div></div>`;
 }
 
@@ -1599,6 +1621,5 @@ function refreshAll(){loadAll();}
 loadAll();
 </script>
 <div class="h-scroll-fixed" id="h-scroll-fixed"><div id="h-scroll-fixed-inner"></div></div>
-<button class="btn-collapse-all" onclick="recolherTudo()" title="Recolhe todas as expansões e volta ao topo">↑ Recolher tudo</button>
 </body>
 </html>
