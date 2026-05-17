@@ -997,7 +997,7 @@ function buildSection(company,data){
         </div>
         <div class="th-note">▶ Pagamentos → Categorias →${isCon?' Empresa →':''} Fornecedores (Jan–Abr realizados, conciliado)</div>
       </div>
-      <div class="dfc-wrap" style="overflow-x:auto"><table class="dfc">${thead}${tbody}</table></div>
+      <div class="dfc-wrap" style="overflow-x:auto;overflow-y:clip"><table class="dfc">${thead}${tbody}</table></div>
     </div>
     `;
   buildCharts(id,data);
