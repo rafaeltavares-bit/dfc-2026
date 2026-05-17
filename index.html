@@ -1222,7 +1222,7 @@ function parseMonth(dateStr){
   return null;
 }
 
-function buildDrillFromCSV(rows,empKey,ano,meses){
+function buildDrillFromCSV(rows,empKey,ano,meses,pularRegraOutros){
   // rows é array de arrays (Papa.parse data, header=false)
   // ano: 2025 ou 2026 (filtra linhas só desse ano)
   // meses: quantos meses do início entrar no drill (4 pra 2026 Jan-Abr, 12 pra 2025 ano todo)
@@ -1301,6 +1301,11 @@ function buildDrillFromCSV(rows,empKey,ano,meses){
     });
     const totalCatAbs=lista.reduce((s,it)=>s+it.abs,0);
     if(totalCatAbs===0){out[cat]=lista.sort((a,b)=>a.total-b.total).map(({f,v})=>({f,v}));return;}
+    if(pularRegraOutros){
+      // Retorna lista completa ordenada por peso (do mais negativo pro menos), sem agrupar
+      out[cat]=lista.sort((a,b)=>a.total-b.total).map(({f,v})=>({f,v}));
+      return;
+    }
     // Ordena do menor peso para o maior (assim acumulamos os "menores" no Outros)
     lista.sort((a,b)=>a.abs-b.abs);
     const limiteOutros=totalCatAbs*0.05; // Outros não pode passar de 5% do total da categoria
@@ -1330,10 +1335,10 @@ function buildDrillFromCSV(rows,empKey,ano,meses){
   return out;
 }
 
-function loadPaymentsCSV(url,empKey,ano,meses){
+function loadPaymentsCSV(url,empKey,ano,meses,pularRegraOutros){
   return new Promise(resolve=>{
     Papa.parse(url,{download:true,complete:res=>{
-      try{resolve(buildDrillFromCSV(res.data,empKey,ano,meses));}
+      try{resolve(buildDrillFromCSV(res.data,empKey,ano,meses,pularRegraOutros));}
       catch(e){console.error('Erro parse '+empKey,e);resolve(null);}
     },error:e=>{console.error('Erro fetch '+empKey,e);resolve(null);}});
   });
@@ -1377,15 +1382,70 @@ function atualizarLabelsRealFC(){
 
 async function rebuildDRILL(){
   const [rok,del,reg,rok25,del25,reg25]=await Promise.all([
-    loadPaymentsCSV(CSV_PAG_ROK,'ROK',2026,REAL),
-    loadPaymentsCSV(CSV_PAG_DEL,'DEL',2026,REAL),
-    loadPaymentsCSV(CSV_PAG_REG,'REG',2026,REAL),
-    loadPaymentsCSV(CSV_PAG_ROK_2025,'ROK25',2025,12),
-    loadPaymentsCSV(CSV_PAG_DEL_2025,'DEL25',2025,12),
-    loadPaymentsCSV(CSV_PAG_REG_2025,'REG25',2025,12)
+    loadPaymentsCSV(CSV_PAG_ROK,'ROK',2026,REAL,true),
+    loadPaymentsCSV(CSV_PAG_DEL,'DEL',2026,REAL,true),
+    loadPaymentsCSV(CSV_PAG_REG,'REG',2026,REAL,true),
+    loadPaymentsCSV(CSV_PAG_ROK_2025,'ROK25',2025,12,true),
+    loadPaymentsCSV(CSV_PAG_DEL_2025,'DEL25',2025,12,true),
+    loadPaymentsCSV(CSV_PAG_REG_2025,'REG25',2025,12,true)
   ]);
   DRILL={ROK:rok||{},DEL:del||{},REG:reg||{}};
   DRILL_2025={ROK:rok25||{},DEL:del25||{},REG:reg25||{}};
+  // === Regra Outros UNIFICADA (considera 2025 + 2026 juntos) ===
+  // Para cada empresa e cada categoria, calcula peso total (somando |total 2026| + |total 2025|),
+  // ordena, separa "Outros" (fornecedores pequenos cuja soma absoluta < 5% do total geral),
+  // e aplica a MESMA seleção de fornecedores principais nos dois DRILLs.
+  ['ROK','DEL','REG'].forEach(emp=>{
+    const cats26=DRILL[emp]||{};
+    const cats25=DRILL_2025[emp]||{};
+    const todasCats=new Set([...Object.keys(cats26),...Object.keys(cats25)]);
+    todasCats.forEach(cat=>{
+      const forns26=cats26[cat]||[];
+      const forns25=cats25[cat]||[];
+      // Mapa { nome: {v26, v25, abs} }
+      const mapa={};
+      forns26.forEach(({f,v})=>{mapa[f]=mapa[f]||{v26:Array(REAL).fill(0),v25:Array(12).fill(0),abs:0};mapa[f].v26=v;});
+      forns25.forEach(({f,v})=>{mapa[f]=mapa[f]||{v26:Array(REAL).fill(0),v25:Array(12).fill(0),abs:0};mapa[f].v25=v;});
+      // Calcula peso absoluto unificado
+      let totalAbs=0;
+      Object.values(mapa).forEach(it=>{
+        const tot26=it.v26.reduce((a,b)=>a+b,0);
+        const tot25=it.v25.reduce((a,b)=>a+b,0);
+        it.abs=Math.abs(tot26)+Math.abs(tot25);
+        totalAbs+=it.abs;
+      });
+      if(totalAbs===0)return;
+      // Ordena por peso (do menor pro maior)
+      const ordenados=Object.entries(mapa).sort(([,a],[,b])=>a.abs-b.abs);
+      const limiteOutros=totalAbs*0.05;
+      let somaOutros=0,idx=0;
+      const nomesOutros=new Set();
+      while(idx<ordenados.length-1){
+        const [nome,it]=ordenados[idx];
+        if(somaOutros+it.abs<=limiteOutros){
+          nomesOutros.add(nome);somaOutros+=it.abs;idx++;
+        }else break;
+      }
+      // Reconstrói lista 2026 e 2025 com mesmos principais + um "Outros"
+      const construir=(forns,nMeses)=>{
+        const principais=[],outros=[];
+        forns.forEach(item=>{(nomesOutros.has(item.f)?outros:principais).push(item);});
+        // Ordena principais por total mais negativo primeiro
+        principais.sort((a,b)=>a.v.reduce((s,x)=>s+x,0)-b.v.reduce((s,x)=>s+x,0));
+        const resultado=principais.map(({f,v})=>({f,v}));
+        if(outros.length>1){
+          const soma=Array(nMeses).fill(0);
+          outros.forEach(it=>it.v.forEach((v,i)=>{if(i<nMeses)soma[i]+=v;}));
+          resultado.push({f:`Outros (${nomesOutros.size} fornecedores)`,v:soma.map(x=>Math.round(x*100)/100)});
+        }else if(outros.length===1){
+          resultado.push({f:outros[0].f,v:outros[0].v});
+        }
+        return resultado;
+      };
+      if(cats26[cat])DRILL[emp][cat]=construir(forns26,REAL);
+      if(cats25[cat])DRILL_2025[emp][cat]=construir(forns25,12);
+    });
+  });
   // Extrai Despesas não recorrentes (categoria especial) para tabela DNR_DATA
   // Soma fornecedores por empresa/mês e remove do DRILL para não aparecer em Pagamentos Operacionais
   const DNR_KEY='Despesas não recorrentes';
