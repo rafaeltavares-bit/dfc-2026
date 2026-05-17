@@ -147,6 +147,8 @@ body{background:var(--cream);color:var(--ink);font-family:"Outfit",sans-serif;fo
 table.dfc{width:100%;border-collapse:collapse;font-size:13px;}
 /* Cabeçalho sticky (topo) com fundo opaco + sombra sutil ao rolar */
 table.dfc thead th{position:sticky;top:0;z-index:5;background:var(--cream);box-shadow:0 2px 4px -2px rgba(0,0,0,.15);}
+/* Camada cream opaca por baixo das bandas semi-transparentes do thead (impede que linhas rolem por trás e apareçam) */
+table.dfc thead th::before{content:"";position:absolute;inset:0;background:var(--cream);z-index:-1;}
 /* Primeira coluna sticky (esquerda) com fundo opaco */
 table.dfc tbody td:first-child{position:sticky;left:0;z-index:3;background:var(--cream);box-shadow:2px 0 4px -2px rgba(0,0,0,.12);}
 /* Canto superior-esquerdo (cruzamento) tem z-index maior pra ficar acima dos dois */
