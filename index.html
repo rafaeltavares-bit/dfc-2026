@@ -412,51 +412,46 @@ function loadLoansCSV(url,empresa){
         }
         if(h<0){console.warn('Cabeçalho não encontrado em',empresa);resolve();return;}
         const loans=[];
-        let cur=null,saldoTotal=0,caixa=0,divLiq=0;
+        let saldoTotal=0,caixa=0,divLiq=0;
+        let bancoAtual='';
         for(let i=h+1;i<rows.length;i++){
           const r=rows[i]||[];
           const inst=((r[1]||'')+'').trim();
           const desc=((r[2]||'')+'').trim();
-          const saldo=pNen(r[3]);
-          const a26=pNen(r[4]);
-          const a27=pNen(r[5]);
-          const a28=pNen(r[6]);
+          const saldo=pN(r[3]);
+          const a26=pN(r[4]);
+          const a27=pN(r[5]);
+          const a28=pN(r[6]);
           const taxa=((r[9]||'')+'').trim();
-          // Encerra na linha "Total"
+          // Linha "Total" → encerra
           if(desc.toLowerCase()==='total'){
-            if(cur){loans.push(cur);cur=null;}
             saldoTotal=saldo;
-            // Continua a procurar Caixa e Dívida Líquida nas linhas seguintes
+            // Procura Caixa e Dívida Líquida nas linhas seguintes
             for(let j=i+1;j<Math.min(rows.length,i+10);j++){
               const r2=rows[j]||[];
               const d2=((r2[2]||'')+'').toLowerCase();
-              const v2=pNen(r2[3]);
+              const v2=pN(r2[3]);
               if(d2.includes('caixa')&&d2.includes('aplic'))caixa=v2;
               else if(d2.includes('dívida líq')||d2.includes('divida liq'))divLiq=v2;
             }
             break;
           }
-          // Nova instituição (B preenchido) - encerra anterior e começa nova
-          if(inst){
-            if(cur)loans.push(cur);
-            cur={i:inst,d:desc||'',taxa:taxa,s:saldo,a26:a26,a27:a27,a28:a28};
-          }else if(cur){
-            // Sub-linha do mesmo banco - acumula (mas só se NÃO for a linha "total do banco")
-            // Heurística: se já tem descrição e saldo, é nova sub-categoria; se descrição vazia
-            // mas saldo grande, é total intermediário e devemos ignorar (substitui pelo saldo)
-            if(desc){
-              // Sub-categoria nomeada: acumula
-              cur.s+=saldo;cur.a26+=a26;cur.a27+=a27;cur.a28+=a28;
-              if(taxa&&!cur.taxa)cur.taxa=taxa;
-              if(cur.d){cur.d=cur.d+' + '+desc;}else cur.d=desc;
-            }else if(saldo){
-              // Linha vazia com saldo: é total do banco - sobrescreve com o total
-              cur.s=saldo;cur.a26=a26;cur.a27=a27;cur.a28=a28;
+          // Linha de banco nova → atualiza nome
+          if(inst)bancoAtual=inst;
+          // Pula linhas vazias (sem saldo)
+          if(!saldo)continue;
+          // Se tem saldo mas não tem descrição, assume mesma descrição do contrato anterior do banco
+          let descFinal=desc;
+          if(!descFinal){
+            // Procura último contrato do mesmo banco
+            for(let k=loans.length-1;k>=0;k--){
+              if(loans[k].i===bancoAtual){descFinal=loans[k].d;break;}
             }
+            if(!descFinal)descFinal='(s/ descrição)';
           }
+          // 1 linha = 1 contrato
+          loans.push({i:bancoAtual,d:descFinal,taxa:taxa,s:saldo,a26:a26,a27:a27,a28:a28});
         }
-        if(cur){loans.push(cur);}
-        // Se não veio total, calcula
         if(!saldoTotal)saldoTotal=loans.reduce((s,l)=>s+l.s,0);
         if(!divLiq)divLiq=saldoTotal-caixa;
         LOANS[empresa]={saldo:Math.round(saldoTotal*100)/100,caixa:Math.round(caixa*100)/100,dl:Math.round(divLiq*100)/100,loans};
