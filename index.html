@@ -554,8 +554,12 @@ function buildDrillRows(id,isCon,coKey,data){
         for(let i=0;i<REAL;i++){const v=cV[i];rows+=`<td class="${vcls(v)}">${v!==0?fmt(v):'—'}</td>`;}
         for(let i=REAL;i<N;i++)rows+=`<td class="${i===REAL?'boundary-fc':''}"></td>`;
         rows+=`<td class="tcol ${vcls(cT)}">${fmt(cT)}</td></tr>`;
-        // Fornecedores: união por nome (2026 + 2025)
-        const nomes=new Set([...cF.map(x=>x.f),...cF25.map(x=>x.f)]);
+        // Fornecedores: união por nome (2026 + 2025) — Outros sempre no fim
+        const setNomes=new Set([...cF.map(x=>x.f),...cF25.map(x=>x.f)]);
+        const nomesArr=[...setNomes];
+        const nomes=nomesArr.filter(n=>!n.startsWith('Outros ('));
+        const outrosNomes=nomesArr.filter(n=>n.startsWith('Outros ('));
+        outrosNomes.forEach(n=>nomes.push(n));
         nomes.forEach(f=>{
           const item26=cF.find(x=>x.f===f);
           const vs=item26?item26.v:Array(N).fill(0);
@@ -572,7 +576,10 @@ function buildDrillRows(id,isCon,coKey,data){
       // Não-consolidado: união fornecedores 2026 + 2025 da empresa
       const lista26=val||[];
       const lista25=(DRILL_2025[coKey]||{})[cat]||[];
-      const nomes=new Set([...lista26.map(x=>x.f),...lista25.map(x=>x.f)]);
+      const setNomes2=new Set([...lista26.map(x=>x.f),...lista25.map(x=>x.f)]);
+      const arr2=[...setNomes2];
+      const nomes=arr2.filter(n=>!n.startsWith('Outros ('));
+      arr2.filter(n=>n.startsWith('Outros (')).forEach(n=>nomes.push(n));
       nomes.forEach(f=>{
         const item26=lista26.find(x=>x.f===f);
         const vs=item26?item26.v:Array(N).fill(0);
@@ -857,9 +864,12 @@ function buildSection(company,data){
         for(let i=0;i<REAL;i++){const v=coV[i];tbody+=`<td class="${vcls(v)}">${v!==0?fmt(v):'—'}</td>`;}
         for(let i=REAL;i<N;i++)tbody+=`<td class="fc-cell${i===REAL?' boundary-fc':''}">FC</td>`;
         tbody+=`<td class="tcol ${vcls(coTotal)}">${fmt(coTotal)}</td></tr>`;
-        // Fornecedores DNR: união por nome (2026 + 2025)
+        // Fornecedores DNR: união por nome (2026 + 2025) — Outros sempre no fim
         if(hasSubs){
-          const nomes=new Set([...fornsCO.map(x=>x.f),...fornsCO25.map(x=>x.f)]);
+          const setDNR=new Set([...fornsCO.map(x=>x.f),...fornsCO25.map(x=>x.f)]);
+          const arrDNR=[...setDNR];
+          const nomes=arrDNR.filter(n=>!n.startsWith('Outros ('));
+          arrDNR.filter(n=>n.startsWith('Outros (')).forEach(n=>nomes.push(n));
           const sc=isCon?`d3-${co.toLowerCase()}`:'d3-rok';
           nomes.forEach(f=>{
             const item26=fornsCO.find(x=>x.f===f);
