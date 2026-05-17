@@ -238,6 +238,9 @@ table.dfc td.fc-cell{color:var(--ink3)!important;font-style:italic;font-size:11p
 .loan-bar{height:6px;background:var(--rule);border-radius:3px;margin-bottom:4px;overflow:hidden;}
 .loan-bar-fill{height:100%;background:linear-gradient(90deg,var(--rd),var(--gd));border-radius:3px;}
 .loan-bar-label{font-size:11px;color:var(--ink3);margin-bottom:16px;display:flex;justify-content:space-between;}
+.emp-badge{display:inline-block;padding:2px 7px;border-radius:4px;font-size:10px;font-weight:700;letter-spacing:.06em;}
+.emp-badge.rok{background:rgba(10,94,64,.12);color:var(--em);}
+.emp-badge.del{background:rgba(10,79,244,.12);color:var(--del);}
 .loan-table{width:100%;border-collapse:collapse;font-size:13px;}
 .loan-table th{padding:7px 10px;text-align:right;font-size:11px;letter-spacing:.06em;text-transform:uppercase;color:var(--ink3);border-bottom:2px solid var(--rule);white-space:nowrap;font-weight:700;background:var(--paper);}
 .loan-table th:first-child,.loan-table th:nth-child(2){text-align:left;}
@@ -1219,30 +1222,32 @@ function buildDivida(){
   }
   function pBar(div,cx){const p=Math.min(100,Math.round(cx/div*100));return`<div class="loan-bar"><div class="loan-bar-fill" style="width:${p}%"></div></div><div class="loan-bar-label"><span>Cobertura: ${p}%</span><span>Caixa ${fmt(cx)} · Dívida ${fmt(div)}</span></div>`;}
   el.innerHTML=`
-    <div style="background:var(--sp-l);border:1px solid #b8c8e8;color:var(--sp);padding:12px 18px;border-radius:10px;font-size:13px;margin-bottom:18px;font-weight:500">Posição de dívida com base no Saldo de ${mesAtual}. Valores em R$ mil.</div>
-    <div class="kpi-grid" style="grid-template-columns:repeat(3,1fr)">
-      <div class="kpi red"><div class="kpi-ac"></div><div class="kpi-label">Dívida Total Consolidada</div><div class="kpi-value neg">${fmt(cT)}</div><div class="kpi-sub">ROK + Delend · Saldo ${mesAtual}</div></div>
-      <div class="kpi blue"><div class="kpi-ac"></div><div class="kpi-label">Caixa + Aplicações</div><div class="kpi-value">${fmt(cC)}</div><div class="kpi-sub">Posição de caixa consolidada</div></div>
-      <div class="kpi gold"><div class="kpi-ac"></div><div class="kpi-label">Dívida Líquida Consolidada</div><div class="kpi-value neg">${fmt(cL)}</div><div class="kpi-sub">Dívida total menos caixa</div></div>
+    <div style="background:var(--sp-l);border:1px solid #b8c8e8;color:var(--sp);padding:14px 20px;border-radius:10px;margin-bottom:18px;display:flex;align-items:center;justify-content:space-between;flex-wrap:wrap;gap:14px">
+      <div style="font-size:13px;font-weight:500">Posição de dívida com base no Saldo de ${mesAtual}. Valores em R$ mil.</div>
+      <div style="display:flex;gap:22px;font-size:12px">
+        <div><span style="color:var(--ink3);letter-spacing:.06em;text-transform:uppercase;font-weight:700">Consolidado · Dívida</span> <span style="color:var(--rd);font-weight:700;font-size:14px;margin-left:6px">${fmt(cT)}</span></div>
+        <div><span style="color:var(--ink3);letter-spacing:.06em;text-transform:uppercase;font-weight:700">Caixa</span> <span style="color:var(--em);font-weight:700;font-size:14px;margin-left:6px">${fmt(cC)}</span></div>
+        <div><span style="color:var(--ink3);letter-spacing:.06em;text-transform:uppercase;font-weight:700">Líquida</span> <span style="color:var(--gd);font-weight:700;font-size:14px;margin-left:6px">${fmt(cL)}</span></div>
+      </div>
     </div>
     <div class="divida-grid">
       <div class="divida-card">
         <div class="dc-title">Rede OK</div><div class="dc-sub">CNPJ. 23.236.392.0001-56</div>
         <div class="dc-kpis"><div class="dc-kpi hl"><div class="dc-kpi-label">Dívida Total</div><div class="dc-kpi-val neg">${fmt(LOANS['Rede OK'].saldo)}</div></div><div class="dc-kpi ok"><div class="dc-kpi-label">Caixa</div><div class="dc-kpi-val">${fmt(LOANS['Rede OK'].caixa)}</div></div><div class="dc-kpi gd"><div class="dc-kpi-label">Dívida Líquida</div><div class="dc-kpi-val neg">${fmt(LOANS['Rede OK'].dl)}</div></div></div>
-        ${pBar(LOANS['Rede OK'].saldo,LOANS['Rede OK'].caixa)}${lT(LOANS['Rede OK'].loans,LOANS['Rede OK'].saldo)}
+        ${pBar(LOANS['Rede OK'].saldo,LOANS['Rede OK'].caixa)}
       </div>
       <div class="divida-card">
         <div class="dc-title">Delend</div><div class="dc-sub">CNPJ. 045.908.294</div>
         <div class="dc-kpis"><div class="dc-kpi hl"><div class="dc-kpi-label">Dívida Total</div><div class="dc-kpi-val neg">${fmt(LOANS['Delend'].saldo)}</div></div><div class="dc-kpi ok"><div class="dc-kpi-label">Caixa</div><div class="dc-kpi-val">${fmt(LOANS['Delend'].caixa)}</div></div><div class="dc-kpi gd"><div class="dc-kpi-label">Dívida Líquida</div><div class="dc-kpi-val neg">${fmt(LOANS['Delend'].dl)}</div></div></div>
-        ${pBar(LOANS['Delend'].saldo,LOANS['Delend'].caixa)}${lT(LOANS['Delend'].loans,LOANS['Delend'].saldo)}
+        ${pBar(LOANS['Delend'].saldo,LOANS['Delend'].caixa)}
       </div>
     </div>
-    <div class="tc"><div class="th-row"><div class="th-title">Cronograma de Amortização Consolidado</div><div class="th-note">R$ milhares · Posição Abril/26</div></div>
+    <div class="tc"><div class="th-row"><div class="th-title">Cronograma de Amortização Consolidado</div><div class="th-note">R$ milhares · Posição ${mesAtual}</div></div>
     <div style="overflow-x:auto"><table class="dfc"><thead><tr>
-      <th><div class="i">Instituição</div></th><th><div class="i">Empresa</div></th><th><div class="i">Descrição</div></th><th><div class="i">Taxa</div></th>
+      <th><div class="i">Instituição</div></th><th style="width:60px"><div class="i">Empresa</div></th><th><div class="i">Descrição</div></th><th><div class="i">Taxa</div></th>
       <th><div class="i">Saldo ${mesAtual}</div></th><th><div class="i">Amort. 2026</div></th><th><div class="i">Amort. 2027</div></th><th><div class="i">Amort. 2028</div></th>
     </tr></thead><tbody>
-    ${[...LOANS['Rede OK'].loans.map(l=>({...l,e:'Rede OK'})),...LOANS['Delend'].loans.map(l=>({...l,e:'Delend'}))].map(l=>`<tr class="r-normal"><td>${l.i}</td><td style="color:var(--ink3)">${l.e}</td><td style="color:var(--ink3)">${l.d}</td><td style="color:var(--ink3);font-size:12px">${l.taxa||'—'}</td><td class="pos">${fmt(l.s)}</td><td>${fmt(l.a26)}</td><td>${fmt(l.a27)}</td><td>${fmt(l.a28)}</td></tr>`).join('')}
+    ${[...LOANS['Rede OK'].loans.map(l=>({...l,e:'rok',eL:'ROK'})),...LOANS['Delend'].loans.map(l=>({...l,e:'del',eL:'DEL'}))].map(l=>`<tr class="r-normal"><td>${l.i}</td><td style="text-align:center"><span class="emp-badge ${l.e}">${l.eL}</span></td><td style="color:var(--ink3)">${l.d}</td><td style="color:var(--ink3);font-size:12px">${l.taxa||'—'}</td><td class="pos">${fmt(l.s)}</td><td>${fmt(l.a26)}</td><td>${fmt(l.a27)}</td><td>${fmt(l.a28)}</td></tr>`).join('')}
     <tr class="r-bold"><td>Total Consolidado</td><td></td><td></td><td></td><td class="neg">${fmt(cT)}</td><td>${fmt([...LOANS['Rede OK'].loans,...LOANS['Delend'].loans].reduce((a,l)=>a+l.a26,0))}</td><td>${fmt([...LOANS['Rede OK'].loans,...LOANS['Delend'].loans].reduce((a,l)=>a+l.a27,0))}</td><td>${fmt([...LOANS['Rede OK'].loans,...LOANS['Delend'].loans].reduce((a,l)=>a+l.a28,0))}</td></tr>
     </tbody></table></div></div>`;
 }
