@@ -718,6 +718,25 @@ function buildSection(company,data){
   // Rótulos dinâmicos dos períodos (Jan–Abr / Mai–Dez), conforme MES_REAL
   const periodoReal=REAL>0?`${MM[0]}–${MM[REAL-1]} (realizado)`:'(sem realizado)';
   const periodoFc=REAL<N?`${MM[REAL]}–${MM[N-1]} (projetado)`:'(sem projetado)';
+  // YoY 2026 vs 2025 — base: total ano (índice N=12) tanto em 2026 quanto em 2025
+  const d25=isCon?DFC_2025:(DFC_2025_BY_CO[id]||{});
+  const recv25=d25['Recebimentos']?d25['Recebimentos'][N]:0;
+  const pag25=d25['Pagamentos Operacionais']?d25['Pagamentos Operacionais'][N]:0;
+  const ger25=d25['Geração Operacional']?d25['Geração Operacional'][N]:0;
+  const sf25Dez=d25['Saldo Final']?d25['Saldo Final'][11]:0; // saldo no fim do ano (Dez/25)
+  // Helper YoY: retorna HTML com seta + percentual, comparando valor absoluto (assim pgto -46.254 vs -55.820 mostra "queda" como melhora)
+  function yoyHTML(v26,v25,labelHint){
+    if(!v25||v25===0)return '';
+    const dPct=((Math.abs(v26)-Math.abs(v25))/Math.abs(v25))*100;
+    // Para Recebimentos e Geração: subir é bom (verde). Para Pagamentos: subir é ruim (vermelho).
+    const isCustoMode=labelHint==='custo';
+    const isUp=dPct>=0;
+    const isGood=isCustoMode?!isUp:isUp;
+    const cor=Math.abs(dPct)<0.05?'var(--ink3)':(isGood?'var(--em)':'var(--rd)');
+    const seta=Math.abs(dPct)<0.05?'•':(isUp?'▲':'▼');
+    const sinal=isUp?'+':'';
+    return `<div style="font-size:11px;color:${cor};margin-top:3px;font-weight:600">${seta} ${sinal}${dPct.toFixed(1)}% vs 2025</div>`;
+  }
 
   // Caixa strip (realized only, FC placeholder)
   let cs=`<div class="caixa-strip"><span class="cs-label">Tesouraria:</span>`;
@@ -728,10 +747,10 @@ function buildSection(company,data){
   cs+='</div>';
 
   const kpis=[
-    {l:'Recebimentos 2026',v:recv,c:'blue',s:`${periodoReal}: ${fmt(rR)}<br>${periodoFc}: ${fmt(rF)}`},
-    {l:'Pagamentos Operacionais',v:pag,c:'red',s:`${periodoReal}: ${fmt(pR)}<br>${periodoFc}: ${fmt(pF)}`},
-    {l:'Geração Operacional',v:gerOp,c:gerOp>=0?'green':'red',s:`${periodoReal}: ${fmt(gR)}<br>${periodoFc}: ${fmt(gF)}`},
-    {l:'Saldo Final Dez/26',v:sfDez,c:sfDez>=0?'green':'red',s:negM.length?`⚠ ${negM.length} mês(es) tesouraria negativa`:'Forecast',bd:dispDez!==null?{d:dispDez,b:bloqDez}:null},
+    {l:'Recebimentos 2026 (proj.)',v:recv,c:'blue',s:`${periodoReal}: ${fmt(rR)}<br>${periodoFc}: ${fmt(rF)}${yoyHTML(recv,recv25,'receita')}`},
+    {l:'Pagamentos Operacionais 2026 (proj.)',v:pag,c:'red',s:`${periodoReal}: ${fmt(pR)}<br>${periodoFc}: ${fmt(pF)}${yoyHTML(pag,pag25,'custo')}`},
+    {l:'Geração Operacional 2026 (proj.)',v:gerOp,c:gerOp>=0?'green':'red',s:`${periodoReal}: ${fmt(gR)}<br>${periodoFc}: ${fmt(gF)}${yoyHTML(gerOp,ger25,'receita')}`},
+    {l:'Saldo Final Dez/26 (proj.)',v:sfDez,c:sfDez>=0?'green':'red',s:(negM.length?`⚠ ${negM.length} mês(es) tesouraria negativa`:'Forecast')+yoyHTML(sfDez,sf25Dez,'receita').replace('vs 2025','vs Dez/25'),bd:dispDez!==null?{d:dispDez,b:bloqDez}:null},
   ];
 
   // Table
