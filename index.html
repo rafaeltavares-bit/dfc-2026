@@ -146,6 +146,8 @@ body{background:var(--cream);color:var(--ink);font-family:"Outfit",sans-serif;fo
 .btn-col:hover{background:var(--ink);color:#fff;border-color:var(--ink);}
 table.dfc{width:100%;border-collapse:collapse;font-size:13px;}
 table.dfc thead th{position:sticky;top:0;z-index:5;background:var(--bg);}
+table.dfc tbody td:first-child,table.dfc tbody th:first-child{position:sticky;left:0;z-index:3;background:var(--bg);}
+table.dfc thead th:first-child{position:sticky;left:0;top:0;z-index:6;background:var(--bg);}
 table.dfc th{padding:0;white-space:nowrap;border-bottom:2px solid var(--rule);}
 table.dfc th .i{padding:9px 13px;display:block;text-align:right;font-size:11px;letter-spacing:.06em;text-transform:uppercase;color:var(--ink3);font-weight:700;}
 table.dfc th:first-child .i{text-align:left;min-width:240px;}
@@ -1421,17 +1423,17 @@ async function rebuildDRILL(){
           nomesOutros.add(nome);somaOutros+=it.abs;idx++;
         }else break;
       }
-      // Reconstrói lista 2026 e 2025 com mesmos principais + um "Outros"
+      // Função que aplica a regra Outros guardando referência aos brutos para re-aplicar depois
       const construir=(forns,nMeses)=>{
         const principais=[],outros=[];
         forns.forEach(item=>{(nomesOutros.has(item.f)?outros:principais).push(item);});
-        // Ordena principais por total mais negativo primeiro
         principais.sort((a,b)=>a.v.reduce((s,x)=>s+x,0)-b.v.reduce((s,x)=>s+x,0));
         const resultado=principais.map(({f,v})=>({f,v}));
         if(outros.length>1){
           const soma=Array(nMeses).fill(0);
           outros.forEach(it=>it.v.forEach((v,i)=>{if(i<nMeses)soma[i]+=v;}));
-          resultado.push({f:`Outros (${nomesOutros.size} fornecedores)`,v:soma.map(x=>Math.round(x*100)/100)});
+          const linhaOutros={f:`Outros (${nomesOutros.size} fornecedores)`,v:soma.map(x=>Math.round(x*100)/100),_brutos:outros};
+          resultado.push(linhaOutros);
         }else if(outros.length===1){
           resultado.push({f:outros[0].f,v:outros[0].v});
         }
@@ -1574,6 +1576,56 @@ function loadAll(){
             if(tem25)criarSeNecessario(fornsEmp25,12,diff25,peso25,idxOut25);
           });
         });
+        // === Rebalancear Outros: se passou de 5%, promove fornecedores brutos pra principal ===
+        const rebalancearOutros=(drill,nMeses)=>{
+          CATS_ORDER.forEach(cat=>{
+            empresasDrill.forEach(ek=>{
+              if(!ek)return;
+              const forns=(drill[ek]||{})[cat];
+              if(!forns||forns.length===0)return;
+              const idxOut=forns.findIndex(x=>x.f.startsWith('Outros ('));
+              if(idxOut<0)return;
+              const linhaOutros=forns[idxOut];
+              const brutos=linhaOutros._brutos||[];
+              if(brutos.length===0)return;
+              // Loop: enquanto Outros > 5% do total e há brutos pra promover, promove o maior
+              let iteracao=0;
+              while(iteracao++<50){
+                const totalAbs=forns.reduce((s,it)=>s+Math.abs(it.v.reduce((a,b)=>a+b,0)),0);
+                if(totalAbs===0)break;
+                const limite=totalAbs*0.05;
+                const outrosAbs=Math.abs(linhaOutros.v.reduce((a,b)=>a+b,0));
+                if(outrosAbs<=limite)break;
+                // Ordena brutos por peso (maior primeiro) e promove o maior
+                brutos.sort((a,b)=>Math.abs(b.v.reduce((s,x)=>s+x,0))-Math.abs(a.v.reduce((s,x)=>s+x,0)));
+                const maior=brutos.shift();
+                if(!maior)break;
+                // Remove dos valores de Outros
+                linhaOutros.v=linhaOutros.v.map((v,i)=>Math.round((v-(maior.v[i]||0))*100)/100);
+                // Adiciona ao principal (antes da linha Outros)
+                forns.splice(idxOut,0,{f:maior.f,v:maior.v});
+                // Reordena principais por mais negativo
+                const semOutros=forns.slice(0,-1);
+                semOutros.sort((a,b)=>a.v.reduce((s,x)=>s+x,0)-b.v.reduce((s,x)=>s+x,0));
+                forns.length=0;
+                forns.push(...semOutros,linhaOutros);
+                // Atualiza label
+                linhaOutros.f=`Outros (${brutos.length} fornecedores)`;
+              }
+              if(brutos.length===0){
+                // Não tem mais brutos pra promover — Outros vira "Outros" simples
+                if(Math.abs(linhaOutros.v.reduce((a,b)=>a+b,0))<0.5){
+                  // Outros zerado, remove
+                  forns.splice(forns.indexOf(linhaOutros),1);
+                }else{
+                  linhaOutros.f='Outros';
+                }
+              }
+            });
+          });
+        };
+        rebalancearOutros(DRILL,N);
+        rebalancearOutros(DRILL_2025,12);
         Object.assign(d,DR[cfg.id]||{});
         // Merge CAPEX + Aquisição em uma linha (tanto para 2026 quanto 2025)
         const capex=d['CAPEX']||Array(13).fill(0);
