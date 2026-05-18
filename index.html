@@ -176,6 +176,7 @@ table.dfc td.neg{color:var(--rd);font-weight:600;}
 table.dfc td.neg-hl{background:rgba(176,48,32,.07)!important;color:var(--rd)!important;font-weight:700;}
 table.dfc td.tcol{color:var(--ink);font-weight:700;background:var(--paper);border-left:2px solid var(--rule2);}
 table.dfc td.fc-cell{color:var(--ink3)!important;font-style:italic;font-size:11px;font-weight:400!important;}
+table.dfc td.fc-empty{color:#bbb!important;text-align:center;font-weight:400!important;}
 
 /* DRILL */
 .d1-toggle{cursor:pointer;}
@@ -619,19 +620,32 @@ function buildDrillRows(id,isCon,coKey,data){
       rows+=cat25Cells(cat);
     }
     for(let i=0;i<REAL;i++){const v=catV[i];rows+=`<td class="${vcls(v)}" style="background:rgba(10,94,64,.025)">${v!==0?fmt(v):'—'}</td>`;}
-    for(let i=REAL;i<N;i++)rows+=`<td class="fc-cell${i===REAL?' boundary-fc':''}">FC</td>`;
+    for(let i=REAL;i<N;i++){
+      const vFC=catTotaisPlanilha?(catTotaisPlanilha[i]||0):0;
+      rows+=`<td class="${vcls(vFC)}${i===REAL?' boundary-fc':''}" style="background:rgba(154,108,24,.015)">${vFC!==0?fmt(vFC):'—'}</td>`;
+    }
     rows+=`<td class="tcol ${vcls(catTot)}">${fmt(catTot)}</td></tr>`;
     if(isCon){
-      [{k:'ROK',l:'Rede OK',rc:'d2-rok',sc:'d3-rok'},{k:'DEL',l:'Delend',rc:'d2-del',sc:'d3-del'},{k:'REG',l:'Régua',rc:'d2-reg',sc:'d3-reg'}].forEach(({k,l,rc,sc})=>{
+      [{k:'ROK',l:'Rede OK',rc:'d2-rok',sc:'d3-rok',cid:'redeok'},{k:'DEL',l:'Delend',rc:'d2-del',sc:'d3-del',cid:'delend'},{k:'REG',l:'Régua',rc:'d2-reg',sc:'d3-reg',cid:'number'}].forEach(({k,l,rc,sc,cid})=>{
         const cF=val[k]||[];
         const cF25=(DRILL_2025[k]||{})[cat]||[];
         if(!cF.length&&!cF25.length)return;
         const cV=Array(REAL).fill(0);cF.forEach(x=>x.v.forEach((v,i)=>{if(i<REAL)cV[i]+=v;}));
-        const cT=sa(cV);const d3key=`d3-${id}-${catKey}-${k}`;
+        // FC: total da categoria por empresa (lido da planilha DFC daquela empresa)
+        const empDFC=DFC_2026_BY_CO[cid]||{};
+        const empCatFC=(empDFC._catTotais26&&empDFC._catTotais26[cat])||Array(N+1).fill(0);
+        // Total ano = Jan-Abr (real, somatório dos fornecedores) + Mai-Dez (forecast da DFC da empresa)
+        let cT=0;
+        for(let i=0;i<REAL;i++)cT+=(cV[i]||0);
+        for(let i=REAL;i<N;i++)cT+=(empCatFC[i]||0);
+        const d3key=`d3-${id}-${catKey}-${k}`;
         rows+=`<tr class="d2-row d2-toggle ${rc}" data-d2="${d2key}" onclick="tD3('${d3key}',this)"><td>${l}</td>`;
         rows+=emp25Cells(cat,k);
         for(let i=0;i<REAL;i++){const v=cV[i];rows+=`<td class="${vcls(v)}">${v!==0?fmt(v):'—'}</td>`;}
-        for(let i=REAL;i<N;i++)rows+=`<td class="${i===REAL?'boundary-fc':''}"></td>`;
+        for(let i=REAL;i<N;i++){
+          const vFC=empCatFC[i]||0;
+          rows+=`<td class="${vcls(vFC)}${i===REAL?' boundary-fc':''}" style="background:rgba(154,108,24,.015)">${vFC!==0?fmt(vFC):'—'}</td>`;
+        }
         rows+=`<td class="tcol ${vcls(cT)}">${fmt(cT)}</td></tr>`;
         // Fornecedores: união por nome (2026 + 2025) — Outros sempre no fim
         const setNomes=new Set([...cF.map(x=>x.f),...cF25.map(x=>x.f)]);
@@ -647,7 +661,7 @@ function buildDrillRows(id,isCon,coKey,data){
           rows+=`<tr class="d3-row ${sc}" data-d3="${d3key}"><td>${f}</td>`;
           rows+=forn25Cells(vs25);
           for(let i=0;i<REAL;i++){const v=vs[i];rows+=`<td class="${vcls(v)}">${v!==0?fmt(v):'—'}</td>`;}
-          for(let i=REAL;i<N;i++)rows+=`<td class="${i===REAL?'boundary-fc':''}"></td>`;
+          for(let i=REAL;i<N;i++)rows+=`<td class="fc-empty${i===REAL?' boundary-fc':''}">—</td>`;
           rows+=`<td class="tcol ${vcls(tot)}">${fmt(tot)}</td></tr>`;
         });
       });
@@ -667,7 +681,7 @@ function buildDrillRows(id,isCon,coKey,data){
         rows+=`<tr class="d2-row d2-sup" data-d2="${d2key}"><td>${f}</td>`;
         rows+=forn25Cells(vs25);
         for(let i=0;i<REAL;i++){const v=vs[i];rows+=`<td class="${vcls(v)}">${v!==0?fmt(v):'—'}</td>`;}
-        for(let i=REAL;i<N;i++)rows+=`<td class="${i===REAL?'boundary-fc':''}"></td>`;
+        for(let i=REAL;i<N;i++)rows+=`<td class="fc-empty${i===REAL?' boundary-fc':''}">—</td>`;
         rows+=`<td class="tcol ${vcls(tot)}">${fmt(tot)}</td></tr>`;
       });
     }
@@ -944,7 +958,14 @@ function buildSection(company,data){
         const fornsCO=DNR_FORNS[co]||[];
         const fornsCO25=DNR_FORNS_2025[co]||[];
         if((!coV||coV.every(v=>v===0))&&(!coV25||coV25.every(v=>v===0)))return;
-        const coTotal=coV.slice(0,REAL).reduce((a,b)=>a+b,0);
+        // FC: valor previsto da DFC da empresa (linha "Desp. Não Recorrentes")
+        const coIdMap={ROK:'redeok',DEL:'delend',REG:'number'};
+        const dfcEmp=DFC_2026_BY_CO[coIdMap[co]]||{};
+        const coFC=dfcEmp['Desp. Não Recorrentes']||Array(N+1).fill(0);
+        // Total ano = soma Jan-Abr (realizado, dos fornecedores) + Mai-Dez (forecast da DFC)
+        let coTotal=0;
+        for(let i=0;i<REAL;i++)coTotal+=(coV[i]||0);
+        for(let i=REAL;i<N;i++)coTotal+=(coFC[i]||0);
         const d3DnrKey=`d3-${id}-DNR-${co}`;
         const hasSubs=fornsCO.length>0||fornsCO25.length>0;
         const labelTxt=isCon?coLabels[co]:'Despesas não recorrentes';
@@ -957,7 +978,10 @@ function buildSection(company,data){
           tbody+=`<td class="col2025td col2025t-${id} ${vcls(tot25)}">${tot25!==0?fmt(tot25):'—'}</td>`;
         }
         for(let i=0;i<REAL;i++){const v=coV[i];tbody+=`<td class="${vcls(v)}">${v!==0?fmt(v):'—'}</td>`;}
-        for(let i=REAL;i<N;i++)tbody+=`<td class="fc-cell${i===REAL?' boundary-fc':''}">FC</td>`;
+        for(let i=REAL;i<N;i++){
+          const vFC=coFC[i]||0;
+          tbody+=`<td class="${vcls(vFC)}${i===REAL?' boundary-fc':''}" style="background:rgba(154,108,24,.015)">${vFC!==0?fmt(vFC):'—'}</td>`;
+        }
         tbody+=`<td class="tcol ${vcls(coTotal)}">${fmt(coTotal)}</td></tr>`;
         // Fornecedores DNR: união por nome (2026 + 2025) — Outros sempre no fim
         if(hasSubs){
@@ -979,7 +1003,7 @@ function buildSection(company,data){
               tbody+=`<td class="col2025td col2025t-${id} ${vcls(tot25)}">${tot25!==0?fmt(tot25):'—'}</td>`;
             }
             for(let i=0;i<REAL;i++){const v=vs[i];tbody+=`<td class="${vcls(v)}">${v!==0?fmt(v):'—'}</td>`;}
-            for(let i=REAL;i<N;i++)tbody+=`<td class="${i===REAL?'boundary-fc':''}"></td>`;
+            for(let i=REAL;i<N;i++)tbody+=`<td class="fc-empty${i===REAL?' boundary-fc':''}">—</td>`;
             tbody+=`<td class="tcol ${vcls(tot)}">${fmt(tot)}</td></tr>`;
           });
         }
@@ -1024,7 +1048,7 @@ function buildSection(company,data){
     <div class="tc">
       <div class="th-row">
         <div style="display:flex;align-items:center;gap:12px">
-          <div class="th-title">DFC — ${company}</div>
+          <div class="th-title">DFC — ${company} <span style="font-weight:400;font-size:11px;color:var(--ink3);letter-spacing:.02em;margin-left:6px">· Valores em R$ mil</span></div>
           <button class="btn-col" onclick="colAll('${id}')">⊟ Recolher</button>
         </div>
         <div class="th-note">▶ Pagamentos → Categorias →${isCon?' Empresa →':''} Fornecedores (Jan–Abr realizados, conciliado)</div>
@@ -1855,6 +1879,90 @@ function loadAll(){
           'background:#0a5e40;color:#fff;padding:3px 8px;border-radius:4px;font-weight:bold');
         console.table(transicao);
       }catch(e){console.warn('Validação falhou:',e);}
+
+      // ===== CHAVE DE OURO: CONCILIAÇÃO FORECAST 2026 (Mai-Dez) =====
+      // Valida 3 invariantes da nova renderização:
+      //   K1: Σ das 9 categorias (forecast por mês) = "Pagamentos Operacionais" (forecast), por visão
+      //   K2: Σ (ROK+DEL+REG) por categoria/mês (forecast) = total da categoria no Consolidado
+      //   K3: Total ano renderizado por categoria = total ano da planilha
+      try{
+        const CATS=['Serviços de Informações Cadastrais','Repasse Parceiros','Gastos com Pessoal','Tecnologia & Telecom','Terceiros & Marketing','Impostos e Contribuições','Gastos com Locação','Gastos com Viagem','Outros'];
+        const VISOES_FC=[['consolidado','Consolidado'],['redeok','Rede OK'],['delend','Delend'],['number','Régua']];
+        const TOL=1.0; // R$ 1 mil de tolerância
+
+        // K1: por visão, soma das 9 categorias por mês == Pagamentos Operacionais
+        const k1={};
+        VISOES_FC.forEach(([id_,nome])=>{
+          const d=DFC_2026_BY_CO[id_]||{};
+          const pagOp=d['Pagamentos Operacionais'];
+          const cats=d._catTotais26||{};
+          if(!pagOp)return;
+          const diffs=[];
+          for(let m=REAL;m<N;m++){
+            let soma=0;
+            CATS.forEach(c=>{soma+=((cats[c]||[])[m]||0);});
+            const diff=Math.round((soma-(pagOp[m]||0))*100)/100;
+            if(Math.abs(diff)>TOL){
+              diffs.push({mes:MM[m]+'/26','Σ cats':Math.round(soma*100)/100,'Pag.Op.':pagOp[m],dif:diff});
+            }
+          }
+          k1[nome]=diffs.length===0?'✓ OK':diffs;
+        });
+        console.log('%c[CHAVE DE OURO K1] Σ(9 categorias) = Pag.Operacionais (Mai-Dez/26)',
+          'background:#9a6c18;color:#fff;padding:3px 8px;border-radius:4px;font-weight:bold');
+        console.table(k1);
+
+        // K2: Consolidado por categoria/mês == ROK+DEL+REG (forecast)
+        const k2={};
+        CATS.forEach(c=>{
+          const con=((DFC_2026_BY_CO.consolidado||{})._catTotais26||{})[c]||[];
+          const rok=((DFC_2026_BY_CO.redeok||{})._catTotais26||{})[c]||[];
+          const del=((DFC_2026_BY_CO.delend||{})._catTotais26||{})[c]||[];
+          const reg=((DFC_2026_BY_CO.number||{})._catTotais26||{})[c]||[];
+          const diffs=[];
+          for(let m=REAL;m<N;m++){
+            const soma=(rok[m]||0)+(del[m]||0)+(reg[m]||0);
+            const diff=Math.round((soma-(con[m]||0))*100)/100;
+            if(Math.abs(diff)>TOL){
+              diffs.push({mes:MM[m]+'/26','ROK+DEL+REG':Math.round(soma*100)/100,Con:con[m],dif:diff});
+            }
+          }
+          k2[c]=diffs.length===0?'✓ OK':diffs;
+        });
+        console.log('%c[CHAVE DE OURO K2] Categoria Consolidada = ROK+DEL+REG (Mai-Dez/26)',
+          'background:#9a6c18;color:#fff;padding:3px 8px;border-radius:4px;font-weight:bold');
+        console.table(k2);
+
+        // K3: total ano renderizado (Jan-Abr real + Mai-Dez forecast) ≈ total ano planilha
+        // Nota: pode haver pequena diferença porque Jan-Abr usa catTotaisPlanilha.slice(0,REAL) (planilha)
+        // que é a mesma fonte do total. Se divergir, é problema da planilha.
+        const k3={};
+        VISOES_FC.forEach(([id_,nome])=>{
+          const d=DFC_2026_BY_CO[id_]||{};
+          const cats=d._catTotais26||{};
+          const diffs=[];
+          CATS.forEach(c=>{
+            const arr=cats[c]||[];
+            const somaMeses=arr.slice(0,N).reduce((a,b)=>a+(b||0),0);
+            const totAno=arr[N]||0;
+            const diff=Math.round((somaMeses-totAno)*100)/100;
+            if(Math.abs(diff)>TOL){
+              diffs.push({categoria:c,'Σ meses':Math.round(somaMeses*100)/100,'Total ano':totAno,dif:diff});
+            }
+          });
+          k3[nome]=diffs.length===0?'✓ OK':diffs;
+        });
+        console.log('%c[CHAVE DE OURO K3] Σ(12 meses) por categoria = Total ano (2026)',
+          'background:#9a6c18;color:#fff;padding:3px 8px;border-radius:4px;font-weight:bold');
+        console.table(k3);
+
+        // Resumo final
+        const allOK=Object.values(k1).every(v=>v==='✓ OK')&&
+                    Object.values(k2).every(v=>v==='✓ OK')&&
+                    Object.values(k3).every(v=>v==='✓ OK');
+        console.log(`%c🔑 CHAVE DE OURO FORECAST 2026: ${allOK?'✓ TUDO BATE':'⚠ HÁ DIVERGÊNCIAS — abrir K1/K2/K3 acima'}`,
+          `background:${allOK?'#0a5e40':'#b03020'};color:#fff;padding:4px 10px;border-radius:4px;font-weight:bold;font-size:13px`);
+      }catch(e){console.warn('Chave de ouro Forecast falhou:',e);}
       // ======================================================
       const cD={};
       for(const[lbl,ri]of Object.entries(SECS['Consolidado'].rows))cD[lbl]=exR(rows,ri);
