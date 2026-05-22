@@ -1681,10 +1681,22 @@ let MOSTRAR_CURVAS = false; // toggle para curvas D+
 
 function renderGerencial() {
   const kpi = DATA.kpis_por_safra[MES_CORRENTE];
+  // Guard: se kpi não existe para o mês corrente, usar dados do inad_diaria
+  if (!kpi) {
+    const pts = DATA.inad_diaria && DATA.inad_diaria[MES_CORRENTE];
+    const ultimoPct = pts && pts.length > 0 ? pts[pts.length - 1].pct : 0;
+    DATA.kpis_por_safra[MES_CORRENTE] = {
+      safra_label: DATA.meses_disponiveis.find(m => m.safra === MES_CORRENTE)?.label || MES_CORRENTE,
+      faturado: 0,
+      pct_inadimplencia: ultimoPct,
+      pct_semana_anterior: ultimoPct,
+      inadimplencia_rs_estimada: 0,
+    };
+  }
   const media12 = DATA.estatisticas.media_historica_12m;
   
   const dataAtual = DATAS_COMPARACAO[MES_CORRENTE];
-  let pctAtual = kpi.pct_inadimplencia;
+  let pctAtual = DATA.kpis_por_safra[MES_CORRENTE].pct_inadimplencia;
   let labelData = 'oficial';
   let dPlusAtual = null;
   
