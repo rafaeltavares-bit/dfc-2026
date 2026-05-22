@@ -1495,6 +1495,22 @@ const DATA_EXTRATO_ORIGINAL = DATA.data_extrato_analitico || "";
       };
     });
     
+    // Garantir entrada no kpis_por_safra para safras ativas (ex: Mai/26 sem histórico)
+    DATA.meses_disponiveis.forEach(m => {
+      if (!DATA.kpis_por_safra[m.safra]) {
+        // Buscar último % disponível no inad_diaria
+        const pts = DATA.inad_diaria && DATA.inad_diaria[m.safra];
+        const ultimoPct = pts && pts.length > 0 ? pts[pts.length - 1].pct : 0;
+        DATA.kpis_por_safra[m.safra] = {
+          safra_label: m.label,
+          faturado: 0,
+          pct_inadimplencia: ultimoPct,
+          pct_semana_anterior: ultimoPct,
+          inadimplencia_rs_estimada: 0,
+        };
+      }
+    });
+
     // categorias_por_safra
     DATA.categorias_por_safra = {};
     ['2025-12','2026-01','2026-02','2026-03','2026-04','2026-05'].forEach(safra => {
