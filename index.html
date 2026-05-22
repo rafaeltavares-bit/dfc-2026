@@ -1389,8 +1389,19 @@ const DATA_EXTRATO_ORIGINAL = DATA.data_extrato_analitico || "";
     DATA.categorias = categorias;
     DATA.top_devedores = ana.top_devedores;
     DATA.tiers = ana.tiers;
-    DATA.inadimplencia_rs_por_safra = ana.inadimplencia_rs_por_safra; // FIX v19-B: foto do analítico por safra
-    // FIX v20-E: data do extrato = maior data disponível em inad_diaria[MES_CORRENTE]
+    DATA.inadimplencia_rs_por_safra = ana.inadimplencia_rs_por_safra;
+
+    // 6b. Inadimplência diária — declarado aqui para estar disponível antes do uso abaixo
+    const novaInadDiaria = {...(DATA.inad_diaria || {})};
+    const todasAbas = [inadJan, inadFev, inadMar, inadAbr, inadMai].filter(Boolean);
+    const safrasAlvo = ['2026-01','2026-02','2026-03','2026-04','2026-05'];
+    const novasSafras = processarTodasSafrasInadDiaria(todasAbas, safrasAlvo);
+    for (const [safra, pontos] of Object.entries(novasSafras)) {
+      if (pontos.length > 0) novaInadDiaria[safra] = pontos;
+    }
+    DATA.inad_diaria = novaInadDiaria;
+
+    // FIX v20-E: data do extrato
     try {
       const pts = novaInadDiaria[MES_CORRENTE] || novaInadDiaria['2026-05'];
       if (pts && pts.length > 0) {
@@ -1407,16 +1418,7 @@ const DATA_EXTRATO_ORIGINAL = DATA.data_extrato_analitico || "";
     DATA.aging = bc.aging;
     DATA.recuperacao = bc.recuperacao;
     
-    // 6b. Inadimplência diária (5 abas, uma por safra)
-    const novaInadDiaria = {...(DATA.inad_diaria || {})}; // preservar safras antigas embutidas
-    // Busca cada safra em TODAS as abas e concatena — assim Fev/26 pega dados de Jan/Fev/Mar/Abr/Mai
-    const todasAbas = [inadJan, inadFev, inadMar, inadAbr, inadMai].filter(Boolean);
-    const safrasAlvo = ['2026-01','2026-02','2026-03','2026-04','2026-05'];
-    const novasSafras = processarTodasSafrasInadDiaria(todasAbas, safrasAlvo);
-    for (const [safra, pontos] of Object.entries(novasSafras)) {
-      if (pontos.length > 0) novaInadDiaria[safra] = pontos;
-    }
-    DATA.inad_diaria = novaInadDiaria;
+
     
     // Atualizar safras disponíveis e datas_default
     const safrasComDados = Object.keys(novaInadDiaria).filter(s => novaInadDiaria[s] && novaInadDiaria[s].length > 0).sort();
