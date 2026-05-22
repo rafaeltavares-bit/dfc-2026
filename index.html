@@ -2283,19 +2283,32 @@ function renderGerencial() {
       '2025-11': '#777777',
     };
     
+    // Calcular range X real: do máximo d_plus disponível entre todas as safras
+    let maxDplus = 30;
+    SAFRAS_COMPARACAO.forEach(safra => {
+      const obs = DATA.inad_diaria[safra] || [];
+      if (obs.length > 0) {
+        const m = obs[obs.length - 1].d_plus;
+        if (m > maxDplus) maxDplus = m;
+      }
+    });
+
     const datasets = SAFRAS_COMPARACAO.map(safra => {
       const obs = DATA.inad_diaria[safra] || [];
+      if (obs.length === 0) return null;
+      // Adiciona ponto D+0 = 0% para alinhar início de todas as safras
+      const pontos = [{x: 0, y: 0}, ...obs.map(o => ({x: o.d_plus, y: o.pct}))];
       return {
         label: safraLabel(safra),
-        data: obs.map(o => ({x: o.d_plus, y: o.pct})),
+        data: pontos,
         borderColor: corSafra[safra] || '#6b6258',
         backgroundColor: 'transparent',
         borderWidth: safra === MES_CORRENTE ? 4 : 2.5,
         tension: 0.3,
-        pointRadius: safra === MES_CORRENTE ? 4 : 2.5,
+        pointRadius: (ctx) => ctx.dataIndex === 0 ? 0 : (safra === MES_CORRENTE ? 4 : 2.5),
         pointBackgroundColor: corSafra[safra] || '#6b6258'
       };
-    }).filter(d => d.data.length > 0);
+    }).filter(Boolean);
     
     CHARTS['curvas'] = new Chart(document.getElementById('ch-curvas'), {
       type: 'line',
@@ -2305,6 +2318,7 @@ function renderGerencial() {
         plugins: {
           legend: { position: 'top', labels: { padding: 14, font: {size: 12}, usePointStyle: true } },
           tooltip: { 
+            filter: item => item.dataIndex > 0, // oculta tooltip do ponto D+0 artificial
             callbacks: { 
               title: ctx => 'D+' + ctx[0].parsed.x,
               label: ctx => ctx.dataset.label + ': ' + fmtPct(ctx.parsed.y) 
@@ -2313,7 +2327,7 @@ function renderGerencial() {
         },
         scales: {
           y: { beginAtZero: true, ticks: { callback: v => v + '%', font: {size: 11} }, grid: { color: 'rgba(0,0,0,0.05)' }, title: { display: true, text: '% Inadimplência', font: {size: 11} } },
-          x: { type: 'linear', title: { display: true, text: 'Dias desde o início da safra (D+)', font: {size: 11} }, grid: { color: 'rgba(0,0,0,0.05)' }, ticks: { font: {size: 11}, callback: v => 'D+' + v } }
+          x: { type: 'linear', min: 0, max: maxDplus + 2, title: { display: true, text: 'Dias desde o dia 1 da safra (D+)', font: {size: 11} }, grid: { color: 'rgba(0,0,0,0.05)' }, ticks: { font: {size: 11}, callback: v => 'D+' + v } }
         }
       }
     });
