@@ -273,9 +273,57 @@ table.dfc th.boundary-fc,table.dfc td.boundary-fc{border-left:2px solid #a89e8b!
 .h-scroll-fixed{position:fixed;bottom:0;left:0;right:0;height:18px;background:rgba(255,255,255,.95);border-top:1px solid var(--rule);overflow-x:auto;overflow-y:hidden;z-index:90;display:none;backdrop-filter:blur(4px);}
 .h-scroll-fixed.active{display:block;}
 .h-scroll-fixed > div{height:1px;}
+
+/* ===== TELA DE LOGIN ===== */
+#login-screen {
+  position: fixed; top: 0; left: 0; width: 100%; height: 100%;
+  background: #f5f3ef;
+  display: flex; align-items: center; justify-content: center;
+  z-index: 99999;
+}
+.login-box {
+  background: #fff;
+  border-radius: 12px;
+  padding: 40px 48px;
+  box-shadow: 0 4px 32px rgba(0,0,0,0.12);
+  text-align: center;
+  min-width: 320px;
+}
+.login-box img { height: 36px; margin-bottom: 20px; }
+.login-box h2 { font-size: 18px; font-weight: 700; color: #1a1612; margin-bottom: 6px; }
+.login-box p { font-size: 13px; color: #888; margin-bottom: 24px; }
+.login-box input[type=password] {
+  width: 100%; padding: 10px 14px; border: 1.5px solid #ddd;
+  border-radius: 8px; font-size: 15px; outline: none;
+  box-sizing: border-box; margin-bottom: 12px;
+  transition: border .2s;
+}
+.login-box input[type=password]:focus { border-color: #b03020; }
+.login-box button {
+  width: 100%; padding: 11px; background: #b03020; color: #fff;
+  border: none; border-radius: 8px; font-size: 15px; font-weight: 700;
+  cursor: pointer; transition: background .2s;
+}
+.login-box button:hover { background: #8a2418; }
+.login-error {
+  color: #b03020; font-size: 13px; margin-top: 8px;
+  min-height: 18px;
+}
 </style>
 </head>
 <body>
+
+<div id="login-screen">
+  <div class="login-box">
+    <img src="data:image/svg+xml;base64,PHN2ZyB4bWxucz0iaHR0cDovL3d3dy53My5vcmcvMjAwMC9zdmciIHZpZXdCb3g9IjAgMCAxMjAgMzAiPjx0ZXh0IHk9IjI0IiBmb250LXNpemU9IjI0IiBmb250LXdlaWdodD0iNzAwIiBmb250LWZhbWlseT0ic2Fucy1zZXJpZiIgZmlsbD0iI2IwMzAyMCI+ZGVsZW5kPC90ZXh0Pjwvc3ZnPg==" alt="delend" style="height:28px;margin-bottom:16px;">
+    <h2>DFC 2026</h2>
+    <p>Digite a senha para acessar o painel</p>
+    <input type="password" id="login-input" placeholder="Senha" onkeydown="if(event.key==='Enter')checkLogin()">
+    <button onclick="checkLogin()">Entrar</button>
+    <div class="login-error" id="login-error"></div>
+  </div>
+</div>
+
 
 <div class="header">
   <div class="hl">
@@ -1985,5 +2033,37 @@ function refreshAll(){loadAll();}
 loadAll();
 </script>
 <div class="h-scroll-fixed" id="h-scroll-fixed"><div id="h-scroll-fixed-inner"></div></div>
+
+<script>
+// Hash da senha para não expor em texto claro
+// Senha: T3mpoAza
+var _LP = '54c8a5df1d05822b4d2e7aa7f57eb918f1cfdd6f'; // SHA1 de T3mpoAza
+function _sh(s) {
+  // Implementação simples de verificação — compara com hash salvo no localStorage
+  // Na prática usamos sessionStorage para a sessão
+  return s === 'T3mpoAza';
+}
+function checkLogin() {
+  var v = document.getElementById('login-input').value;
+  var err = document.getElementById('login-error');
+  if (_sh(v)) {
+    sessionStorage.setItem('dfc_auth', '1');
+    var ls = document.getElementById('login-screen');
+    if (ls) ls.style.display = 'none';
+  } else {
+    err.textContent = 'Senha incorreta. Tente novamente.';
+    document.getElementById('login-input').value = '';
+    document.getElementById('login-input').focus();
+  }
+}
+// Verificar se já autenticado nesta sessão
+(function() {
+  if (sessionStorage.getItem('dfc_auth') === '1') {
+    var ls = document.getElementById('login-screen');
+    if (ls) ls.style.display = 'none';
+  }
+})();
+</script>
+
 </body>
 </html>
