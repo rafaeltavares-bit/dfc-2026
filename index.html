@@ -433,6 +433,8 @@ let DNR_FORNS={"ROK":[],"DEL":[],"REG":[]};      // fornecedores DNR 2026
 let DNR_FORNS_2025={"ROK":[],"DEL":[],"REG":[]}; // fornecedores DNR 2025
 let DFC_2025_BY_CO={}; // dados 2025 por empresa lidos da aba DFC (colunas R-AD)
 let DFC_2026_BY_CO={}; // dados 2026 por empresa lidos da aba DFC (colunas AF-AR)
+// Dívida Líquida — linhas 244-248 do CSV consolidado (colunas Jan-Dez 2026)
+let DL_DATA={impostosParcelados:null,dividaBancaria:null,totalDivida:null,caixa:null,dividaLiquida:null};
 const DFC_2025={"Saldo Inicial":[6612.88,5466.97,4589.06,5896.31,7460.75,6931.65,6188.51,7330.12,7845.95,5756.48,6273.06,6806.42,6612.88],"Recebimentos":[4266.28,4743.71,4732.5,4892.89,4909.29,4918.07,4653.74,4992.02,4768.35,4892.75,4719.85,5327.53,57817.0],"Pagamentos Operacionais":[-5043.69,-4678.02,-4778.42,-4935.57,-4535.58,-4589.41,-5122.68,-3414.95,-5798.85,-4453.04,-3188.73,-5281.46,-55820.4],"Geração Operacional":[-777.4,65.69,-45.92,-42.68,373.71,328.66,-468.94,1577.07,-1030.49,439.72,1531.12,46.07,1996.6],"CAPEX":[0.0,0.0,-0.16,-1.0,-1.0,-9.8,-1.0,-1.0,0.0,0.0,0.0,0.0,-13.96],"Aquisição de Empresas":[-252.17,-324.04,-101.34,-76.34,-101.34,-79.87,-101.34,-101.34,-101.34,-101.34,-101.34,-101.34,-1543.11],"Ger. após CAPEX":[-1029.57,-258.34,-147.42,-120.02,271.37,238.99,-571.28,1474.73,-1131.83,338.38,1429.79,-55.27,439.53],"Desp. Não Recorrentes":[-115.0,-98.51,-80.0,-80.0,-80.0,-80.0,-80.0,-80.0,-80.0,-80.0,-60.06,-40.0,-953.57],"Ger. após Desp.n.r.":[-1144.57,-356.85,-227.42,-200.02,191.37,158.99,-651.28,1394.73,-1211.83,258.38,1369.72,-95.27,-514.04],"Total Dívidas":[-856.34,-891.06,-833.53,-901.15,-912.76,-902.14,-1207.11,-878.9,-984.54,98.04,-861.37,-763.51,-9894.37],"Saldo Final":[5466.97,4589.06,5896.31,7460.75,6931.65,6188.51,7330.12,7845.95,5756.48,6273.06,6806.42,5947.64,5947.64],"Disp. Tesouraria":[4169.48,3232.11,4600.01,6162.55,5610.71,4919.68,6121.5,6630.81,4556.03,5170.73,5554.01,4821.49,4821.49],"Bloq. Garantia":[1297.49,1356.95,1296.3,1298.2,1320.94,1268.83,1208.62,1215.14,1200.45,1102.33,1252.41,1126.15,1126.15]};
 const LOANS_DRILL={"ROK":{"captacao":{"total":[0.0,9200.0,0.0,0.0,0.0,0.0,0.0,0.0,0.0,0.0,0.0,0.0],"bancos":{"Banco Itaú":[0.0,5200.0,0.0,0.0,0.0,0.0,0.0,0.0,0.0,0.0,0.0,0.0],"FIDC - Direta Capital":[0.0,4000.0,0.0,0.0,0.0,0.0,0.0,0.0,0.0,0.0,0.0,0.0]}},"pagamento":{"total":[-844.18,-1221.23,-5531.38,-652.93,-630.04,-847.08,-844.73,-841.31,-835.4,-832.07,-970.61,-958.61],"bancos":{"BNDES":[-192.04,-197.31,-192.69,-206.15,-193.86,-191.74,-191.0,-189.57,-187.56,-186.71,-184.78,-183.38],"Banco Itaú":[-382.23,-553.02,-4891.48,0.0,0.0,-223.64,-223.64,-223.64,-223.64,-223.64,-223.64,-223.64],"Banco Sofisa":[-66.64,-65.96,-63.56,-66.1,-64.45,-62.23,-62.08,-62.35,-60.76,-60.1,-59.84,-58.79],"FIDC - Direta Capital":[0.0,-87.67,-71.26,-71.29,-65.92,-65.92,-65.92,-65.92,-65.92,-65.92,-208.72,-206.37],"Banco Safra":[-102.35,-213.57,-203.67,-203.41,-202.79,-201.01,-200.03,-198.25,-196.41,-195.06,-193.47,-186.75],"Partes Relacionadas":[-13.37,-15.72,-13.37,-18.08,-15.78,-15.78,-15.78,-15.78,-15.78,-15.78,-15.78,-15.78],"Banco Sofisa II":[-32.25,-32.21,-31.13,-31.22,-30.57,-30.09,-29.61,-29.13,-28.66,-28.18,-27.7,-27.23]}},"parcelamentos":[-55.31,-55.78,-56.18,-56.67,-56.67,-56.67,-56.67,-56.67,-56.67,-56.67,-56.67,-56.67],"desp_bancarias":[-42.0,-3.0,14.0,4.0,4.0,5.0,0.0,-5.0,-10.0,-15.0,-20.0,-20.0]},
 "DEL":{"captacao":{"total":[0,0,0,0,0,0,0,0,0,0,0,0],"bancos":{}},"pagamento":{"total":[-88.77,0,-173.74,-101.97,-101.97,-101.97,-101.97,-101.97,-101.97,-101.97,-101.97,-101.97],"bancos":{"Banco Safra":[-69.25,0,-138.5,-69.25,-69.25,-69.25,-69.25,-69.25,-69.25,-69.25,-69.25,-69.25],"Banco Itaú":[-19.52,0,-35.24,-32.72,-32.72,-32.72,-32.72,-32.72,-32.72,-32.72,-32.72,-32.72]}},"parcelamentos":[0,0,0,0,0,0,0,0,0,0,0,0],"desp_bancarias":[10,5,-7,-3,-2,-5,-5,-5,-5,-5,-5,-5]}};
@@ -1326,6 +1328,55 @@ function buildDivida(){
     return t+'</tbody></table></div>';
   }
   function pBar(div,cx){const p=Math.min(100,Math.round(cx/div*100));return`<div class="loan-bar"><div class="loan-bar-fill" style="width:${p}%"></div></div><div class="loan-bar-label"><span>Cobertura: ${p}%</span><span>Caixa ${fmt(cx)} · Dívida ${fmt(div)}</span></div>`;}
+
+  // ── Tabela de decomposição da Dívida Líquida (linhas 244-248) ──
+  function buildDLTable(){
+    if(!DL_DATA.totalDivida)return '';
+    const meses=MM.slice(0,N).map((m,i)=>`<th style="text-align:right;font-size:11px;letter-spacing:.06em;text-transform:uppercase;padding:9px 11px;color:${i<REAL?'var(--em)':'var(--gd)'};font-weight:700">${m}</th>`).join('');
+    function fRow(label,arr,cls,isBold){
+      if(!arr)return '';
+      const cells=arr.slice(0,N).map((v,i)=>{
+        const c=cls||vcls(v);
+        const bg=i<REAL?'':'rgba(154,108,24,.04)';
+        const fw=isBold?'700':'';
+        return `<td style="text-align:right;padding:8px 11px;border-bottom:1px solid rgba(200,191,176,.3);font-size:13px;font-weight:${fw||400};background:${bg}" class="${c}">${fmt(v)}</td>`;
+      }).join('');
+      const tot=arr[N]!==undefined?arr[N]:arr.slice(0,N).reduce((a,b)=>a+b,0);
+      return `<tr><td style="padding:8px 11px;font-size:13px;font-weight:${isBold?700:400};border-bottom:1px solid rgba(200,191,176,.3);${isBold?'color:var(--ink)':'color:var(--ink3)'}">${label}</td>${cells}<td style="text-align:right;padding:8px 11px;font-size:12px;font-weight:600;border-bottom:1px solid rgba(200,191,176,.3);color:var(--ink3)">${fmt(tot)}</td></tr>`;
+    }
+    const bandHdr=`<tr style="background:rgba(230,224,214,.4)"><th style="padding:0"></th>${MM.slice(0,REAL).map(()=>`<th style="padding:4px 11px;text-align:center;font-size:10px;letter-spacing:.08em;text-transform:uppercase;color:var(--em);font-weight:700">Real</th>`).join('')}${MM.slice(REAL,N).map(()=>`<th style="padding:4px 11px;text-align:center;font-size:10px;letter-spacing:.08em;text-transform:uppercase;color:var(--gd);font-weight:700">FC</th>`).join('')}<th></th></tr>`;
+    return `
+    <div class="tc" style="margin-bottom:22px">
+      <div class="th-row"><div class="th-title">Composição da Dívida Líquida</div><div class="th-note">R$ milhares · Fonte: DFC Consolidado, linhas 244–248</div></div>
+      <div style="overflow-x:auto"><table style="width:100%;border-collapse:collapse">
+        <thead>
+          ${bandHdr}
+          <tr style="background:var(--cream)"><th style="text-align:left;padding:9px 11px;font-size:11px;letter-spacing:.06em;text-transform:uppercase;color:var(--ink3);font-weight:700;min-width:200px">Componente</th>${meses}<th style="text-align:right;padding:9px 11px;font-size:11px;letter-spacing:.06em;text-transform:uppercase;color:var(--ink3);font-weight:700">Total</th></tr>
+        </thead>
+        <tbody>
+          ${fRow('Impostos Parcelados',DL_DATA.impostosParcelados,'neg')}
+          ${fRow('Dívida Bancária / Mútuo',DL_DATA.dividaBancaria,'neg')}
+          ${fRow('Total Dívida Bruta',DL_DATA.totalDivida,'neg',true)}
+          ${fRow('Caixa (Disponível + Bloqueado)',DL_DATA.caixa,'pos')}
+          ${fRow('Dívida Líquida',DL_DATA.dividaLiquida,'neg',true)}
+        </tbody>
+      </table></div>
+    </div>`;
+  }
+
+  // ── Gráfico evolução Dívida Líquida + tendência ──
+  function buildDLChart(){
+    if(!DL_DATA.dividaLiquida)return '';
+    return `
+    <div class="tc" style="margin-bottom:22px">
+      <div class="th-row">
+        <div class="th-title">Evolução da Dívida Líquida</div>
+        <div class="th-note">R$ milhares · linha tracejada = tendência linear (projetado)</div>
+      </div>
+      <div style="padding:18px 22px 10px"><div style="position:relative;height:280px"><canvas id="chartDL"></canvas></div></div>
+    </div>`;
+  }
+
   el.innerHTML=`
     <div style="background:var(--sp-l);border:1px solid #b8c8e8;color:var(--sp);padding:14px 20px;border-radius:10px;margin-bottom:18px;display:flex;align-items:center;justify-content:space-between;flex-wrap:wrap;gap:14px">
       <div style="font-size:13px;font-weight:500">Posição de dívida com base no Saldo de ${mesAtual}. Valores em R$ mil.</div>
@@ -1347,6 +1398,8 @@ function buildDivida(){
         ${pBar(LOANS['Delend'].saldo,LOANS['Delend'].caixa)}
       </div>
     </div>
+    ${buildDLTable()}
+    ${buildDLChart()}
     <div class="tc"><div class="th-row"><div class="th-title">Cronograma de Amortização Consolidado</div><div class="th-note">R$ milhares · Posição ${mesAtual}</div></div>
     <div style="overflow-x:auto"><table class="dfc"><thead><tr>
       <th><div class="i">Instituição</div></th><th style="width:60px"><div class="i">Empresa</div></th><th><div class="i">Descrição</div></th><th><div class="i">Taxa</div></th>
@@ -1355,6 +1408,91 @@ function buildDivida(){
     ${[...LOANS['Rede OK'].loans.map(l=>({...l,e:'rok',eL:'ROK'})),...LOANS['Delend'].loans.map(l=>({...l,e:'del',eL:'DEL'}))].map(l=>`<tr class="r-normal"><td>${l.i}</td><td style="text-align:center"><span class="emp-badge ${l.e}">${l.eL}</span></td><td style="color:var(--ink3)">${l.d}</td><td style="color:var(--ink3);font-size:12px">${l.taxa||'—'}</td><td class="pos">${fmt(l.s)}</td><td>${fmt(l.a26)}</td><td>${fmt(l.a27)}</td><td>${fmt(l.a28)}</td></tr>`).join('')}
     <tr class="r-bold"><td>Total Consolidado</td><td></td><td></td><td></td><td class="neg">${fmt(cT)}</td><td>${fmt([...LOANS['Rede OK'].loans,...LOANS['Delend'].loans].reduce((a,l)=>a+l.a26,0))}</td><td>${fmt([...LOANS['Rede OK'].loans,...LOANS['Delend'].loans].reduce((a,l)=>a+l.a27,0))}</td><td>${fmt([...LOANS['Rede OK'].loans,...LOANS['Delend'].loans].reduce((a,l)=>a+l.a28,0))}</td></tr>
     </tbody></table></div></div>`;
+
+  // ── Renderiza gráfico DL após injeção no DOM ──
+  if(DL_DATA.dividaLiquida){
+    requestAnimationFrame(()=>{
+      const canvas=document.getElementById('chartDL');
+      if(!canvas)return;
+      const dlVals=DL_DATA.dividaLiquida.slice(0,N);
+      const realVals=dlVals.slice(0,REAL);
+      const fcVals=dlVals.slice(REAL);
+      const labels=MM.slice(0,N).map(m=>m+'/26');
+
+      // Tendência linear sobre todos os N pontos
+      const n=N;
+      const sumX=dlVals.reduce((s,_,i)=>s+i,0);
+      const sumY=dlVals.reduce((s,v)=>s+v,0);
+      const sumXY=dlVals.reduce((s,v,i)=>s+i*v,0);
+      const sumX2=dlVals.reduce((s,_,i)=>s+i*i,0);
+      const slope=(n*sumXY-sumX*sumY)/(n*sumX2-sumX*sumX);
+      const intercept=(sumY-slope*sumX)/n;
+      const trendVals=dlVals.map((_,i)=>Math.round((intercept+slope*i)*10)/10);
+
+      new Chart(canvas,{
+        type:'bar',
+        data:{
+          labels,
+          datasets:[
+            {
+              label:'Realizado',
+              data:realVals.map((v,i)=>({x:labels[i],y:v})),
+              backgroundColor:'rgba(176,48,32,.7)',
+              borderColor:'rgba(176,48,32,1)',
+              borderWidth:1,
+              borderRadius:4,
+              order:2
+            },
+            {
+              label:'Projetado',
+              data:fcVals.map((v,i)=>({x:labels[REAL+i],y:v})),
+              backgroundColor:'rgba(154,108,24,.45)',
+              borderColor:'rgba(154,108,24,.8)',
+              borderWidth:1,
+              borderRadius:4,
+              order:2
+            },
+            {
+              label:'Tendência',
+              data:trendVals.map((v,i)=>({x:labels[i],y:v})),
+              type:'line',
+              borderColor:'rgba(22,61,120,.75)',
+              borderWidth:2,
+              borderDash:[6,4],
+              pointRadius:0,
+              fill:false,
+              tension:0,
+              order:1
+            }
+          ]
+        },
+        options:{
+          responsive:true,maintainAspectRatio:false,
+          interaction:{mode:'index',intersect:false},
+          plugins:{
+            legend:{
+              display:true,
+              position:'top',
+              labels:{font:{family:'Outfit',size:11},color:'#3d3830',boxWidth:14,padding:16}
+            },
+            tooltip:{
+              callbacks:{
+                label:ctx=>`${ctx.dataset.label}: ${fmt(ctx.raw.y)}`
+              }
+            }
+          },
+          scales:{
+            x:{grid:{display:false},ticks:{font:{family:'Outfit',size:11},color:'#6b6258'}},
+            y:{
+              grid:{color:'rgba(200,191,176,.4)'},
+              ticks:{font:{family:'Outfit',size:11},color:'#6b6258',callback:v=>fmt(v)},
+              title:{display:true,text:'R$ mil',font:{family:'Outfit',size:11},color:'#6b6258'}
+            }
+          }
+        }
+      });
+    });
+  }
 }
 
 function showErr(msg){document.getElementById('loading').style.display='none';const el=document.getElementById('error');el.style.display='block';el.innerHTML='⚠ '+msg;}
@@ -1874,6 +2012,12 @@ function loadAll(){
         d25._pagFornecedores25=pagJanReal25;
         buildSection(co,d);
       }
+      // Lê linhas 244-248 do CSV consolidado (Dívida Líquida e composição)
+      DL_DATA.impostosParcelados=exR(rows,244);
+      DL_DATA.dividaBancaria=exR(rows,245);
+      DL_DATA.totalDivida=exR(rows,246);
+      DL_DATA.caixa=exR(rows,247);
+      DL_DATA.dividaLiquida=exR(rows,248);
       // Carrega Emprestimos Resumo (ROK e DEL) antes de renderizar painel de Dívida
       await Promise.all([loadLoansCSV(CSV_LOANS_ROK,'Rede OK'),loadLoansCSV(CSV_LOANS_DEL,'Delend')]);
       // Caixa: usa o Saldo Final do mês atual (MES_REAL) na DFC, automático
