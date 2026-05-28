@@ -1367,14 +1367,39 @@ function buildDivida(){
   function buildDLChart(){
     if(!DL_DATA.dividaLiquida)return '';
     return `
-    <div class="tc" style="margin-bottom:22px">
+    <div class="tc" style="margin-bottom:14px">
       <div class="th-row">
         <div class="th-title">Evolução da Dívida Líquida</div>
-        <div class="th-note">R$ milhões · barra esquerda = Dívida Bruta (bancária + impostos) · barra direita = Dívida Líquida · opaco = realizado · transparente = projetado</div>
+        <div class="th-note">R$ milhões · opaco = realizado · transparente = projetado</div>
       </div>
-      <div style="padding:18px 22px 10px"><div style="position:relative;height:320px"><canvas id="chartDL"></canvas></div></div>
-    </div>`;
-  }
+      <div style="padding:14px 16px 8px">
+        <div style="display:flex;align-items:center;gap:24px;margin-bottom:14px;font-family:'Outfit',sans-serif">
+          <!-- Grupo Dívida Bruta com colchete inferior -->
+          <div style="display:flex;flex-direction:column;gap:4px">
+            <div style="display:flex;gap:16px;align-items:center">
+              <span style="display:flex;align-items:center;gap:5px;font-size:11px;color:var(--ink2)">
+                <span style="display:inline-block;width:12px;height:12px;background:#0a7a52;border-radius:2px;flex-shrink:0"></span>Bancária / Mútuo
+              </span>
+              <span style="display:flex;align-items:center;gap:5px;font-size:11px;color:var(--ink2)">
+                <span style="display:inline-block;width:12px;height:12px;background:#b07818;border-radius:2px;flex-shrink:0"></span>Impostos Parcelados
+              </span>
+            </div>
+            <div style="display:flex;align-items:center;gap:6px">
+              <svg width="140" height="8" viewBox="0 0 140 8"><path d="M1 1 L1 7 L139 7 L139 1" stroke="#9a9080" stroke-width="1.5" fill="none" stroke-linecap="round"/></svg>
+              <span style="font-size:10px;font-weight:700;letter-spacing:.06em;text-transform:uppercase;color:var(--ink3)">Dívida Bruta</span>
+            </div>
+          </div>
+          <!-- Separador -->
+          <div style="width:1px;height:36px;background:var(--rule2)"></div>
+          <!-- Dívida Líquida -->
+          <span style="display:flex;align-items:center;gap:5px;font-size:11px;color:var(--ink2)">
+            <span style="display:inline-block;width:12px;height:12px;background:#1a4fa0;border-radius:2px;flex-shrink:0"></span>
+            <span style="font-size:10px;font-weight:700;letter-spacing:.06em;text-transform:uppercase;color:var(--ink3)">Dívida Líquida</span>
+          </span>
+        </div>
+        <div style="position:relative;height:280px"><canvas id="chartDL"></canvas></div>
+      </div>
+    </div>`;\n  }
 
   // KPIs em R$ milhões para o banner
   const dlM=fmtM(cL), divM=fmtM(cT), cxM=fmtM(cC);
@@ -1428,76 +1453,30 @@ function buildDivida(){
       const bgImp =labels.map((_,i)=>i<REAL?C_DNRR_R:C_DNRR_F);
       const bgDL  =labels.map((_,i)=>i<REAL?C_OPER_R:C_OPER_F);
 
-      function roundRect(ctx,x,y,w,h,r){
-        ctx.beginPath();
-        ctx.moveTo(x+r,y);ctx.lineTo(x+w-r,y);ctx.quadraticCurveTo(x+w,y,x+w,y+r);
-        ctx.lineTo(x+w,y+h-r);ctx.quadraticCurveTo(x+w,y+h,x+w-r,y+h);
-        ctx.lineTo(x+r,y+h);ctx.quadraticCurveTo(x,y+h,x,y+h-r);
-        ctx.lineTo(x,y+r);ctx.quadraticCurveTo(x,y,x+r,y);
-        ctx.closePath();
-      }
-
-      function calcMidX(meta,from,to){
-        let sum=0,count=0;
-        for(let i=from;i<to;i++){if(meta.data[i]){sum+=meta.data[i].x;count++;}}
-        return count?sum/count:null;
-      }
-
       const labelPlugin={
         id:'barLabelsDL',
         afterDatasetsDraw(chart){
           const {ctx,scales:{x,y}}=chart;
           ctx.save();
           ctx.textAlign='center';
-
-          // Totais no topo das barras
-          const metaImp=chart.getDatasetMeta(1);
-          const metaDL =chart.getDatasetMeta(2);
           ctx.textBaseline='bottom';
           ctx.font='bold 12px Outfit,sans-serif';
+
+          // Total Dívida Bruta no topo do stack
+          const metaImp=chart.getDatasetMeta(1);
           brutM.forEach((tot,i)=>{
             const bar=metaImp.data[i];if(!bar)return;
             ctx.fillStyle=i<REAL?C_RECV_R:C_RECV_F;
             ctx.fillText(tot.toFixed(1).replace('.',','),bar.x,y.getPixelForValue(tot)-4);
           });
+
+          // Valor Dívida Líquida no topo
+          const metaDL=chart.getDatasetMeta(2);
           dlM2.forEach((v,i)=>{
             const bar=metaDL.data[i];if(!bar)return;
             ctx.fillStyle=i<REAL?C_OPER_R:C_OPER_F;
             ctx.fillText(v.toFixed(1).replace('.',','),bar.x,y.getPixelForValue(v)-4);
           });
-
-          // Badges de grupo — fora da área do gráfico, no padding top
-          // Cada badge centrado sobre seu grupo de barras, com offset vertical para não colidir
-          const xBrutaReal=calcMidX(metaImp,0,REAL);
-          const xDLReal   =calcMidX(metaDL,0,REAL);
-          const xBrutaFC  =REAL<N?calcMidX(metaImp,REAL,N):null;
-          const xDLFC     =REAL<N?calcMidX(metaDL,REAL,N):null;
-
-          // Desenha badge acima da chartArea (no espaço do padding:top:60)
-          const drawGroupBadge=(label,xCenter,yBase,bgColor,fgColor)=>{
-            if(xCenter===null)return;
-            ctx.font='600 9px Outfit,sans-serif';
-            ctx.textBaseline='middle';
-            const tw=ctx.measureText(label).width;
-            const bw=tw+14; const bh=16; const br=4;
-            const bx=xCenter-bw/2; const by=yBase-bh/2;
-            ctx.fillStyle=bgColor;
-            roundRect(ctx,bx,by,bw,bh,br);
-            ctx.fill();
-            ctx.fillStyle=fgColor;
-            ctx.fillText(label,xCenter,yBase);
-          };
-
-          // Linha superior da área de plot menos um offset — fica acima dos números
-          const yBruta=chart.chartArea.top-22;  // linha para "DÍVIDA BRUTA"
-          const yLiq  =chart.chartArea.top-6;   // linha para "DÍV. LÍQUIDA" logo abaixo
-
-          // Bloco realizado
-          drawGroupBadge('DÍVIDA BRUTA',xBrutaReal,yBruta,'rgba(10,122,82,.15)',C_RECV_R);
-          drawGroupBadge('DÍV. LÍQUIDA',xDLReal,   yLiq,  'rgba(26,79,160,.15)',C_OPER_R);
-          // Bloco projetado
-          if(xBrutaFC)drawGroupBadge('DÍVIDA BRUTA',xBrutaFC,yBruta,'rgba(10,122,82,.08)',C_RECV_F);
-          if(xDLFC)   drawGroupBadge('DÍV. LÍQUIDA',xDLFC,   yLiq,  'rgba(26,79,160,.08)',C_OPER_F);
 
           ctx.restore();
         }
@@ -1516,16 +1495,10 @@ function buildDivida(){
         },
         options:{
           responsive:true,maintainAspectRatio:false,
-          layout:{padding:{top:60,bottom:4,left:4,right:4}},
+          layout:{padding:{top:24,bottom:4,left:4,right:4}},
           interaction:{mode:'index',intersect:false},
           plugins:{
-            legend:{
-              display:true,
-              position:'top',
-              align:'center',
-              labels:{font:{family:'Outfit',size:11},color:'#3d3830',boxWidth:14,padding:20,
-                usePointStyle:false}
-            },
+            legend:{display:false},
             tooltip:{
               callbacks:{
                 label:ctx=>{
