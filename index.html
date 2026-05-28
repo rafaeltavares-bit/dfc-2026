@@ -1424,12 +1424,12 @@ function buildDivida(){
       const dlM2  = toM(DL_DATA.dividaLiquida);
       const brutM = bancM.map((v,i)=>Math.round((v+(impM[i]||0))*10)/10);
 
-      // Cores: realizado vs projetado
-      const bgBanc =labels.map((_,i)=>i<REAL?'rgba(120,25,18,.88)':'rgba(120,25,18,.40)');
-      const bgImp  =labels.map((_,i)=>i<REAL?'rgba(154,108,24,.82)':'rgba(154,108,24,.38)');
-      const bgDL   =labels.map((_,i)=>i<REAL?'rgba(80,80,80,.55)' :'rgba(80,80,80,.25)');
+      // Cores vibrantes: realizado vs projetado
+      const bgBanc =labels.map((_,i)=>i<REAL?'rgba(160,30,20,1)' :'rgba(160,30,20,.40)');
+      const bgImp  =labels.map((_,i)=>i<REAL?'rgba(194,130,10,1)':'rgba(194,130,10,.40)');
+      const bgDL   =labels.map((_,i)=>i<REAL?'rgba(58,90,140,1)' :'rgba(58,90,140,.38)');
 
-      // Plugin: total no topo da barra empilhada + valor DL abaixo do topo
+      // Plugin: totais no topo + rótulos de grupo "DÍVIDA BRUTA" e "DÍVIDA LÍQUIDA"
       const labelPlugin={
         id:'barLabelsDL',
         afterDatasetsDraw(chart){
@@ -1437,32 +1437,79 @@ function buildDivida(){
           ctx.save();
           ctx.textAlign='center';
 
-          // Total Dívida Bruta (topo do stack)
-          const metaBanc=chart.getDatasetMeta(0);
-          const metaImp =chart.getDatasetMeta(1);
+          // Total Dívida Bruta no topo do stack
+          const metaImp=chart.getDatasetMeta(1);
           ctx.font='bold 12px Outfit,sans-serif';
           ctx.textBaseline='bottom';
           brutM.forEach((tot,i)=>{
             const bar=metaImp.data[i];
             if(!bar)return;
-            ctx.fillStyle=i<REAL?'rgba(100,20,14,1)':'rgba(110,78,0,1)';
+            ctx.fillStyle=i<REAL?'rgba(140,20,12,1)':'rgba(140,80,0,.85)';
             ctx.fillText(tot.toFixed(1).replace('.',','), bar.x, y.getPixelForValue(tot)-5);
           });
 
-          // Valor Dívida Líquida no topo de cada barra DL
+          // Valor Dívida Líquida no topo
           const metaDL=chart.getDatasetMeta(2);
           ctx.font='bold 12px Outfit,sans-serif';
           ctx.textBaseline='bottom';
           dlM2.forEach((v,i)=>{
             const bar=metaDL.data[i];
             if(!bar)return;
-            ctx.fillStyle=i<REAL?'rgba(50,50,50,1)':'rgba(100,100,100,1)';
+            ctx.fillStyle=i<REAL?'rgba(30,55,110,1)':'rgba(50,80,140,.85)';
             ctx.fillText(v.toFixed(1).replace('.',','), bar.x, y.getPixelForValue(v)-5);
+          });
+
+          // Rótulos de grupo — aparecem uma vez, centralizados entre Jan e Dez
+          // Posiciona: acima das barras do mês central (índice ~5)
+          const midReal=Math.floor(REAL/2);          // centro dos meses reais
+          const midFC=REAL+Math.floor((N-REAL)/2);   // centro dos meses projetados
+
+          [midReal, midFC].forEach(mi=>{
+            const barBruta=metaImp.data[mi];
+            const barDL=metaDL.data[mi];
+            if(!barBruta||!barDL)return;
+            const isReal=mi<REAL;
+            const yTop=chart.chartArea.top+2;
+
+            // Badge "DÍVIDA BRUTA" acima da barra empilhada
+            const xBruta=barBruta.x;
+            ctx.font='700 10px Outfit,sans-serif';
+            ctx.textBaseline='top';
+            const wB=ctx.measureText('DÍVIDA BRUTA').width+12;
+            ctx.fillStyle=isReal?'rgba(160,30,20,.12)':'rgba(160,30,20,.07)';
+            roundRect(ctx, xBruta-wB/2, yTop, wB, 16, 3);
+            ctx.fill();
+            ctx.fillStyle=isReal?'rgba(140,20,12,.9)':'rgba(140,20,12,.6)';
+            ctx.fillText('DÍVIDA BRUTA', xBruta, yTop+3);
+
+            // Badge "DÍVIDA LÍQUIDA" acima da barra DL
+            const xDL=barDL.x;
+            const wL=ctx.measureText('DÍV. LÍQUIDA').width+12;
+            ctx.fillStyle=isReal?'rgba(58,90,140,.12)':'rgba(58,90,140,.07)';
+            roundRect(ctx, xDL-wL/2, yTop, wL, 16, 3);
+            ctx.fill();
+            ctx.fillStyle=isReal?'rgba(30,55,110,.9)':'rgba(30,55,110,.6)';
+            ctx.fillText('DÍV. LÍQUIDA', xDL, yTop+3);
           });
 
           ctx.restore();
         }
       };
+
+      // helper roundRect compatível com browsers antigos
+      function roundRect(ctx,x,y,w,h,r){
+        ctx.beginPath();
+        ctx.moveTo(x+r,y);
+        ctx.lineTo(x+w-r,y);
+        ctx.quadraticCurveTo(x+w,y,x+w,y+r);
+        ctx.lineTo(x+w,y+h-r);
+        ctx.quadraticCurveTo(x+w,y+h,x+w-r,y+h);
+        ctx.lineTo(x+r,y+h);
+        ctx.quadraticCurveTo(x,y+h,x,y+h-r);
+        ctx.lineTo(x,y+r);
+        ctx.quadraticCurveTo(x,y,x+r,y);
+        ctx.closePath();
+      }
 
       new Chart(canvas,{
         type:'bar',
