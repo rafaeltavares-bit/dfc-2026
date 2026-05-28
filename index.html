@@ -1364,26 +1364,32 @@ function buildDivida(){
     </div>`;
   }
 
-  // ── Gráfico evolução Dívida Líquida + tendência ──
+  // helper R$ milhões (arredonda p/ 1 casa)
+  function fmtM(v){return'R$ '+(v/1000).toFixed(1).replace('.',',')+'M';}
+
+  // ── Gráfico empilhado: Div. Bancária + Impostos − Caixa = Dívida Líquida ──
   function buildDLChart(){
     if(!DL_DATA.dividaLiquida)return '';
     return `
     <div class="tc" style="margin-bottom:22px">
       <div class="th-row">
-        <div class="th-title">Evolução da Dívida Líquida</div>
-        <div class="th-note">R$ milhares · linha tracejada = tendência linear (projetado)</div>
+        <div class="th-title">Evolução da Dívida Líquida — Composição</div>
+        <div class="th-note">R$ milhões · barras empilhadas · linha tracejada = tendência da Dívida Líquida</div>
       </div>
-      <div style="padding:18px 22px 10px"><div style="position:relative;height:280px"><canvas id="chartDL"></canvas></div></div>
+      <div style="padding:18px 22px 10px"><div style="position:relative;height:320px"><canvas id="chartDL"></canvas></div></div>
     </div>`;
   }
 
+  // KPIs em R$ milhões para o banner
+  const dlM=fmtM(cL), divM=fmtM(cT), cxM=fmtM(cC);
+
   el.innerHTML=`
     <div style="background:var(--sp-l);border:1px solid #b8c8e8;color:var(--sp);padding:14px 20px;border-radius:10px;margin-bottom:18px;display:flex;align-items:center;justify-content:space-between;flex-wrap:wrap;gap:14px">
-      <div style="font-size:13px;font-weight:500">Posição de dívida com base no Saldo de ${mesAtual}. Valores em R$ mil.</div>
+      <div style="font-size:13px;font-weight:500">Posição de dívida com base no Saldo de ${mesAtual}. Valores em R$ milhões.</div>
       <div style="display:flex;gap:22px;font-size:12px">
-        <div><span style="color:var(--ink3);letter-spacing:.06em;text-transform:uppercase;font-weight:700">Consolidado · Dívida</span> <span style="color:var(--rd);font-weight:700;font-size:14px;margin-left:6px">${fmt(cT)}</span></div>
-        <div><span style="color:var(--ink3);letter-spacing:.06em;text-transform:uppercase;font-weight:700">Caixa</span> <span style="color:var(--em);font-weight:700;font-size:14px;margin-left:6px">${fmt(cC)}</span></div>
-        <div><span style="color:var(--ink3);letter-spacing:.06em;text-transform:uppercase;font-weight:700">Líquida</span> <span style="color:var(--gd);font-weight:700;font-size:14px;margin-left:6px">${fmt(cL)}</span></div>
+        <div><span style="color:var(--ink3);letter-spacing:.06em;text-transform:uppercase;font-weight:700">Dívida Bruta</span> <span style="color:var(--rd);font-weight:700;font-size:16px;margin-left:6px">${divM}</span></div>
+        <div><span style="color:var(--ink3);letter-spacing:.06em;text-transform:uppercase;font-weight:700">Caixa</span> <span style="color:var(--em);font-weight:700;font-size:16px;margin-left:6px">${cxM}</span></div>
+        <div><span style="color:var(--ink3);letter-spacing:.06em;text-transform:uppercase;font-weight:700">Dívida Líquida</span> <span style="color:var(--gd);font-weight:700;font-size:16px;margin-left:6px">${dlM}</span></div>
       </div>
     </div>
     <div class="divida-grid">
@@ -1409,25 +1415,41 @@ function buildDivida(){
     <tr class="r-bold"><td>Total Consolidado</td><td></td><td></td><td></td><td class="neg">${fmt(cT)}</td><td>${fmt([...LOANS['Rede OK'].loans,...LOANS['Delend'].loans].reduce((a,l)=>a+l.a26,0))}</td><td>${fmt([...LOANS['Rede OK'].loans,...LOANS['Delend'].loans].reduce((a,l)=>a+l.a27,0))}</td><td>${fmt([...LOANS['Rede OK'].loans,...LOANS['Delend'].loans].reduce((a,l)=>a+l.a28,0))}</td></tr>
     </tbody></table></div></div>`;
 
-  // ── Renderiza gráfico DL após injeção no DOM ──
+  // ── Renderiza gráfico empilhado após injeção no DOM ──
   if(DL_DATA.dividaLiquida){
     requestAnimationFrame(()=>{
       const canvas=document.getElementById('chartDL');
       if(!canvas)return;
-      const dlVals=DL_DATA.dividaLiquida.slice(0,N);
-      const realVals=dlVals.slice(0,REAL);
-      const fcVals=dlVals.slice(REAL);
       const labels=MM.slice(0,N).map(m=>m+'/26');
 
-      // Tendência linear sobre todos os N pontos
+      // Componentes em R$ milhões (dividir por 1000)
+      const toM=arr=>arr.slice(0,N).map(v=>Math.round(v/10)/100); // mil → milhões, 2 casas
+
+      const bancM   = toM(DL_DATA.dividaBancaria    || Array(N).fill(0));
+      const impM    = toM(DL_DATA.impostosParcelados || Array(N).fill(0));
+      const cxM2    = toM(DL_DATA.caixa             || Array(N).fill(0));
+      const dlM2    = toM(DL_DATA.dividaLiquida      || Array(N).fill(0));
+
+      // Tendência linear da Dívida Líquida
       const n=N;
-      const sumX=dlVals.reduce((s,_,i)=>s+i,0);
-      const sumY=dlVals.reduce((s,v)=>s+v,0);
-      const sumXY=dlVals.reduce((s,v,i)=>s+i*v,0);
-      const sumX2=dlVals.reduce((s,_,i)=>s+i*i,0);
+      const sumX=dlM2.reduce((s,_,i)=>s+i,0);
+      const sumY=dlM2.reduce((s,v)=>s+v,0);
+      const sumXY=dlM2.reduce((s,v,i)=>s+i*v,0);
+      const sumX2=dlM2.reduce((s,_,i)=>s+i*i,0);
       const slope=(n*sumXY-sumX*sumY)/(n*sumX2-sumX*sumX);
       const intercept=(sumY-slope*sumX)/n;
-      const trendVals=dlVals.map((_,i)=>Math.round((intercept+slope*i)*10)/10);
+      const trendM=dlM2.map((_,i)=>Math.round((intercept+slope*i)*100)/100);
+
+      // Cor por mês: realizado vs projetado
+      const rdReal='rgba(176,48,32,.80)', rdFC='rgba(176,48,32,.38)';
+      const amReal='rgba(192,107,0,.75)',  amFC='rgba(192,107,0,.32)';
+      const emReal='rgba(10,94,64,.72)',   emFC='rgba(10,94,64,.30)';
+
+      const bgBanc=labels.map((_,i)=>i<REAL?rdReal:rdFC);
+      const bgImp =labels.map((_,i)=>i<REAL?amReal:amFC);
+      const bgCx  =labels.map((_,i)=>i<REAL?emReal:emFC);
+
+      const fmtTip=v=>'R$ '+(Math.abs(v)).toFixed(2).replace('.',',')+'M';
 
       new Chart(canvas,{
         type:'bar',
@@ -1435,34 +1457,48 @@ function buildDivida(){
           labels,
           datasets:[
             {
-              label:'Realizado',
-              data:realVals.map((v,i)=>({x:labels[i],y:v})),
-              backgroundColor:'rgba(176,48,32,.7)',
-              borderColor:'rgba(176,48,32,1)',
-              borderWidth:1,
-              borderRadius:4,
+              label:'Dívida Bancária / Mútuo',
+              data:bancM,
+              backgroundColor:bgBanc,
+              borderColor:bgBanc,
+              borderWidth:0,
+              borderRadius:2,
+              stack:'divida',
               order:2
             },
             {
-              label:'Projetado',
-              data:fcVals.map((v,i)=>({x:labels[REAL+i],y:v})),
-              backgroundColor:'rgba(154,108,24,.45)',
-              borderColor:'rgba(154,108,24,.8)',
-              borderWidth:1,
-              borderRadius:4,
+              label:'Impostos Parcelados',
+              data:impM,
+              backgroundColor:bgImp,
+              borderColor:bgImp,
+              borderWidth:0,
+              borderRadius:2,
+              stack:'divida',
               order:2
             },
             {
-              label:'Tendência',
-              data:trendVals.map((v,i)=>({x:labels[i],y:v})),
+              label:'Caixa (desconto)',
+              data:cxM2,
+              backgroundColor:bgCx,
+              borderColor:bgCx,
+              borderWidth:0,
+              borderRadius:2,
+              stack:'caixa',
+              order:2
+            },
+            {
+              label:'Tendência Dív. Líquida',
+              data:trendM,
               type:'line',
-              borderColor:'rgba(22,61,120,.75)',
-              borderWidth:2,
-              borderDash:[6,4],
+              borderColor:'rgba(22,61,120,.85)',
+              borderWidth:2.5,
+              borderDash:[7,4],
               pointRadius:0,
               fill:false,
               tension:0,
-              order:1
+              stack:undefined,
+              order:1,
+              yAxisID:'y'
             }
           ]
         },
@@ -1471,22 +1507,47 @@ function buildDivida(){
           interaction:{mode:'index',intersect:false},
           plugins:{
             legend:{
-              display:true,
-              position:'top',
+              display:true,position:'top',
               labels:{font:{family:'Outfit',size:11},color:'#3d3830',boxWidth:14,padding:16}
             },
             tooltip:{
               callbacks:{
-                label:ctx=>`${ctx.dataset.label}: ${fmt(ctx.raw.y)}`
+                label:ctx=>{
+                  const v=ctx.parsed.y;
+                  if(ctx.dataset.label==='Tendência Dív. Líquida')
+                    return `Tendência: ${fmtTip(v)}`;
+                  if(ctx.dataset.label==='Caixa (desconto)')
+                    return `Caixa: ${fmtTip(v)}`;
+                  return `${ctx.dataset.label}: ${fmtTip(v)}`;
+                },
+                footer:items=>{
+                  // calcula DL implícita = bancário + impostos − caixa
+                  const banc=items.find(i=>i.dataset.label==='Dívida Bancária / Mútuo');
+                  const imp=items.find(i=>i.dataset.label==='Impostos Parcelados');
+                  const cx=items.find(i=>i.dataset.label==='Caixa (desconto)');
+                  if(banc&&imp&&cx){
+                    const dl=(banc.parsed.y+imp.parsed.y+cx.parsed.y);
+                    return `Dívida Líquida: ${fmtTip(dl)}`;
+                  }
+                  return '';
+                }
               }
             }
           },
           scales:{
-            x:{grid:{display:false},ticks:{font:{family:'Outfit',size:11},color:'#6b6258'}},
+            x:{
+              stacked:true,
+              grid:{display:false},
+              ticks:{font:{family:'Outfit',size:11},color:'#6b6258'}
+            },
             y:{
+              stacked:false,
               grid:{color:'rgba(200,191,176,.4)'},
-              ticks:{font:{family:'Outfit',size:11},color:'#6b6258',callback:v=>fmt(v)},
-              title:{display:true,text:'R$ mil',font:{family:'Outfit',size:11},color:'#6b6258'}
+              ticks:{
+                font:{family:'Outfit',size:11},color:'#6b6258',
+                callback:v=>'R$ '+Math.abs(v).toFixed(1).replace('.',',')+'M'
+              },
+              title:{display:true,text:'R$ milhões',font:{family:'Outfit',size:11},color:'#6b6258'}
             }
           }
         }
