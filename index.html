@@ -1373,8 +1373,8 @@ function buildDivida(){
     return `
     <div class="tc" style="margin-bottom:22px">
       <div class="th-row">
-        <div class="th-title">Evolução da Dívida Líquida — Composição</div>
-        <div class="th-note">R$ milhões · barras empilhadas · linha tracejada = tendência da Dívida Líquida</div>
+        <div class="th-title">Evolução da Dívida Líquida</div>
+        <div class="th-note">R$ milhões · vermelho = realizado · âmbar = projetado · tracejado = tendência</div>
       </div>
       <div style="padding:18px 22px 10px"><div style="position:relative;height:320px"><canvas id="chartDL"></canvas></div></div>
     </div>`;
@@ -1415,22 +1415,17 @@ function buildDivida(){
     <tr class="r-bold"><td>Total Consolidado</td><td></td><td></td><td></td><td class="neg">${fmt(cT)}</td><td>${fmt([...LOANS['Rede OK'].loans,...LOANS['Delend'].loans].reduce((a,l)=>a+l.a26,0))}</td><td>${fmt([...LOANS['Rede OK'].loans,...LOANS['Delend'].loans].reduce((a,l)=>a+l.a27,0))}</td><td>${fmt([...LOANS['Rede OK'].loans,...LOANS['Delend'].loans].reduce((a,l)=>a+l.a28,0))}</td></tr>
     </tbody></table></div></div>`;
 
-  // ── Renderiza gráfico empilhado após injeção no DOM ──
+  // ── Renderiza gráfico Dívida Líquida (barra simples + valor + tendência) ──
   if(DL_DATA.dividaLiquida){
     requestAnimationFrame(()=>{
       const canvas=document.getElementById('chartDL');
       if(!canvas)return;
       const labels=MM.slice(0,N).map(m=>m+'/26');
+      const toM=arr=>arr.slice(0,N).map(v=>Math.round(v/10)/100);
 
-      // Componentes em R$ milhões (dividir por 1000)
-      const toM=arr=>arr.slice(0,N).map(v=>Math.round(v/10)/100); // mil → milhões, 2 casas
+      const dlM2=toM(DL_DATA.dividaLiquida);
 
-      const bancM   = toM(DL_DATA.dividaBancaria    || Array(N).fill(0));
-      const impM    = toM(DL_DATA.impostosParcelados || Array(N).fill(0));
-      const cxM2    = toM(DL_DATA.caixa             || Array(N).fill(0));
-      const dlM2    = toM(DL_DATA.dividaLiquida      || Array(N).fill(0));
-
-      // Tendência linear da Dívida Líquida
+      // Tendência linear
       const n=N;
       const sumX=dlM2.reduce((s,_,i)=>s+i,0);
       const sumY=dlM2.reduce((s,v)=>s+v,0);
@@ -1440,54 +1435,49 @@ function buildDivida(){
       const intercept=(sumY-slope*sumX)/n;
       const trendM=dlM2.map((_,i)=>Math.round((intercept+slope*i)*100)/100);
 
-      // Cor por mês: realizado vs projetado
-      const rdReal='rgba(176,48,32,.80)', rdFC='rgba(176,48,32,.38)';
-      const amReal='rgba(192,107,0,.75)',  amFC='rgba(192,107,0,.32)';
-      const emReal='rgba(10,94,64,.72)',   emFC='rgba(10,94,64,.30)';
+      const bgBars=labels.map((_,i)=>i<REAL?'rgba(176,48,32,.80)':'rgba(154,108,24,.50)');
+      const fmtTip=v=>'R$ '+Math.abs(v).toFixed(2).replace('.',',')+'M';
 
-      const bgBanc=labels.map((_,i)=>i<REAL?rdReal:rdFC);
-      const bgImp =labels.map((_,i)=>i<REAL?amReal:amFC);
-      const bgCx  =labels.map((_,i)=>i<REAL?emReal:emFC);
-
-      const fmtTip=v=>'R$ '+(Math.abs(v)).toFixed(2).replace('.',',')+'M';
+      // Plugin inline para escrever o valor no topo de cada barra
+      const labelPlugin={
+        id:'barLabels',
+        afterDatasetsDraw(chart){
+          const {ctx,scales:{x,y}}=chart;
+          const ds=chart.data.datasets[0];
+          ctx.save();
+          ctx.font='bold 11px Outfit, sans-serif';
+          ctx.textAlign='center';
+          ctx.textBaseline='bottom';
+          ds.data.forEach((v,i)=>{
+            const meta=chart.getDatasetMeta(0);
+            const bar=meta.data[i];
+            if(!bar)return;
+            const yPx=y.getPixelForValue(v);
+            const col=i<REAL?'rgba(176,48,32,1)':'rgba(154,108,24,1)';
+            ctx.fillStyle=col;
+            ctx.fillText(fmtTip(v),bar.x,yPx-4);
+          });
+          ctx.restore();
+        }
+      };
 
       new Chart(canvas,{
         type:'bar',
+        plugins:[labelPlugin],
         data:{
           labels,
           datasets:[
             {
-              label:'Dívida Bancária / Mútuo',
-              data:bancM,
-              backgroundColor:bgBanc,
-              borderColor:bgBanc,
+              label:'Dívida Líquida',
+              data:dlM2,
+              backgroundColor:bgBars,
+              borderColor:bgBars,
               borderWidth:0,
-              borderRadius:2,
-              stack:'divida',
+              borderRadius:4,
               order:2
             },
             {
-              label:'Impostos Parcelados',
-              data:impM,
-              backgroundColor:bgImp,
-              borderColor:bgImp,
-              borderWidth:0,
-              borderRadius:2,
-              stack:'divida',
-              order:2
-            },
-            {
-              label:'Caixa (desconto)',
-              data:cxM2,
-              backgroundColor:bgCx,
-              borderColor:bgCx,
-              borderWidth:0,
-              borderRadius:2,
-              stack:'caixa',
-              order:2
-            },
-            {
-              label:'Tendência Dív. Líquida',
+              label:'Tendência',
               data:trendM,
               type:'line',
               borderColor:'rgba(22,61,120,.85)',
@@ -1496,14 +1486,13 @@ function buildDivida(){
               pointRadius:0,
               fill:false,
               tension:0,
-              stack:undefined,
-              order:1,
-              yAxisID:'y'
+              order:1
             }
           ]
         },
         options:{
           responsive:true,maintainAspectRatio:false,
+          layout:{padding:{top:28}},
           interaction:{mode:'index',intersect:false},
           plugins:{
             legend:{
@@ -1513,39 +1502,23 @@ function buildDivida(){
             tooltip:{
               callbacks:{
                 label:ctx=>{
-                  const v=ctx.parsed.y;
-                  if(ctx.dataset.label==='Tendência Dív. Líquida')
-                    return `Tendência: ${fmtTip(v)}`;
-                  if(ctx.dataset.label==='Caixa (desconto)')
-                    return `Caixa: ${fmtTip(v)}`;
-                  return `${ctx.dataset.label}: ${fmtTip(v)}`;
-                },
-                footer:items=>{
-                  // calcula DL implícita = bancário + impostos − caixa
-                  const banc=items.find(i=>i.dataset.label==='Dívida Bancária / Mútuo');
-                  const imp=items.find(i=>i.dataset.label==='Impostos Parcelados');
-                  const cx=items.find(i=>i.dataset.label==='Caixa (desconto)');
-                  if(banc&&imp&&cx){
-                    const dl=(banc.parsed.y+imp.parsed.y+cx.parsed.y);
-                    return `Dívida Líquida: ${fmtTip(dl)}`;
-                  }
-                  return '';
+                  if(ctx.dataset.label==='Tendência')
+                    return `Tendência: ${fmtTip(ctx.parsed.y)}`;
+                  return `Dívida Líquida: ${fmtTip(ctx.parsed.y)}`;
                 }
               }
             }
           },
           scales:{
             x:{
-              stacked:true,
               grid:{display:false},
               ticks:{font:{family:'Outfit',size:11},color:'#6b6258'}
             },
             y:{
-              stacked:false,
               grid:{color:'rgba(200,191,176,.4)'},
               ticks:{
                 font:{family:'Outfit',size:11},color:'#6b6258',
-                callback:v=>'R$ '+Math.abs(v).toFixed(1).replace('.',',')+'M'
+                callback:v=>'R$ '+Math.abs(v).toFixed(0)+'M'
               },
               title:{display:true,text:'R$ milhões',font:{family:'Outfit',size:11},color:'#6b6258'}
             }
