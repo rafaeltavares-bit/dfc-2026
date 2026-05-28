@@ -1424,10 +1424,10 @@ function buildDivida(){
       const dlM2  = toM(DL_DATA.dividaLiquida);
       const brutM = bancM.map((v,i)=>Math.round((v+(impM[i]||0))*10)/10);
 
-      // Cores alinhadas com o padrão do painel
-      const bgBanc=labels.map((_,i)=>i<REAL?C_DIVD_R:C_DIVD_F);
+      // Cores: verde (Bancária) = C_RECV, âmbar (Impostos) = C_DNRR, azul (DL) = C_OPER
+      const bgBanc=labels.map((_,i)=>i<REAL?C_RECV_R:C_RECV_F);
       const bgImp =labels.map((_,i)=>i<REAL?C_DNRR_R:C_DNRR_F);
-      const bgDL  =labels.map((_,i)=>i<REAL?C_AQUI_R:C_AQUI_F);
+      const bgDL  =labels.map((_,i)=>i<REAL?C_OPER_R:C_OPER_F);
 
       // Plugin: totais no topo + rótulos de grupo "DÍVIDA BRUTA" e "DÍVIDA LÍQUIDA"
       const labelPlugin={
@@ -1444,7 +1444,7 @@ function buildDivida(){
           brutM.forEach((tot,i)=>{
             const bar=metaImp.data[i];
             if(!bar)return;
-            ctx.fillStyle=i<REAL?C_DIVD_R:C_DIVD_F;
+            ctx.fillStyle=i<REAL?C_RECV_R:C_RECV_F;
             ctx.fillText(tot.toFixed(1).replace('.',','), bar.x, y.getPixelForValue(tot)-5);
           });
 
@@ -1455,7 +1455,7 @@ function buildDivida(){
           dlM2.forEach((v,i)=>{
             const bar=metaDL.data[i];
             if(!bar)return;
-            ctx.fillStyle=i<REAL?C_AQUI_R:C_AQUI_F;
+            ctx.fillStyle=i<REAL?C_OPER_R:C_OPER_F;
             ctx.fillText(v.toFixed(1).replace('.',','), bar.x, y.getPixelForValue(v)-5);
           });
 
@@ -1485,11 +1485,13 @@ function buildDivida(){
           };
 
           const yTop=chart.chartArea.top+2;
-          drawBadge('DÍVIDA BRUTA', xBrutaReal, yTop, 'rgba(112,48,224,.12)', C_DIVD_R);
-          drawBadge('DÍV. LÍQUIDA', xDLReal,    yTop, 'rgba(192,48,32,.12)',  C_AQUI_R);
+          const yBruta=chart.chartArea.top+2;
+          const yLiqui=chart.chartArea.top+20;
+          drawBadge('DÍVIDA BRUTA', xBrutaReal, yBruta, 'rgba(10,122,82,.12)',  C_RECV_R);
+          drawBadge('DÍV. LÍQUIDA', xDLReal,    yBruta, 'rgba(26,79,160,.12)',  C_OPER_R);
           if(REAL<N){
-            drawBadge('DÍVIDA BRUTA', xBrutaFC, yTop, 'rgba(112,48,224,.07)', C_DIVD_F);
-            drawBadge('DÍV. LÍQUIDA', xDLFC,    yTop, 'rgba(192,48,32,.07)',  C_AQUI_F);
+            drawBadge('DÍVIDA BRUTA', xBrutaFC, yBruta, 'rgba(10,122,82,.07)',  C_RECV_F);
+            drawBadge('DÍV. LÍQUIDA', xDLFC,    yBruta, 'rgba(26,79,160,.07)',  C_OPER_F);
           }
 
           ctx.restore();
