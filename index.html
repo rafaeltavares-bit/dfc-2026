@@ -25,13 +25,13 @@
 body{background:var(--cream);color:var(--ink);font-family:"Outfit",sans-serif;font-size:14px;min-height:100vh;overflow-x:hidden;}
 
 /* HEADER */
-.header{background:#fff;padding:0 48px;display:flex;align-items:stretch;justify-content:space-between;min-height:76px;position:relative;overflow:hidden;border-bottom:1px solid rgba(0,0,0,.08);}
+.header{background:#fff;padding:0 32px;display:flex;align-items:stretch;justify-content:space-between;min-height:60px;position:sticky;top:0;z-index:50;overflow:hidden;border-bottom:1px solid rgba(0,0,0,.08);box-shadow:0 2px 8px rgba(0,0,0,.06);}
 .header::before{content:"";position:absolute;inset:0;background:repeating-linear-gradient(90deg,transparent,transparent 60px,rgba(0,0,0,.012) 60px,rgba(0,0,0,.012) 61px);}
-.hl{display:flex;align-items:center;gap:16px;padding:16px 0;position:relative;z-index:1;}
-.logo-delend{height:40px;}
-.hl h1{font-family:"Playfair Display",serif;font-size:20px;font-weight:700;color:var(--ink);letter-spacing:-.3px;line-height:1.2;}
-.hl .sub{font-size:11px;color:var(--ink3);letter-spacing:.1em;text-transform:uppercase;margin-top:3px;font-weight:300;}
-.hr{display:flex;align-items:center;gap:14px;position:relative;z-index:1;}
+.hl{display:flex;align-items:center;gap:12px;padding:10px 0;position:relative;z-index:1;}
+.logo-delend{height:32px;}
+.hl h1{font-family:"Playfair Display",serif;font-size:17px;font-weight:700;color:var(--ink);letter-spacing:-.3px;line-height:1.2;}
+.hl .sub{font-size:10px;color:var(--ink3);letter-spacing:.1em;text-transform:uppercase;margin-top:2px;font-weight:300;}
+.hr{display:flex;align-items:center;gap:10px;position:relative;z-index:1;}
 .btn-refresh{padding:6px 14px;border-radius:8px;border:1px solid rgba(0,0,0,.12);background:rgba(0,0,0,.04);color:var(--ink2);font-size:12px;font-family:"Outfit",sans-serif;cursor:pointer;font-weight:600;transition:all .2s;display:flex;align-items:center;gap:6px;white-space:nowrap;}
 .btn-refresh:hover{background:rgba(0,0,0,.08);}
 .btn-refresh.spin .ri{display:inline-block;animation:spin .7s linear infinite;}
@@ -47,7 +47,7 @@ body{background:var(--cream);color:var(--ink);font-family:"Outfit",sans-serif;fo
 .live .lt{font-size:11px;color:var(--ink3);font-weight:300;margin-top:2px;}
 
 /* FAROL */
-.farol-bar{padding:0 48px;display:flex;align-items:center;gap:16px;min-height:48px;transition:background .5s;}
+.farol-bar{padding:0 32px;display:flex;align-items:center;gap:12px;min-height:36px;transition:background .5s;}
 .farol-bar.verde{background:linear-gradient(90deg,rgba(10,94,64,.15),rgba(10,94,64,.05));}
 .farol-bar.amarelo{background:linear-gradient(90deg,rgba(192,107,0,.18),rgba(192,107,0,.06));}
 .farol-bar.vermelho{background:linear-gradient(90deg,rgba(176,48,32,.2),rgba(176,48,32,.07));}
@@ -67,7 +67,7 @@ body{background:var(--cream);color:var(--ink);font-family:"Outfit",sans-serif;fo
 .farol-note{font-size:11px;color:var(--ink3);margin-left:auto;font-style:italic;}
 
 /* TABS */
-.tabs-wrap{background:#fff;border-bottom:2px solid var(--rule);padding:0 48px;display:flex;align-items:center;justify-content:space-between;}
+.tabs-wrap{background:#fff;border-bottom:2px solid var(--rule);padding:0 32px;display:flex;align-items:center;justify-content:space-between;position:sticky;top:60px;z-index:49;}
 .tabs{display:flex;}
 .tab{padding:15px 20px;font-size:13px;font-weight:600;letter-spacing:.06em;text-transform:uppercase;color:var(--ink3);cursor:pointer;border-bottom:3px solid transparent;transition:all .2s;white-space:nowrap;}
 .tab:hover{color:var(--ink2);}
@@ -79,7 +79,7 @@ body{background:var(--cream);color:var(--ink);font-family:"Outfit",sans-serif;fo
 .tr-info{font-size:12px;color:var(--ink3);}
 
 /* MAIN */
-.main{padding:28px 48px 56px;max-width:1700px;margin:0 auto;}
+.main{padding:16px 32px 32px;max-width:1700px;margin:0 auto;}
 .section{display:none;animation:fi .3s ease;}
 .section.active{display:block;}
 @keyframes fi{from{opacity:0;transform:translateY(5px)}to{opacity:1;transform:translateY(0)}}
@@ -107,15 +107,15 @@ body{background:var(--cream);color:var(--ink);font-family:"Outfit",sans-serif;fo
 .cp .dot{width:6px;height:6px;border-radius:50%;background:currentColor;}
 
 /* KPI */
-.kpi-grid{display:grid;grid-template-columns:repeat(4,1fr);gap:18px;margin-bottom:24px;}
-.kpi{background:#fff;border:1px solid var(--rule);border-radius:14px;padding:22px 24px;box-shadow:var(--sh);position:relative;overflow:hidden;transition:box-shadow .2s,transform .2s;}
+.kpi-grid{display:grid;grid-template-columns:repeat(4,1fr);gap:12px;margin-bottom:16px;}
+.kpi{background:#fff;border:1px solid var(--rule);border-radius:10px;padding:14px 16px;box-shadow:var(--sh);position:relative;overflow:hidden;transition:box-shadow .2s,transform .2s;}
 .kpi:hover{box-shadow:var(--sh2);transform:translateY(-2px);}
 .kpi-ac{position:absolute;top:0;left:0;right:0;height:3px;border-radius:14px 14px 0 0;}
 .kpi.blue .kpi-ac{background:var(--sp);} .kpi.green .kpi-ac{background:var(--em);} .kpi.red .kpi-ac{background:var(--rd);} .kpi.gold .kpi-ac{background:var(--gd);}
 .kpi-row{display:flex;justify-content:space-between;align-items:flex-start;margin-bottom:8px;}
 .kpi-badge{font-size:10px;font-weight:700;padding:2px 8px;border-radius:10px;background:var(--gd-l);color:var(--gd);letter-spacing:.07em;}
 .kpi-label{font-size:11px;font-weight:700;letter-spacing:.09em;text-transform:uppercase;color:var(--ink3);}
-.kpi-value{font-family:"Playfair Display",serif;font-size:28px;font-weight:700;color:var(--ink);line-height:1;}
+.kpi-value{font-family:"Playfair Display",serif;font-size:22px;font-weight:700;color:var(--ink);line-height:1;}
 .kpi-value.neg{color:var(--rd);} .kpi-value.pos{color:var(--em);}
 .kpi-sub{font-size:12px;color:var(--ink3);margin-top:5px;}
 .saldo-breakdown{display:flex;gap:8px;margin-top:10px;}
@@ -127,19 +127,19 @@ body{background:var(--cream);color:var(--ink);font-family:"Outfit",sans-serif;fo
 .sb-val.neg{color:var(--rd);}
 
 /* CHARTS */
-.charts-row{display:grid;grid-template-columns:3fr 2fr;gap:18px;margin-bottom:24px;}
-.chart-card{background:#fff;border:1px solid var(--rule);border-radius:14px;padding:22px;box-shadow:var(--sh);}
-.ch{display:flex;align-items:baseline;justify-content:space-between;margin-bottom:10px;}
+.charts-row{display:grid;grid-template-columns:3fr 2fr;gap:14px;margin-bottom:16px;}
+.chart-card{background:#fff;border:1px solid var(--rule);border-radius:10px;padding:14px 16px;box-shadow:var(--sh);}
+.ch{display:flex;align-items:baseline;justify-content:space-between;margin-bottom:8px;}
 .ct{font-size:13px;font-weight:700;letter-spacing:.07em;text-transform:uppercase;color:var(--ink2);}
 .cs{font-size:12px;color:var(--ink3);}
-.chart-legend{display:flex;flex-wrap:wrap;gap:10px;margin-bottom:12px;}
+.chart-legend{display:flex;flex-wrap:wrap;gap:8px;margin-bottom:10px;}
 .cl-item{display:flex;align-items:center;gap:5px;font-size:11px;color:var(--ink3);font-weight:500;}
 .cl-dot{width:10px;height:10px;border-radius:2px;flex-shrink:0;}
-.cw{position:relative;height:240px;}
+.cw{position:relative;height:200px;}
 
 /* TABLE */
-.tc{background:#fff;border:1px solid var(--rule);border-radius:14px;overflow:hidden;box-shadow:var(--sh);margin-bottom:22px;}
-.th-row{padding:16px 22px;display:flex;align-items:center;justify-content:space-between;border-bottom:2px solid var(--rule);}
+.tc{background:#fff;border:1px solid var(--rule);border-radius:10px;overflow:hidden;box-shadow:var(--sh);margin-bottom:14px;}
+.th-row{padding:10px 16px;display:flex;align-items:center;justify-content:space-between;border-bottom:2px solid var(--rule);}
 .th-title{font-size:13px;font-weight:700;letter-spacing:.07em;text-transform:uppercase;color:var(--ink2);}
 .th-note{font-size:11px;color:var(--ink3);}
 .btn-col{padding:4px 12px;border-radius:6px;border:1px solid var(--rule2);background:var(--paper);color:var(--ink3);font-size:11px;font-family:"Outfit",sans-serif;cursor:pointer;font-weight:600;transition:all .15s;}
@@ -226,8 +226,8 @@ table.dfc td.fc-empty{color:#bbb!important;text-align:center;font-weight:400!imp
 .r-saldo-bloq td:first-child{color:var(--gd)!important;padding-left:26px;font-weight:600;}
 
 /* DIVIDA */
-.divida-grid{display:grid;grid-template-columns:1fr 1fr;gap:18px;margin-bottom:24px;}
-.divida-card{background:#fff;border:1px solid var(--rule);border-radius:14px;padding:24px;box-shadow:var(--sh);}
+.divida-grid{display:grid;grid-template-columns:1fr 1fr;gap:14px;margin-bottom:16px;}
+.divida-card{background:#fff;border:1px solid var(--rule);border-radius:10px;padding:16px;box-shadow:var(--sh);}
 .dc-title{font-family:"Playfair Display",serif;font-size:18px;font-weight:700;color:var(--ink);margin-bottom:3px;}
 .dc-sub{font-size:12px;color:var(--ink3);margin-bottom:18px;}
 .dc-kpis{display:grid;grid-template-columns:1fr 1fr 1fr;gap:10px;margin-bottom:14px;}
@@ -253,9 +253,9 @@ table.dfc td.fc-empty{color:#bbb!important;text-align:center;font-weight:400!imp
 .loan-table tr:last-child td{border-bottom:none;font-weight:700;color:var(--ink);background:var(--paper);}
 .money{color:var(--sp);font-weight:600;}
 
-.footer{background:var(--ink);padding:16px 48px;display:flex;justify-content:space-between;align-items:center;font-size:12px;color:rgba(255,255,255,.25);letter-spacing:.05em;font-weight:300;}
+/* footer removido — mantido apenas para referência de cor: var(--ink)=#1a1612 */
 @media(max-width:1100px){.kpi-grid{grid-template-columns:repeat(2,1fr);} .charts-row{grid-template-columns:1fr;} .divida-grid{grid-template-columns:1fr;}}
-@media(max-width:768px){.header,.main,.footer,.tabs-wrap,.farol-bar{padding-left:16px;padding-right:16px;} .kpi-grid{grid-template-columns:1fr 1fr;gap:10px;} .hr{display:none;}}
+@media(max-width:768px){.header,.main,.tabs-wrap,.farol-bar{padding-left:16px;padding-right:16px;} .kpi-grid{grid-template-columns:1fr 1fr;gap:10px;} .hr{display:none;}}
 
 
 
@@ -372,10 +372,6 @@ table.dfc th.boundary-fc,table.dfc td.boundary-fc{border-left:2px solid #a89e8b!
   <div id="sec-divida" class="section"></div>
 </div>
 
-<div class="footer">
-  <span>Rede OK Serviços de Tecnologia e Crédito LTDA · DFC 2026</span>
-  <span id="subt-real-fc">Jan–Abr/26 Realizado · Mai–Dez/26 Forecast · R$ milhares</span>
-</div>
 
 <script>
 const CSV_DFC='https://docs.google.com/spreadsheets/d/e/2PACX-1vT8sq6GUhsoMtUzJ2KUh5Ra9UPaJFJENko4XJhyaJs6XEceOH_olouKMRsjFdQE_A/pub?single=true&output=csv&gid=1493194308';
@@ -1423,9 +1419,9 @@ function buildDivida(){
       const labels=MM.slice(0,N).map(m=>m+'/26');
       const toM=arr=>arr.slice(0,N).map(v=>Math.round(v/10)/100);
 
-      const dlM2   = toM(DL_DATA.dividaLiquida);
-      const brutM  = toM(DL_DATA.totalDivida);
-      const cxM2   = toM(DL_DATA.caixa);
+      const dlM2  = toM(DL_DATA.dividaLiquida);
+      const brutM = toM(DL_DATA.totalDivida);
+      const cxM2  = toM(DL_DATA.caixa);
 
       // Tendência linear
       const n=N;
@@ -1437,12 +1433,14 @@ function buildDivida(){
       const intercept=(sumY-slope*sumX)/n;
       const trendM=dlM2.map((_,i)=>Math.round((intercept+slope*i)*100)/100);
 
-      const bgBars=labels.map((_,i)=>i<REAL?'rgba(176,48,32,.80)':'rgba(154,108,24,.50)');
-      const fmtTip=v=>'R$ '+Math.abs(v).toFixed(2).replace('.',',')+'M';
+      // Realizado = vinho, projetado = âmbar — mesma Dívida Líquida, dois estados
+      const COR_REAL='rgba(120,25,18,.85)';
+      const COR_PROJ='rgba(154,108,24,.55)';
+      const bgBars=labels.map((_,i)=>i<REAL?COR_REAL:COR_PROJ);
 
-      // Plugin inline para escrever o valor no topo de cada barra
+      // Plugin: valor no topo de cada barra (sem R$, sem M, 1 casa decimal)
       const labelPlugin={
-        id:'barLabels',
+        id:'barLabelsDL',
         afterDatasetsDraw(chart){
           const {ctx,scales:{x,y}}=chart;
           const ds=chart.data.datasets[0];
@@ -1451,16 +1449,24 @@ function buildDivida(){
           ctx.textAlign='center';
           ctx.textBaseline='bottom';
           ds.data.forEach((v,i)=>{
-            const meta=chart.getDatasetMeta(0);
-            const bar=meta.data[i];
+            const bar=chart.getDatasetMeta(0).data[i];
             if(!bar)return;
-            const yPx=y.getPixelForValue(v);
-            const col=i<REAL?'rgba(176,48,32,1)':'rgba(154,108,24,1)';
-            ctx.fillStyle=col;
-            const label=Math.abs(v).toFixed(1).replace('.',',');
-            ctx.fillText(label,bar.x,yPx-6);
+            ctx.fillStyle=i<REAL?'rgba(120,25,18,1)':'rgba(130,85,0,1)';
+            ctx.fillText(Math.abs(v).toFixed(1).replace('.',','),bar.x,y.getPixelForValue(v)-6);
           });
           ctx.restore();
+        }
+      };
+
+      // Plugin: legenda customizada com dois quadradinhos para Dívida Líquida
+      const customLegendPlugin={
+        id:'customLegendDL',
+        afterUpdate(chart){
+          // oculta o dataset de barras da legenda padrão (vamos desenhar manualmente)
+          chart.data.datasets[0].hidden=false;
+        },
+        afterDraw(chart){
+          // nada — usamos a legenda padrão mas com label enriquecido
         }
       };
 
@@ -1471,7 +1477,8 @@ function buildDivida(){
           labels,
           datasets:[
             {
-              label:'Dívida Líquida',
+              // Dataset de barras — label mostra os dois quadradinhos na legenda
+              label:'Dív. Líquida  ▌real  ▌proj.',
               data:dlM2,
               backgroundColor:bgBars,
               borderColor:bgBars,
@@ -1483,11 +1490,11 @@ function buildDivida(){
               label:'Dívida Bruta',
               data:brutM,
               type:'line',
-              borderColor:'rgba(176,48,32,.55)',
+              borderColor:'rgba(80,80,80,.60)',
               borderWidth:1.5,
               borderDash:[3,3],
               pointRadius:3,
-              pointBackgroundColor:'rgba(176,48,32,.55)',
+              pointBackgroundColor:'rgba(80,80,80,.60)',
               fill:false,
               tension:0.3,
               order:2
@@ -1496,17 +1503,17 @@ function buildDivida(){
               label:'Caixa',
               data:cxM2,
               type:'line',
-              borderColor:'rgba(10,94,64,.55)',
+              borderColor:'rgba(10,94,64,.65)',
               borderWidth:1.5,
               borderDash:[3,3],
               pointRadius:3,
-              pointBackgroundColor:'rgba(10,94,64,.55)',
+              pointBackgroundColor:'rgba(10,94,64,.65)',
               fill:false,
               tension:0.3,
               order:2
             },
             {
-              label:'Tendência',
+              label:'Tendência DL',
               data:trendM,
               type:'line',
               borderColor:'rgba(22,61,120,.85)',
@@ -1526,15 +1533,32 @@ function buildDivida(){
           plugins:{
             legend:{
               display:true,position:'top',
-              labels:{font:{family:'Outfit',size:11},color:'#3d3830',boxWidth:14,padding:16}
+              labels:{
+                font:{family:'Outfit',size:11},color:'#3d3830',
+                boxWidth:14,padding:16,
+                generateLabels(chart){
+                  const defs=Chart.defaults.plugins.legend.labels.generateLabels(chart);
+                  // Para o dataset de barras (index 0), mostra dois quadradinhos coloridos
+                  const bar=defs[0];
+                  if(bar){
+                    bar.text='Dív. Líquida';
+                    bar.fillStyle=COR_REAL;
+                    bar.strokeStyle=COR_REAL;
+                    // Injeta segundo quadradinho âmbar via texto Unicode
+                    const barProj={...bar,text:'(proj.)',fillStyle:COR_PROJ,strokeStyle:COR_PROJ,datasetIndex:0,hidden:false};
+                    return [bar,barProj,...defs.slice(1)];
+                  }
+                  return defs;
+                }
+              }
             },
             tooltip:{
               callbacks:{
                 label:ctx=>{
                   const v=ctx.parsed.y;
-                  const lbl=ctx.dataset.label;
                   const s=Math.abs(v).toFixed(1).replace('.',',');
-                  if(lbl==='Tendência') return `Tendência DL: ${s}M`;
+                  const lbl=ctx.dataset.label;
+                  if(lbl.startsWith('Tendência')) return `Tendência: ${s}M`;
                   if(lbl==='Dívida Bruta') return `Dívida Bruta: ${s}M`;
                   if(lbl==='Caixa') return `Caixa: ${s}M`;
                   return `Dívida Líquida: ${s}M`;
@@ -1551,7 +1575,7 @@ function buildDivida(){
               grid:{color:'rgba(200,191,176,.4)'},
               ticks:{
                 font:{family:'Outfit',size:11},color:'#6b6258',
-                callback:v=>'R$ '+Math.abs(v).toFixed(0)+'M'
+                callback:v=>Math.abs(v).toFixed(0)+'M'
               },
               title:{display:true,text:'R$ milhões',font:{family:'Outfit',size:11},color:'#6b6258'}
             }
