@@ -1374,7 +1374,7 @@ function buildDivida(){
     <div class="tc" style="margin-bottom:22px">
       <div class="th-row">
         <div class="th-title">Evolução da Dívida Líquida</div>
-        <div class="th-note">R$ milhões · vermelho = realizado · âmbar = projetado · tracejado = tendência</div>
+        <div class="th-note">R$ milhões · barra = Dívida Líquida · linhas = Dívida Bruta e Caixa · tracejado azul = tendência</div>
       </div>
       <div style="padding:18px 22px 10px"><div style="position:relative;height:320px"><canvas id="chartDL"></canvas></div></div>
     </div>`;
@@ -1423,7 +1423,9 @@ function buildDivida(){
       const labels=MM.slice(0,N).map(m=>m+'/26');
       const toM=arr=>arr.slice(0,N).map(v=>Math.round(v/10)/100);
 
-      const dlM2=toM(DL_DATA.dividaLiquida);
+      const dlM2   = toM(DL_DATA.dividaLiquida);
+      const brutM  = toM(DL_DATA.totalDivida);
+      const cxM2   = toM(DL_DATA.caixa);
 
       // Tendência linear
       const n=N;
@@ -1445,7 +1447,7 @@ function buildDivida(){
           const {ctx,scales:{x,y}}=chart;
           const ds=chart.data.datasets[0];
           ctx.save();
-          ctx.font='bold 11px Outfit, sans-serif';
+          ctx.font='bold 13px Outfit, sans-serif';
           ctx.textAlign='center';
           ctx.textBaseline='bottom';
           ds.data.forEach((v,i)=>{
@@ -1455,7 +1457,8 @@ function buildDivida(){
             const yPx=y.getPixelForValue(v);
             const col=i<REAL?'rgba(176,48,32,1)':'rgba(154,108,24,1)';
             ctx.fillStyle=col;
-            ctx.fillText(fmtTip(v),bar.x,yPx-4);
+            const label=Math.abs(v).toFixed(1).replace('.',',');
+            ctx.fillText(label,bar.x,yPx-6);
           });
           ctx.restore();
         }
@@ -1474,6 +1477,32 @@ function buildDivida(){
               borderColor:bgBars,
               borderWidth:0,
               borderRadius:4,
+              order:3
+            },
+            {
+              label:'Dívida Bruta',
+              data:brutM,
+              type:'line',
+              borderColor:'rgba(176,48,32,.55)',
+              borderWidth:1.5,
+              borderDash:[3,3],
+              pointRadius:3,
+              pointBackgroundColor:'rgba(176,48,32,.55)',
+              fill:false,
+              tension:0.3,
+              order:2
+            },
+            {
+              label:'Caixa',
+              data:cxM2,
+              type:'line',
+              borderColor:'rgba(10,94,64,.55)',
+              borderWidth:1.5,
+              borderDash:[3,3],
+              pointRadius:3,
+              pointBackgroundColor:'rgba(10,94,64,.55)',
+              fill:false,
+              tension:0.3,
               order:2
             },
             {
@@ -1492,7 +1521,7 @@ function buildDivida(){
         },
         options:{
           responsive:true,maintainAspectRatio:false,
-          layout:{padding:{top:28}},
+          layout:{padding:{top:36}},
           interaction:{mode:'index',intersect:false},
           plugins:{
             legend:{
@@ -1502,9 +1531,13 @@ function buildDivida(){
             tooltip:{
               callbacks:{
                 label:ctx=>{
-                  if(ctx.dataset.label==='Tendência')
-                    return `Tendência: ${fmtTip(ctx.parsed.y)}`;
-                  return `Dívida Líquida: ${fmtTip(ctx.parsed.y)}`;
+                  const v=ctx.parsed.y;
+                  const lbl=ctx.dataset.label;
+                  const s=Math.abs(v).toFixed(1).replace('.',',');
+                  if(lbl==='Tendência') return `Tendência DL: ${s}M`;
+                  if(lbl==='Dívida Bruta') return `Dívida Bruta: ${s}M`;
+                  if(lbl==='Caixa') return `Caixa: ${s}M`;
+                  return `Dívida Líquida: ${s}M`;
                 }
               }
             }
