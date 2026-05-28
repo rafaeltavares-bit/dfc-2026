@@ -1386,10 +1386,10 @@ function buildDivida(){
                   <span style="display:inline-block;width:12px;height:12px;background:#b07818;border-radius:2px"></span>Impostos Parcelados
                 </span>
               </td>
-              <td style="padding:0 0 0 32px;vertical-align:middle">
-                <div style="width:1px;height:32px;background:var(--rule2)"></div>
+              <td style="padding:0 0 0 20px;vertical-align:middle">
+                <div style="width:2px;height:32px;background:#a89f8f"></div>
               </td>
-              <td style="padding:0 0 0 32px;white-space:nowrap;vertical-align:middle">
+              <td style="padding:0 0 0 20px;white-space:nowrap;vertical-align:middle">
                 <span style="display:inline-flex;align-items:center;gap:5px;font-size:11px;color:var(--ink2)">
                   <span style="display:inline-block;width:12px;height:12px;background:#1a4fa0;border-radius:2px"></span>
                 </span>
@@ -1397,11 +1397,11 @@ function buildDivida(){
             </tr>
             <tr>
               <td colspan="2" style="padding:3px 0 0 0">
-                <svg width="100%" height="7"><line x1="0" y1="6" x2="0" y2="1" stroke="#9a9080" stroke-width="1.5" stroke-linecap="round"/><line x1="0" y1="6" x2="100%" y2="6" stroke="#9a9080" stroke-width="1.5"/><line x1="100%" y1="6" x2="100%" y2="1" stroke="#9a9080" stroke-width="1.5" stroke-linecap="round"/></svg>
+                <svg style="width:calc(100% - 8px)" height="7"><line x1="0" y1="6" x2="0" y2="1" stroke="#9a9080" stroke-width="1.5" stroke-linecap="round"/><line x1="0" y1="6" x2="100%" y2="6" stroke="#9a9080" stroke-width="1.5"/><line x1="100%" y1="6" x2="100%" y2="1" stroke="#9a9080" stroke-width="1.5" stroke-linecap="round"/></svg>
                 <div style="font-size:10px;font-weight:800;letter-spacing:.08em;text-transform:uppercase;color:var(--ink);text-align:center;margin-top:1px">DÍVIDA BRUTA</div>
               </td>
               <td></td>
-              <td style="padding:3px 0 0 32px;vertical-align:bottom">
+              <td style="padding:3px 0 0 20px;vertical-align:bottom">
                 <span style="font-size:10px;font-weight:800;letter-spacing:.08em;text-transform:uppercase;color:#1a4fa0;white-space:nowrap">DÍVIDA LÍQUIDA</span>
               </td>
             </tr>
@@ -1413,10 +1413,19 @@ function buildDivida(){
     </div>`;
   }
 
-  // KPIs em R$ milhões para o banner
-  const dlM=fmtM(cL), divM=fmtM(cT), cxM=fmtM(cC);
+  // KPIs em R$ milhões para o banner — fonte única: coluna de Abril do analítico (linhas 246-248),
+  // que inclui o caixa bloqueado em garantia. Cai para a soma dos cards se o CSV não tiver carregado.
+  const _abr=REAL-1;
+  const bT=(DL_DATA.totalDivida   && DL_DATA.totalDivida[_abr]   !=null)?DL_DATA.totalDivida[_abr]   :cT;
+  const bC=(DL_DATA.caixa         && DL_DATA.caixa[_abr]         !=null)?DL_DATA.caixa[_abr]         :cC;
+  const bL=(DL_DATA.dividaLiquida && DL_DATA.dividaLiquida[_abr] !=null)?DL_DATA.dividaLiquida[_abr] :cL;
+  const dlM=fmtM(bL), divM=fmtM(bT), cxM=fmtM(bC);
 
   el.innerHTML=`
+    <div style="margin:2px 0 16px;padding-bottom:8px;border-bottom:2px solid var(--rule);display:flex;align-items:baseline;gap:10px;flex-wrap:wrap">
+      <span style="font-size:15px;font-weight:800;letter-spacing:.04em;text-transform:uppercase;color:var(--ink)">Posição Atual</span>
+      <span style="font-size:12px;color:var(--ink3)">Foto consolidada em ${mesAtual} · valores realizados</span>
+    </div>
     <div style="background:var(--sp-l);border:1px solid #b8c8e8;color:var(--sp);padding:14px 20px;border-radius:10px;margin-bottom:18px;display:flex;align-items:center;justify-content:space-between;flex-wrap:wrap;gap:14px">
       <div style="font-size:13px;font-weight:500">Posição de dívida com base no Saldo de ${mesAtual}. Valores em R$ milhões.</div>
       <div style="display:flex;gap:22px;font-size:12px">
@@ -1437,8 +1446,7 @@ function buildDivida(){
         ${pBar(LOANS['Delend'].saldo,LOANS['Delend'].caixa)}
       </div>
     </div>
-    ${buildDLTable()}
-    ${buildDLChart()}
+    <div style="font-size:11px;color:var(--ink3);margin:-4px 0 18px;line-height:1.4">Caixa por empresa = saldo disponível em ${mesAtual}. O consolidado do topo inclui o caixa bloqueado em garantia (linha 248 da DFC), por isso a soma dos cards pode diferir levemente do consolidado.</div>
     <div class="tc"><div class="th-row"><div class="th-title">Cronograma de Amortização Consolidado</div><div class="th-note">R$ milhares · Posição ${mesAtual}</div></div>
     <div style="overflow-x:auto"><table class="dfc"><thead><tr>
       <th><div class="i">Instituição</div></th><th style="width:60px"><div class="i">Empresa</div></th><th><div class="i">Descrição</div></th><th><div class="i">Taxa</div></th>
@@ -1446,7 +1454,13 @@ function buildDivida(){
     </tr></thead><tbody>
     ${[...LOANS['Rede OK'].loans.map(l=>({...l,e:'rok',eL:'ROK'})),...LOANS['Delend'].loans.map(l=>({...l,e:'del',eL:'DEL'}))].map(l=>`<tr class="r-normal"><td>${l.i}</td><td style="text-align:center"><span class="emp-badge ${l.e}">${l.eL}</span></td><td style="color:var(--ink3)">${l.d}</td><td style="color:var(--ink3);font-size:12px">${l.taxa||'—'}</td><td class="pos">${fmt(l.s)}</td><td>${fmt(l.a26)}</td><td>${fmt(l.a27)}</td><td>${fmt(l.a28)}</td></tr>`).join('')}
     <tr class="r-bold"><td>Total Consolidado</td><td></td><td></td><td></td><td class="neg">${fmt(cT)}</td><td>${fmt([...LOANS['Rede OK'].loans,...LOANS['Delend'].loans].reduce((a,l)=>a+l.a26,0))}</td><td>${fmt([...LOANS['Rede OK'].loans,...LOANS['Delend'].loans].reduce((a,l)=>a+l.a27,0))}</td><td>${fmt([...LOANS['Rede OK'].loans,...LOANS['Delend'].loans].reduce((a,l)=>a+l.a28,0))}</td></tr>
-    </tbody></table></div></div>`;
+    </tbody></table></div></div>
+    <div style="margin:30px 0 16px;padding-bottom:8px;border-bottom:2px solid var(--rule);display:flex;align-items:baseline;gap:10px;flex-wrap:wrap">
+      <span style="font-size:15px;font-weight:800;letter-spacing:.04em;text-transform:uppercase;color:var(--ink)">Projeção 2026</span>
+      <span style="font-size:12px;color:var(--ink3)">Evolução mensal Jan–Dez · realizado + forecast</span>
+    </div>
+    ${buildDLTable()}
+    ${buildDLChart()}`;
 
   // ── Renderiza gráfico: barras agrupadas Dívida Bruta (empilhada) vs Dívida Líquida ──
   if(DL_DATA.dividaLiquida){
