@@ -1424,10 +1424,10 @@ function buildDivida(){
       const dlM2  = toM(DL_DATA.dividaLiquida);
       const brutM = bancM.map((v,i)=>Math.round((v+(impM[i]||0))*10)/10);
 
-      // Cores vibrantes: realizado vs projetado
-      const bgBanc =labels.map((_,i)=>i<REAL?'rgba(160,30,20,1)' :'rgba(160,30,20,.40)');
-      const bgImp  =labels.map((_,i)=>i<REAL?'rgba(194,130,10,1)':'rgba(194,130,10,.40)');
-      const bgDL   =labels.map((_,i)=>i<REAL?'rgba(58,90,140,1)' :'rgba(58,90,140,.38)');
+      // Cores alinhadas com o padrão do painel
+      const bgBanc=labels.map((_,i)=>i<REAL?C_DIVD_R:C_DIVD_F);
+      const bgImp =labels.map((_,i)=>i<REAL?C_DNRR_R:C_DNRR_F);
+      const bgDL  =labels.map((_,i)=>i<REAL?C_AQUI_R:C_AQUI_F);
 
       // Plugin: totais no topo + rótulos de grupo "DÍVIDA BRUTA" e "DÍVIDA LÍQUIDA"
       const labelPlugin={
@@ -1444,7 +1444,7 @@ function buildDivida(){
           brutM.forEach((tot,i)=>{
             const bar=metaImp.data[i];
             if(!bar)return;
-            ctx.fillStyle=i<REAL?'rgba(140,20,12,1)':'rgba(140,80,0,.85)';
+            ctx.fillStyle=i<REAL?C_DIVD_R:C_DIVD_F;
             ctx.fillText(tot.toFixed(1).replace('.',','), bar.x, y.getPixelForValue(tot)-5);
           });
 
@@ -1455,42 +1455,42 @@ function buildDivida(){
           dlM2.forEach((v,i)=>{
             const bar=metaDL.data[i];
             if(!bar)return;
-            ctx.fillStyle=i<REAL?'rgba(30,55,110,1)':'rgba(50,80,140,.85)';
+            ctx.fillStyle=i<REAL?C_AQUI_R:C_AQUI_F;
             ctx.fillText(v.toFixed(1).replace('.',','), bar.x, y.getPixelForValue(v)-5);
           });
 
-          // Rótulos de grupo — aparecem uma vez, centralizados entre Jan e Dez
-          // Posiciona: acima das barras do mês central (índice ~5)
-          const midReal=Math.floor(REAL/2);          // centro dos meses reais
-          const midFC=REAL+Math.floor((N-REAL)/2);   // centro dos meses projetados
+          // Rótulos de grupo — centralizados sobre toda a faixa real e toda a faixa projetada
+          // Para cada faixa, calcula X médio das barras brutas e X médio das barras DL
+          const calcMidX=(meta,from,to)=>{
+            let sum=0,count=0;
+            for(let i=from;i<to;i++){if(meta.data[i]){sum+=meta.data[i].x;count++;}}
+            return count?sum/count:null;
+          };
 
-          [midReal, midFC].forEach(mi=>{
-            const barBruta=metaImp.data[mi];
-            const barDL=metaDL.data[mi];
-            if(!barBruta||!barDL)return;
-            const isReal=mi<REAL;
-            const yTop=chart.chartArea.top+2;
+          const xBrutaReal=calcMidX(metaImp,0,REAL);
+          const xDLReal   =calcMidX(metaDL,0,REAL);
+          const xBrutaFC  =calcMidX(metaImp,REAL,N);
+          const xDLFC     =calcMidX(metaDL,REAL,N);
 
-            // Badge "DÍVIDA BRUTA" acima da barra empilhada
-            const xBruta=barBruta.x;
-            ctx.font='700 10px Outfit,sans-serif';
+          const drawBadge=(label,xCenter,yTop,bg,fg)=>{
+            if(xCenter===null)return;
+            ctx.font='700 9px Outfit,sans-serif';
             ctx.textBaseline='top';
-            const wB=ctx.measureText('DÍVIDA BRUTA').width+12;
-            ctx.fillStyle=isReal?'rgba(160,30,20,.12)':'rgba(160,30,20,.07)';
-            roundRect(ctx, xBruta-wB/2, yTop, wB, 16, 3);
+            const w=ctx.measureText(label).width+10;
+            ctx.fillStyle=bg;
+            roundRect(ctx,xCenter-w/2,yTop,w,14,3);
             ctx.fill();
-            ctx.fillStyle=isReal?'rgba(140,20,12,.9)':'rgba(140,20,12,.6)';
-            ctx.fillText('DÍVIDA BRUTA', xBruta, yTop+3);
+            ctx.fillStyle=fg;
+            ctx.fillText(label,xCenter,yTop+2.5);
+          };
 
-            // Badge "DÍVIDA LÍQUIDA" acima da barra DL
-            const xDL=barDL.x;
-            const wL=ctx.measureText('DÍV. LÍQUIDA').width+12;
-            ctx.fillStyle=isReal?'rgba(58,90,140,.12)':'rgba(58,90,140,.07)';
-            roundRect(ctx, xDL-wL/2, yTop, wL, 16, 3);
-            ctx.fill();
-            ctx.fillStyle=isReal?'rgba(30,55,110,.9)':'rgba(30,55,110,.6)';
-            ctx.fillText('DÍV. LÍQUIDA', xDL, yTop+3);
-          });
+          const yTop=chart.chartArea.top+2;
+          drawBadge('DÍVIDA BRUTA', xBrutaReal, yTop, 'rgba(112,48,224,.12)', C_DIVD_R);
+          drawBadge('DÍV. LÍQUIDA', xDLReal,    yTop, 'rgba(192,48,32,.12)',  C_AQUI_R);
+          if(REAL<N){
+            drawBadge('DÍVIDA BRUTA', xBrutaFC, yTop, 'rgba(112,48,224,.07)', C_DIVD_F);
+            drawBadge('DÍV. LÍQUIDA', xDLFC,    yTop, 'rgba(192,48,32,.07)',  C_AQUI_F);
+          }
 
           ctx.restore();
         }
