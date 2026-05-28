@@ -1424,12 +1424,25 @@ function buildDivida(){
       const dlM2  = toM(DL_DATA.dividaLiquida);
       const brutM = bancM.map((v,i)=>Math.round((v+(impM[i]||0))*10)/10);
 
-      // Cores: verde (Bancária) = C_RECV, âmbar (Impostos) = C_DNRR, azul (DL) = C_OPER
       const bgBanc=labels.map((_,i)=>i<REAL?C_RECV_R:C_RECV_F);
       const bgImp =labels.map((_,i)=>i<REAL?C_DNRR_R:C_DNRR_F);
       const bgDL  =labels.map((_,i)=>i<REAL?C_OPER_R:C_OPER_F);
 
-      // Plugin: totais no topo + rótulos de grupo "DÍVIDA BRUTA" e "DÍVIDA LÍQUIDA"
+      function roundRect(ctx,x,y,w,h,r){
+        ctx.beginPath();
+        ctx.moveTo(x+r,y);ctx.lineTo(x+w-r,y);ctx.quadraticCurveTo(x+w,y,x+w,y+r);
+        ctx.lineTo(x+w,y+h-r);ctx.quadraticCurveTo(x+w,y+h,x+w-r,y+h);
+        ctx.lineTo(x+r,y+h);ctx.quadraticCurveTo(x,y+h,x,y+h-r);
+        ctx.lineTo(x,y+r);ctx.quadraticCurveTo(x,y,x+r,y);
+        ctx.closePath();
+      }
+
+      function calcMidX(meta,from,to){
+        let sum=0,count=0;
+        for(let i=from;i<to;i++){if(meta.data[i]){sum+=meta.data[i].x;count++;}}
+        return count?sum/count:null;
+      }
+
       const labelPlugin={
         id:'barLabelsDL',
         afterDatasetsDraw(chart){
@@ -1437,81 +1450,58 @@ function buildDivida(){
           ctx.save();
           ctx.textAlign='center';
 
-          // Total Dívida Bruta no topo do stack
+          // Totais no topo das barras
           const metaImp=chart.getDatasetMeta(1);
-          ctx.font='bold 12px Outfit,sans-serif';
+          const metaDL =chart.getDatasetMeta(2);
           ctx.textBaseline='bottom';
+          ctx.font='bold 12px Outfit,sans-serif';
           brutM.forEach((tot,i)=>{
-            const bar=metaImp.data[i];
-            if(!bar)return;
+            const bar=metaImp.data[i];if(!bar)return;
             ctx.fillStyle=i<REAL?C_RECV_R:C_RECV_F;
-            ctx.fillText(tot.toFixed(1).replace('.',','), bar.x, y.getPixelForValue(tot)-5);
+            ctx.fillText(tot.toFixed(1).replace('.',','),bar.x,y.getPixelForValue(tot)-4);
           });
-
-          // Valor Dívida Líquida no topo
-          const metaDL=chart.getDatasetMeta(2);
-          ctx.font='bold 12px Outfit,sans-serif';
-          ctx.textBaseline='bottom';
           dlM2.forEach((v,i)=>{
-            const bar=metaDL.data[i];
-            if(!bar)return;
+            const bar=metaDL.data[i];if(!bar)return;
             ctx.fillStyle=i<REAL?C_OPER_R:C_OPER_F;
-            ctx.fillText(v.toFixed(1).replace('.',','), bar.x, y.getPixelForValue(v)-5);
+            ctx.fillText(v.toFixed(1).replace('.',','),bar.x,y.getPixelForValue(v)-4);
           });
 
-          // Rótulos de grupo — centralizados sobre toda a faixa real e toda a faixa projetada
-          // Para cada faixa, calcula X médio das barras brutas e X médio das barras DL
-          const calcMidX=(meta,from,to)=>{
-            let sum=0,count=0;
-            for(let i=from;i<to;i++){if(meta.data[i]){sum+=meta.data[i].x;count++;}}
-            return count?sum/count:null;
-          };
-
+          // Badges de grupo — fora da área do gráfico, no padding top
+          // Cada badge centrado sobre seu grupo de barras, com offset vertical para não colidir
           const xBrutaReal=calcMidX(metaImp,0,REAL);
           const xDLReal   =calcMidX(metaDL,0,REAL);
-          const xBrutaFC  =calcMidX(metaImp,REAL,N);
-          const xDLFC     =calcMidX(metaDL,REAL,N);
+          const xBrutaFC  =REAL<N?calcMidX(metaImp,REAL,N):null;
+          const xDLFC     =REAL<N?calcMidX(metaDL,REAL,N):null;
 
-          const drawBadge=(label,xCenter,yTop,bg,fg)=>{
+          // Desenha badge acima da chartArea (no espaço do padding:top:60)
+          const drawGroupBadge=(label,xCenter,yBase,bgColor,fgColor)=>{
             if(xCenter===null)return;
-            ctx.font='700 9px Outfit,sans-serif';
-            ctx.textBaseline='top';
-            const w=ctx.measureText(label).width+10;
-            ctx.fillStyle=bg;
-            roundRect(ctx,xCenter-w/2,yTop,w,14,3);
+            ctx.font='600 9px Outfit,sans-serif';
+            ctx.textBaseline='middle';
+            const tw=ctx.measureText(label).width;
+            const bw=tw+14; const bh=16; const br=4;
+            const bx=xCenter-bw/2; const by=yBase-bh/2;
+            ctx.fillStyle=bgColor;
+            roundRect(ctx,bx,by,bw,bh,br);
             ctx.fill();
-            ctx.fillStyle=fg;
-            ctx.fillText(label,xCenter,yTop+2.5);
+            ctx.fillStyle=fgColor;
+            ctx.fillText(label,xCenter,yBase);
           };
 
-          const yTop=chart.chartArea.top+2;
-          const yBruta=chart.chartArea.top+2;
-          const yLiqui=chart.chartArea.top+20;
-          drawBadge('DÍVIDA BRUTA', xBrutaReal, yBruta, 'rgba(10,122,82,.12)',  C_RECV_R);
-          drawBadge('DÍV. LÍQUIDA', xDLReal,    yBruta, 'rgba(26,79,160,.12)',  C_OPER_R);
-          if(REAL<N){
-            drawBadge('DÍVIDA BRUTA', xBrutaFC, yBruta, 'rgba(10,122,82,.07)',  C_RECV_F);
-            drawBadge('DÍV. LÍQUIDA', xDLFC,    yBruta, 'rgba(26,79,160,.07)',  C_OPER_F);
-          }
+          // Linha superior da área de plot menos um offset — fica acima dos números
+          const yBruta=chart.chartArea.top-22;  // linha para "DÍVIDA BRUTA"
+          const yLiq  =chart.chartArea.top-6;   // linha para "DÍV. LÍQUIDA" logo abaixo
+
+          // Bloco realizado
+          drawGroupBadge('DÍVIDA BRUTA',xBrutaReal,yBruta,'rgba(10,122,82,.15)',C_RECV_R);
+          drawGroupBadge('DÍV. LÍQUIDA',xDLReal,   yLiq,  'rgba(26,79,160,.15)',C_OPER_R);
+          // Bloco projetado
+          if(xBrutaFC)drawGroupBadge('DÍVIDA BRUTA',xBrutaFC,yBruta,'rgba(10,122,82,.08)',C_RECV_F);
+          if(xDLFC)   drawGroupBadge('DÍV. LÍQUIDA',xDLFC,   yLiq,  'rgba(26,79,160,.08)',C_OPER_F);
 
           ctx.restore();
         }
       };
-
-      // helper roundRect compatível com browsers antigos
-      function roundRect(ctx,x,y,w,h,r){
-        ctx.beginPath();
-        ctx.moveTo(x+r,y);
-        ctx.lineTo(x+w-r,y);
-        ctx.quadraticCurveTo(x+w,y,x+w,y+r);
-        ctx.lineTo(x+w,y+h-r);
-        ctx.quadraticCurveTo(x+w,y+h,x+w-r,y+h);
-        ctx.lineTo(x+r,y+h);
-        ctx.quadraticCurveTo(x,y+h,x,y+h-r);
-        ctx.lineTo(x,y+r);
-        ctx.quadraticCurveTo(x,y,x+r,y);
-        ctx.closePath();
-      }
 
       new Chart(canvas,{
         type:'bar',
@@ -1519,78 +1509,46 @@ function buildDivida(){
         data:{
           labels,
           datasets:[
-            {
-              label:'Bancária / Mútuo',
-              data:bancM,
-              backgroundColor:bgBanc,
-              borderWidth:0,
-              borderRadius:0,
-              stack:'bruta',
-              order:2
-            },
-            {
-              label:'Impostos Parcelados',
-              data:impM,
-              backgroundColor:bgImp,
-              borderWidth:0,
-              borderRadius:{topLeft:3,topRight:3,bottomLeft:0,bottomRight:0},
-              stack:'bruta',
-              order:2
-            },
-            {
-              label:'Dívida Líquida',
-              data:dlM2,
-              backgroundColor:bgDL,
-              borderWidth:0,
-              borderRadius:3,
-              stack:'liquida',
-              order:2,
-              barPercentage:0.55
-            }
+            {label:'Bancária / Mútuo',   data:bancM, backgroundColor:bgBanc, borderWidth:0, borderRadius:0,                                              stack:'bruta',  order:2},
+            {label:'Impostos Parcelados',data:impM,  backgroundColor:bgImp,  borderWidth:0, borderRadius:{topLeft:3,topRight:3,bottomLeft:0,bottomRight:0},stack:'bruta',  order:2},
+            {label:'Dívida Líquida',     data:dlM2,  backgroundColor:bgDL,   borderWidth:0, borderRadius:3, barPercentage:0.6,                            stack:'liquida',order:2}
           ]
         },
         options:{
           responsive:true,maintainAspectRatio:false,
-          layout:{padding:{top:30}},
+          layout:{padding:{top:60,bottom:4,left:4,right:4}},
           interaction:{mode:'index',intersect:false},
           plugins:{
             legend:{
-              display:true,position:'top',
-              labels:{font:{family:'Outfit',size:11},color:'#3d3830',boxWidth:14,padding:16}
+              display:true,
+              position:'top',
+              align:'center',
+              labels:{font:{family:'Outfit',size:11},color:'#3d3830',boxWidth:14,padding:20,
+                usePointStyle:false}
             },
             tooltip:{
               callbacks:{
                 label:ctx=>{
-                  const v=ctx.parsed.y;
-                  const s=v.toFixed(1).replace('.',',');
+                  const s=ctx.parsed.y.toFixed(1).replace('.',',');
                   const lbl=ctx.dataset.label;
-                  if(lbl==='Bancária / Mútuo') return `Bancária / Mútuo: ${s}M`;
+                  if(lbl==='Bancária / Mútuo')    return `Bancária / Mútuo: ${s}M`;
                   if(lbl==='Impostos Parcelados') return `Impostos Parcelados: ${s}M`;
                   return `Dívida Líquida: ${s}M`;
                 },
                 footer:items=>{
                   const b=items.find(i=>i.dataset.label==='Bancária / Mútuo');
                   const p=items.find(i=>i.dataset.label==='Impostos Parcelados');
-                  if(b&&p){
-                    const tot=(b.parsed.y+p.parsed.y).toFixed(1).replace('.',',');
-                    return `Dívida Bruta: ${tot}M`;
-                  }
+                  if(b&&p)return `Dívida Bruta: ${(b.parsed.y+p.parsed.y).toFixed(1).replace('.',',')}M`;
                   return '';
                 }
               }
             }
           },
           scales:{
-            x:{
-              grid:{display:false},
-              ticks:{font:{family:'Outfit',size:11},color:'#6b6258'}
-            },
+            x:{grid:{display:false},ticks:{font:{family:'Outfit',size:11},color:'#6b6258'}},
             y:{
-              grid:{color:'rgba(200,191,176,.4)'},
-              ticks:{
-                font:{family:'Outfit',size:11},color:'#6b6258',
-                callback:v=>v.toFixed(0)+'M'
-              },
+              grid:{display:false},
+              ticks:{font:{family:'Outfit',size:11},color:'#6b6258',callback:v=>v.toFixed(0)+'M'},
               title:{display:true,text:'R$ milhões',font:{family:'Outfit',size:11},color:'#6b6258'}
             }
           }
