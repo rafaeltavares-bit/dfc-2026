@@ -1373,32 +1373,30 @@ function buildDivida(){
         <div class="th-note">R$ milhões · opaco = realizado · transparente = projetado</div>
       </div>
       <div style="padding:14px 16px 8px">
-        <div style="display:inline-flex;align-items:flex-end;gap:24px;margin-bottom:14px;font-family:'Outfit',sans-serif">
-          <!-- Grupo Dívida Bruta -->
-          <div style="display:flex;flex-direction:column;gap:4px">
-            <div style="display:flex;gap:16px;align-items:center">
-              <span style="display:flex;align-items:center;gap:5px;font-size:11px;color:var(--ink2)">
-                <span style="display:inline-block;width:12px;height:12px;background:#0a7a52;border-radius:2px;flex-shrink:0"></span>Bancária / Mútuo
-              </span>
-              <span style="display:flex;align-items:center;gap:5px;font-size:11px;color:var(--ink2)">
-                <span style="display:inline-block;width:12px;height:12px;background:#b07818;border-radius:2px;flex-shrink:0"></span>Impostos Parcelados
-              </span>
+        <div style="display:flex;justify-content:center;margin-bottom:14px;font-family:'Outfit',sans-serif">
+          <div style="display:inline-flex;align-items:flex-end;gap:24px">
+            <!-- Grupo Dívida Bruta -->
+            <div style="display:flex;flex-direction:column;gap:3px">
+              <div style="display:flex;gap:16px;align-items:center">
+                <span style="display:flex;align-items:center;gap:5px;font-size:11px;color:var(--ink2)">
+                  <span style="display:inline-block;width:12px;height:12px;background:#0a7a52;border-radius:2px;flex-shrink:0"></span>Bancária / Mútuo
+                </span>
+                <span style="display:flex;align-items:center;gap:5px;font-size:11px;color:var(--ink2)">
+                  <span style="display:inline-block;width:12px;height:12px;background:#b07818;border-radius:2px;flex-shrink:0"></span>Impostos Parcelados
+                </span>
+              </div>
+              <div style="display:flex;flex-direction:column;align-items:center;gap:1px">
+                <svg width="180" height="7" viewBox="0 0 180 7"><path d="M1 1 L1 6 L179 6 L179 1" stroke="#9a9080" stroke-width="1.5" fill="none" stroke-linecap="round"/></svg>
+                <span style="font-size:10px;font-weight:800;letter-spacing:.08em;text-transform:uppercase;color:#1a1612">DÍVIDA BRUTA</span>
+              </div>
             </div>
-            <div style="display:flex;align-items:center;gap:6px">
-              <svg width="140" height="8" viewBox="0 0 140 8"><path d="M1 1 L1 7 L139 7 L139 1" stroke="#9a9080" stroke-width="1.5" fill="none" stroke-linecap="round"/></svg>
-              <span style="font-size:10px;font-weight:700;letter-spacing:.06em;text-transform:uppercase;color:#4a4a3a">Dívida Bruta</span>
-            </div>
+            <!-- Separador -->
+            <div style="width:1px;height:14px;background:var(--rule2)"></div>
+            <!-- DÍVIDA LÍQUIDA — alinha pelo rodapé automaticamente com flex-end -->
+            <span style="display:flex;align-items:center;gap:6px;font-size:10px;font-weight:800;letter-spacing:.08em;text-transform:uppercase;color:#1a4fa0">
+              <span style="display:inline-block;width:12px;height:12px;background:#1a4fa0;border-radius:2px;flex-shrink:0"></span>DÍVIDA LÍQUIDA
+            </span>
           </div>
-          <!-- Separador -->
-          <div style="width:1px;height:20px;background:var(--rule2);margin-bottom:2px"></div>
-          <!-- Dívida Líquida — alinhada embaixo na mesma altura do label Dívida Bruta -->
-          <div style="display:flex;flex-direction:column;gap:4px">
-            <div style="display:flex;gap:16px;align-items:center">
-              <span style="display:flex;align-items:center;gap:5px;font-size:11px;color:var(--ink2)">
-                <span style="display:inline-block;width:12px;height:12px;background:#1a4fa0;border-radius:2px;flex-shrink:0"></span>Dívida Líquida
-              </span>
-            </div>
-            <span style="font-size:10px;font-weight:700;letter-spacing:.06em;text-transform:uppercase;color:#1a4fa0;padding-left:2px">Dívida Líquida</span>
           </div>
         </div>
         <div style="position:relative;height:280px"><canvas id="chartDL"></canvas></div>
@@ -1471,7 +1469,7 @@ function buildDivida(){
           const metaImp=chart.getDatasetMeta(1);
           brutM.forEach((tot,i)=>{
             const bar=metaImp.data[i];if(!bar)return;
-            ctx.fillStyle=i<REAL?'#4a4a3a':'#888878';
+            ctx.fillStyle=i<REAL?'#1a1612':'#6b6258';
             ctx.fillText(tot.toFixed(1).replace('.',','),bar.x,y.getPixelForValue(tot)-4);
           });
 
