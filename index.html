@@ -1705,7 +1705,7 @@ function buildDrillFromCSV(rows,empKey,ano,meses,pularRegraOutros){
     if(outros.length>1){
       const soma=Array(N).fill(0);
       outros.forEach(it=>it.v.forEach((v,i)=>soma[i]+=v));
-      resultado.push({f:`Outros (${outros.length} fornecedores)`,v:soma.map(x=>Math.round(x*100)/100)});
+      resultado.push({f:`Outros (demais fornecedores)`,v:soma.map(x=>Math.round(x*100)/100)});
     }else if(outros.length===1){
       // Se só tem 1 "outro", melhor mostrar ele direto
       resultado.push({f:outros[0].f,v:outros[0].v});
@@ -1816,7 +1816,7 @@ async function rebuildDRILL(){
           const soma=Array(nMeses).fill(0);
           outros.forEach(it=>it.v.forEach((v,i)=>{if(i<nMeses)soma[i]+=v;}));
           // Rótulo idêntico nos dois anos (usa nomesOutros.size) => funde em UMA linha na renderização
-          const linhaOutros={f:`Outros (${nomesOutros.size} fornecedores)`,v:soma.map(x=>Math.round(x*100)/100),_brutos:outros};
+          const linhaOutros={f:`Outros (demais fornecedores)`,v:soma.map(x=>Math.round(x*100)/100),_brutos:outros};
           resultado.push(linhaOutros);
         }
         return resultado;
@@ -1951,7 +1951,7 @@ function loadAll(){
                 forns[idx].v=forns[idx].v.map((v,i)=>Math.round((v+(diff[i]||0)*peso)*100)/100);
               }else if(diff.some(v=>Math.abs(v*peso)>0.5)){
                 // Cria linha Outros se não existe
-                forns.push({f:'Outros (não cadastrados)',v:diff.map(v=>Math.round(v*peso*100)/100)});
+                forns.push({f:'Outros (demais fornecedores)',v:diff.map(v=>Math.round(v*peso*100)/100)});
               }
             };
             if(tem26)criarSeNecessario(fornsEmp26,N,diff26,peso26,idxOut26);
