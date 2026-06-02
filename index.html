@@ -68,6 +68,7 @@ body{background:var(--cream);color:var(--ink);font-family:"Outfit",sans-serif;fo
 .conf-bar .conf-list{display:flex;gap:6px;flex-wrap:wrap;}
 .conf-bar .conf-chip{background:rgba(255,255,255,.22);padding:2px 8px;border-radius:8px;font-weight:700;font-size:11px;white-space:nowrap;}
 .btn-dir.on{background:var(--em);color:#fff;border-color:var(--em);}
+.ch-foot{font-size:10px;color:var(--ink3);margin-top:6px;text-align:right;letter-spacing:.02em;font-weight:500;}
 body.diretoria .tc{display:none;}
 body.diretoria .caixa-strip{display:none;}
 body.diretoria .charts-row{margin-bottom:0;}
@@ -550,8 +551,8 @@ function copts(){return{responsive:true,maintainAspectRatio:false,
       after.filter(l=>l.trim()).map(l=>`<div style="line-height:1.5">${l}</div>`).join('');
     el.style.opacity='1';
   }}},
-  scales:{x:{ticks:{color:'#6b6258',font:{family:'Outfit',size:12}},grid:{display:false},border:{display:false}},
-           y:{ticks:{color:'#6b6258',font:{family:'Outfit',size:11},callback:v=>v===0?'0':Math.abs(v/1000).toFixed(0)+'M'},grid:{display:false},border:{display:false}}}
+  scales:{x:{ticks:{color:'#6b6258',font:{family:'Outfit',size:13}},grid:{display:false},border:{display:false}},
+           y:{ticks:{color:'#6b6258',font:{family:'Outfit',size:12},callback:v=>v===0?'0':Math.abs(v/1000).toFixed(0)+'M'},grid:{display:false},border:{display:false}}}
 };}
 
 // Colors
@@ -560,7 +561,7 @@ const C_OPER_R='#1a4fa0', C_OPER_F='#7aaade';
 const C_AQUI_R='#c03020', C_AQUI_F='#e0807a';
 const C_DNRR_R='#b07818', C_DNRR_F='#d4a84a';
 const C_DIVD_R='#7030e0', C_DIVD_F='#b090f0';
-const C_SFIN_R='#0a7a52', C_SFIN_F='#7ec4a0';
+const C_SFIN_R='#0a7a52', C_SFIN_F='#a6d8c2';
 
 function buildDrillRows(id,isCon,coKey,data){
   let rows='';
@@ -1097,10 +1098,12 @@ function buildSection(company,data){
         <div class="ch"><div class="ct">Recebimentos vs Pagamentos</div><div class="cs">R$ milhões</div></div>
         <div class="chart-legend" id="leg-${id}"></div>
         <div class="cw"><canvas id="cm-${id}"></canvas></div>
+        ${REAL<12?`<div class="ch-foot">▪ ${MM[REAL]}–Dez: projeção (forecast)</div>`:''}
       </div>
       <div class="chart-card">
         <div class="ch"><div class="ct">Disponível na Tesouraria</div><div class="cs">R$ milhões</div></div>
         <div class="cw" style="margin-top:34px"><canvas id="cs-${id}"></canvas></div>
+        ${REAL<12?`<div class="ch-foot">▪ ${MM[REAL]}–Dez: projeção (forecast) · tom mais claro</div>`:''}
       </div>
     </div>
     <div class="tc">
@@ -1176,7 +1179,7 @@ function buildCharts(id,data){
         const recvMeta=chart.getDatasetMeta(0); // Recebimentos dataset
         const operMeta=chart.getDatasetMeta(1); // Operacionais (bottom of pag stack)
         ctx.save();
-        ctx.font='bold 10px Outfit,sans-serif';
+        ctx.font='bold 12px Outfit,sans-serif';
         ctx.textAlign='center';
         MM.forEach((_,mi)=>{
           const recvV=recv[mi];
@@ -1211,7 +1214,7 @@ function buildCharts(id,data){
         if(chart.canvas.id!=='cs-'+id)return;
         const{ctx,scales:{x,y}}=chart;
         ctx.save();
-        ctx.font='bold 10px Outfit,sans-serif';
+        ctx.font='bold 12px Outfit,sans-serif';
         ctx.textAlign='center';
         sv.forEach((v,mi)=>{
           if(v===0)return;
