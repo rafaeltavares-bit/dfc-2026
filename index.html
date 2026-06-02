@@ -62,6 +62,11 @@ body{background:var(--cream);color:var(--ink);font-family:"Outfit",sans-serif;fo
 .farol-bar.vermelho .ft-title{color:var(--rd);}
 .farol-chips{display:flex;gap:5px;flex-wrap:wrap;}
 .farol-chip{padding:2px 9px;border-radius:10px;font-size:11px;font-weight:700;}
+.conf-bar{padding:0 32px;display:none;align-items:center;gap:10px;min-height:34px;font-size:12px;font-weight:600;}
+.conf-bar.ok{display:flex;background:rgba(10,94,64,.10);color:#0a5e40;}
+.conf-bar.erro{display:flex;background:#b03020;color:#fff;}
+.conf-bar .conf-list{display:flex;gap:6px;flex-wrap:wrap;}
+.conf-bar .conf-chip{background:rgba(255,255,255,.22);padding:2px 8px;border-radius:8px;font-weight:700;font-size:11px;white-space:nowrap;}
 .farol-bar.vermelho .farol-chip{background:rgba(176,48,32,.15);color:var(--rd);border:1px solid rgba(176,48,32,.25);}
 .farol-bar.amarelo .farol-chip{background:rgba(192,107,0,.15);color:var(--am);border:1px solid rgba(192,107,0,.25);}
 .farol-note{font-size:11px;color:var(--ink3);margin-left:auto;font-style:italic;}
@@ -351,6 +356,11 @@ table.dfc th.boundary-fc,table.dfc td.boundary-fc{border-left:2px solid #a89e8b!
   <div class="farol-note">Baseado no Disponível na Tesouraria · Atualiza com a planilha</div>
 </div>
 
+<div id="conf-bar" class="conf-bar">
+  <div class="conf-title"></div>
+  <div class="conf-list"></div>
+</div>
+
 <div class="tabs-wrap">
   <div class="tabs">
     <div class="tab active" data-id="consolidado" onclick="switchTab('consolidado',this)">Consolidado</div>
@@ -432,8 +442,7 @@ let DFC_2026_BY_CO={}; // dados 2026 por empresa lidos da aba DFC (colunas AF-AR
 // Dívida Líquida — linhas 244-248 do CSV consolidado (colunas Jan-Dez 2026)
 let DL_DATA={impostosParcelados:null,dividaBancaria:null,totalDivida:null,caixa:null,dividaLiquida:null};
 const DFC_2025={"Saldo Inicial":[6612.88,5466.97,4589.06,5896.31,7460.75,6931.65,6188.51,7330.12,7845.95,5756.48,6273.06,6806.42,6612.88],"Recebimentos":[4266.28,4743.71,4732.5,4892.89,4909.29,4918.07,4653.74,4992.02,4768.35,4892.75,4719.85,5327.53,57817.0],"Pagamentos Operacionais":[-5043.69,-4678.02,-4778.42,-4935.57,-4535.58,-4589.41,-5122.68,-3414.95,-5798.85,-4453.04,-3188.73,-5281.46,-55820.4],"Geração Operacional":[-777.4,65.69,-45.92,-42.68,373.71,328.66,-468.94,1577.07,-1030.49,439.72,1531.12,46.07,1996.6],"CAPEX":[0.0,0.0,-0.16,-1.0,-1.0,-9.8,-1.0,-1.0,0.0,0.0,0.0,0.0,-13.96],"Aquisição de Empresas":[-252.17,-324.04,-101.34,-76.34,-101.34,-79.87,-101.34,-101.34,-101.34,-101.34,-101.34,-101.34,-1543.11],"Ger. após CAPEX":[-1029.57,-258.34,-147.42,-120.02,271.37,238.99,-571.28,1474.73,-1131.83,338.38,1429.79,-55.27,439.53],"Desp. Não Recorrentes":[-115.0,-98.51,-80.0,-80.0,-80.0,-80.0,-80.0,-80.0,-80.0,-80.0,-60.06,-40.0,-953.57],"Ger. após Desp.n.r.":[-1144.57,-356.85,-227.42,-200.02,191.37,158.99,-651.28,1394.73,-1211.83,258.38,1369.72,-95.27,-514.04],"Total Dívidas":[-856.34,-891.06,-833.53,-901.15,-912.76,-902.14,-1207.11,-878.9,-984.54,98.04,-861.37,-763.51,-9894.37],"Saldo Final":[5466.97,4589.06,5896.31,7460.75,6931.65,6188.51,7330.12,7845.95,5756.48,6273.06,6806.42,5947.64,5947.64],"Disp. Tesouraria":[4169.48,3232.11,4600.01,6162.55,5610.71,4919.68,6121.5,6630.81,4556.03,5170.73,5554.01,4821.49,4821.49],"Bloq. Garantia":[1297.49,1356.95,1296.3,1298.2,1320.94,1268.83,1208.62,1215.14,1200.45,1102.33,1252.41,1126.15,1126.15]};
-const LOANS_DRILL={"ROK":{"captacao":{"total":[0.0,9200.0,0.0,0.0,0.0,0.0,0.0,0.0,0.0,0.0,0.0,0.0],"bancos":{"Banco Itaú":[0.0,5200.0,0.0,0.0,0.0,0.0,0.0,0.0,0.0,0.0,0.0,0.0],"FIDC - Direta Capital":[0.0,4000.0,0.0,0.0,0.0,0.0,0.0,0.0,0.0,0.0,0.0,0.0]}},"pagamento":{"total":[-844.18,-1221.23,-5531.38,-652.93,-630.04,-847.08,-844.73,-841.31,-835.4,-832.07,-970.61,-958.61],"bancos":{"BNDES":[-192.04,-197.31,-192.69,-206.15,-193.86,-191.74,-191.0,-189.57,-187.56,-186.71,-184.78,-183.38],"Banco Itaú":[-382.23,-553.02,-4891.48,0.0,0.0,-223.64,-223.64,-223.64,-223.64,-223.64,-223.64,-223.64],"Banco Sofisa":[-66.64,-65.96,-63.56,-66.1,-64.45,-62.23,-62.08,-62.35,-60.76,-60.1,-59.84,-58.79],"FIDC - Direta Capital":[0.0,-87.67,-71.26,-71.29,-65.92,-65.92,-65.92,-65.92,-65.92,-65.92,-208.72,-206.37],"Banco Safra":[-102.35,-213.57,-203.67,-203.41,-202.79,-201.01,-200.03,-198.25,-196.41,-195.06,-193.47,-186.75],"Partes Relacionadas":[-13.37,-15.72,-13.37,-18.08,-15.78,-15.78,-15.78,-15.78,-15.78,-15.78,-15.78,-15.78],"Banco Sofisa II":[-32.25,-32.21,-31.13,-31.22,-30.57,-30.09,-29.61,-29.13,-28.66,-28.18,-27.7,-27.23]}},"parcelamentos":[-55.31,-55.78,-56.18,-56.67,-56.67,-56.67,-56.67,-56.67,-56.67,-56.67,-56.67,-56.67],"desp_bancarias":[-42.0,-3.0,14.0,4.0,4.0,5.0,0.0,-5.0,-10.0,-15.0,-20.0,-20.0]},
-"DEL":{"captacao":{"total":[0,0,0,0,0,0,0,0,0,0,0,0],"bancos":{}},"pagamento":{"total":[-88.77,0,-173.74,-101.97,-101.97,-101.97,-101.97,-101.97,-101.97,-101.97,-101.97,-101.97],"bancos":{"Banco Safra":[-69.25,0,-138.5,-69.25,-69.25,-69.25,-69.25,-69.25,-69.25,-69.25,-69.25,-69.25],"Banco Itaú":[-19.52,0,-35.24,-32.72,-32.72,-32.72,-32.72,-32.72,-32.72,-32.72,-32.72,-32.72]}},"parcelamentos":[0,0,0,0,0,0,0,0,0,0,0,0],"desp_bancarias":[10,5,-7,-3,-2,-5,-5,-5,-5,-5,-5,-5]}};
+const LOANS_DRILL={"ROK":{"captacao":{"total":[0.0,9200.0,0.0,0.0,0.0,0.0,0.0,0.0,0.0,0.0,0.0,0.0],"bancos":{"Reperfilamento Abril.24 (Itaú)":[0.0,5200.0,0.0,0.0,0.0,0.0,0.0,0.0,0.0,0.0,0.0,0.0],"Direta Capital/Dhama- Capital de Giro":[0.0,4000.0,0.0,0.0,0.0,0.0,0.0,0.0,0.0,0.0,0.0,0.0]}},"pagamento":{"total":[-844.18,-1221.23,-5531.38,-652.93,-650.07,-857.27,-854.36,-850.37,-843.88,-839.99,-977.95,-965.39],"bancos":{"Banco BNDES - Daycoval":[-192.04,-197.31,-192.69,-206.15,-209.17,-201.99,-200.68,-198.68,-196.1,-194.68,-192.18,-190.22],"Reperfilamento Abril.24 (Itaú)":[-382.23,-553.02,-4891.48,0.0,0.0,-223.64,-223.64,-223.64,-223.64,-223.64,-223.64,-223.64],"Banco Sofisa I":[-66.64,-65.96,-63.56,-66.1,-64.45,-62.23,-62.08,-62.35,-60.76,-60.1,-59.84,-58.79],"Direta Capital/Dhama- Capital de Giro":[0.0,-87.67,-71.26,-71.29,-71.29,-65.92,-65.92,-65.92,-65.92,-65.92,-208.72,-206.37],"Banco Safra - capital de giro":[-102.35,-213.57,-203.67,-203.41,-203.69,-201.01,-200.03,-198.25,-196.41,-195.06,-193.47,-186.75],"Contrato de Mútuo":[-13.37,-15.72,-13.37,-18.08,-15.72,-15.72,-15.72,-15.72,-15.72,-15.72,-15.72,-15.72],"Banco Sofisa II":[-32.25,-32.21,-31.13,-31.22,-29.06,-30.09,-29.61,-29.13,-28.66,-28.18,-27.7,-27.23],"Banco Itau - Conta Garantida (16144)":[0.0,0.0,-8.03,0.0,0.0,0.0,0.0,0.0,0.0,0.0,0.0,0.0]}},"parcelamentos":[0,0,0,0,0,0,0,0,0,0,0,0],"desp_bancarias":[0,0,0,0,0,0,0,0,0,0,0,0]},"DEL":{"captacao":{"total":[0,0,0,0,0,0,0,0,0,0,0,0],"bancos":{}},"pagamento":{"total":[-88.77,0.0,-173.74,-101.97,0.0,-203.94,-101.97,-101.97,-101.97,-101.97,-101.97,-101.97],"bancos":{"Banco Safra":[-69.25,0.0,-138.5,-69.25,0.0,-138.5,-69.25,-69.25,-69.25,-69.25,-69.25,-69.25],"Banco Itaú":[-19.52,0.0,-35.24,-32.72,0.0,-65.44,-32.72,-32.72,-32.72,-32.72,-32.72,-32.72]}},"parcelamentos":[0,0,0,0,0,0,0,0,0,0,0,0],"desp_bancarias":[0,0,0,0,0,0,0,0,0,0,0,0]}};
 let LOANS={
   'Rede OK':{saldo:0,caixa:0,dl:0,loans:[]},
   'Delend':{saldo:0,caixa:0,dl:0,loans:[]}
@@ -2084,6 +2093,7 @@ function loadAll(){
       if(LOANS['Rede OK']){LOANS['Rede OK'].caixa=Math.round(sfROK);LOANS['Rede OK'].dl=Math.round((LOANS['Rede OK'].saldo-LOANS['Rede OK'].caixa)*100)/100;}
       if(LOANS['Delend']){LOANS['Delend'].caixa=Math.round(sfDEL);LOANS['Delend'].dl=Math.round((LOANS['Delend'].saldo-LOANS['Delend'].caixa)*100)/100;}
       buildDivida();
+      verificarConferencia();
       // ============== VALIDAÇÃO DE CONCILIAÇÃO ==============
       // Verifica se Consolidado = ROK + DEL + REG para cada linha-chave de 2025
       try{
@@ -2233,6 +2243,57 @@ function loadAll(){
   },error:function(e){showErr('Não foi possível buscar o CSV.<br>'+e.message);}
   });
   });
+}
+function verificarConferencia(){
+  try{
+    const fails=[];
+    const TOL=1.5;
+    const MMx=['Jan','Fev','Mar','Abr','Mai','Jun','Jul','Ago','Set','Out','Nov','Dez'];
+    const visoes=[['consolidado','Consolidado'],['redeok','Rede OK'],['delend','Delend'],['number','Régua']];
+    // (A) Saldo Final = Inicial + Receb + Pag.Op + Aquis/Capex + Desp.n.r + Dívida + Mútuos + Aporte (2026)
+    visoes.forEach(([id_,nome])=>{
+      const d=DFC_2026_BY_CO[id_]; if(!d)return;
+      const g=k=>d[k]||Array(13).fill(0);
+      const si=g('Saldo Inicial'),rec=g('Recebimentos'),pop=g('Pagamentos Operacionais'),
+        aq=g('Aquisição de Empresas / Capex'),dnr=g('Desp. Não Recorrentes'),td=g('Total Dívidas'),
+        mD=g('Mútuo (Rok&Delend)'),mR=g('Mútuo (Rok&Régua)'),ap=g('Aporte de Acionistas'),sf=g('Saldo Final');
+      for(let i=0;i<N;i++){
+        const calc=(si[i]||0)+(rec[i]||0)+(pop[i]||0)+(aq[i]||0)+(dnr[i]||0)+(td[i]||0)+(mD[i]||0)+(mR[i]||0)+(ap[i]||0);
+        if(Math.abs(calc-(sf[i]||0))>TOL){fails.push(`Saldo Final ${nome} ${MMx[i]}/26: ${Math.round(calc)} vs ${Math.round(sf[i]||0)}`);break;}
+      }
+    });
+    // (B) Categoria Consolidado = ROK+DEL+REG (todos os meses 2026)
+    const CATS=['Serviços de Informações Cadastrais','Repasse Parceiros','Gastos com Pessoal','Tecnologia & Telecom','Terceiros & Marketing','Impostos e Contribuições','Gastos com Locação','Gastos com Viagem','Outros'];
+    CATS.forEach(c=>{
+      const con=((DFC_2026_BY_CO.consolidado||{})._catTotais26||{})[c]||[];
+      const rok=((DFC_2026_BY_CO.redeok||{})._catTotais26||{})[c]||[];
+      const del=((DFC_2026_BY_CO.delend||{})._catTotais26||{})[c]||[];
+      const reg=((DFC_2026_BY_CO.number||{})._catTotais26||{})[c]||[];
+      for(let m=0;m<N;m++){
+        const soma=(rok[m]||0)+(del[m]||0)+(reg[m]||0);
+        if(Math.abs(soma-(con[m]||0))>TOL){fails.push(`Categoria "${c}" ${MMx[m]}/26: empresas ${Math.round(soma)} vs consol ${Math.round(con[m]||0)}`);break;}
+      }
+    });
+    // (C) Empréstimos: total DFC (pagamento) = soma dos bancos do drill (ROK+DEL), todos os meses 2026
+    const pagDFC=(DFC_2026_BY_CO.consolidado||{})['_div_pagDFC']||[];
+    const sumBank=(emp,m)=>{const b=(LOANS_DRILL[emp]&&LOANS_DRILL[emp].pagamento&&LOANS_DRILL[emp].pagamento.bancos)||{};return Object.values(b).reduce((s,a)=>s+(a[m]||0),0);};
+    for(let m=0;m<N;m++){
+      const drill=sumBank('ROK',m)+sumBank('DEL',m);
+      if(Math.abs(drill-(pagDFC[m]||0))>2){fails.push(`Empréstimos ${MMx[m]}/26: drill ${Math.round(drill)} vs DFC ${Math.round(pagDFC[m]||0)}`);break;}
+    }
+    const bar=document.getElementById('conf-bar');
+    if(!bar)return;
+    const t=bar.querySelector('.conf-title'),l=bar.querySelector('.conf-list');
+    if(fails.length===0){
+      bar.className='conf-bar ok';
+      t.textContent='✓ Conferência: tudo concilia (Saldo Final, categorias = empresas, empréstimos)';
+      l.innerHTML='';
+    }else{
+      bar.className='conf-bar erro';
+      t.textContent=`⚠ Conferência: ${fails.length} divergência(s) —`;
+      l.innerHTML=fails.map(f=>`<span class="conf-chip">${f}</span>`).join('');
+    }
+  }catch(e){console.warn('verificarConferencia falhou:',e);}
 }
 function refreshAll(){loadAll();}
 loadAll();
