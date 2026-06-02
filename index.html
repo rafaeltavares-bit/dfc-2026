@@ -1077,7 +1077,7 @@ function buildSection(company,data){
   tbody+='</tbody>';
 
   document.getElementById('sec-'+id).innerHTML=`
-    <div class="rf-banner"><span class="rf-pill rf-real">${MM[0]}–${MM[REAL-1]} = Realizado</span><span style="color:var(--ink3)">·</span><span class="rf-pill rf-fc">${REAL<12?`${MM[REAL]}–Dez = Forecast`:'Sem Forecast'}</span><span class="rf-note">Valores em R$ mil</span></div>
+    <div class="rf-banner"><span class="rf-pill rf-real">Jan–Abr = Realizado</span><span style="color:var(--ink3)">·</span><span class="rf-pill rf-fc">Mai–Dez = Forecast</span><span class="rf-note">Valores em R$ mil</span></div>
     ${cs}
     <div class="kpi-grid">${kpis.map(k=>`<div class="kpi ${k.c}"><div class="kpi-ac"></div><div class="kpi-row"><div class="kpi-label">${k.l}</div><span class="kpi-badge">2026</span></div><div class="kpi-value ${k.v<0?'neg':k.v>0?'pos':''}">${fmt(k.v)}</div><div class="kpi-sub">${k.s||''}</div>${k.bd?`<div class="saldo-breakdown"><div class="sb-item disp"><div class="sb-label">Disponível Tesouraria</div><div class="sb-val ${k.bd.d<0?'neg':''}">${fmt(k.bd.d)}</div></div><div class="sb-item bloq"><div class="sb-label">Bloqueado Garantia</div><div class="sb-val">${fmt(k.bd.b)}</div></div></div>`:''} </div>`).join('')}</div>
     <div class="charts-row">
@@ -1771,11 +1771,10 @@ async function rebuildDRILL(){
   ]);
   DRILL={ROK:rok||{},DEL:del||{},REG:reg||{}};
   DRILL_2025={ROK:rok25||{},DEL:del25||{},REG:reg25||{}};
-  // === Regra Outros UNIFICADA (prioriza 2026) ===
-  // Para cada empresa e cada categoria, o peso de cada fornecedor é só |total 2026|.
-  // Ordena, separa "Outros" (fornecedores cuja soma absoluta 2026 < ~5% do total 2026 da categoria),
-  // e aplica a MESMA seleção nos dois DRILLs. Fornecedores que só existiram em 2025
-  // têm peso 2026 = 0, então caem automaticamente no "Outros" (resolve as 2 linhas).
+  // === Regra Outros UNIFICADA (considera 2025 + 2026 juntos) ===
+  // Para cada empresa e cada categoria, calcula peso total (somando |total 2026| + |total 2025|),
+  // ordena, separa "Outros" (fornecedores pequenos cuja soma absoluta < 5% do total geral),
+  // e aplica a MESMA seleção de fornecedores principais nos dois DRILLs.
   ['ROK','DEL','REG'].forEach(emp=>{
     const cats26=DRILL[emp]||{};
     const cats25=DRILL_2025[emp]||{};
@@ -1787,11 +1786,12 @@ async function rebuildDRILL(){
       const mapa={};
       forns26.forEach(({f,v})=>{mapa[f]=mapa[f]||{v26:Array(REAL).fill(0),v25:Array(12).fill(0),abs:0};mapa[f].v26=v;});
       forns25.forEach(({f,v})=>{mapa[f]=mapa[f]||{v26:Array(REAL).fill(0),v25:Array(12).fill(0),abs:0};mapa[f].v25=v;});
-      // Peso = só 2026 (prioridade). 2025-only => tot26=0 => abs=0 => vai pra Outros.
+      // Calcula peso absoluto unificado
       let totalAbs=0;
       Object.values(mapa).forEach(it=>{
         const tot26=it.v26.reduce((a,b)=>a+b,0);
-        it.abs=Math.abs(tot26);
+        const tot25=it.v25.reduce((a,b)=>a+b,0);
+        it.abs=Math.abs(tot26)+Math.abs(tot25);
         totalAbs+=it.abs;
       });
       if(totalAbs===0)return;
@@ -1812,12 +1812,13 @@ async function rebuildDRILL(){
         forns.forEach(item=>{(nomesOutros.has(item.f)?outros:principais).push(item);});
         principais.sort((a,b)=>a.v.reduce((s,x)=>s+x,0)-b.v.reduce((s,x)=>s+x,0));
         const resultado=principais.map(({f,v})=>({f,v}));
-        if(outros.length>=1){
+        if(outros.length>1){
           const soma=Array(nMeses).fill(0);
           outros.forEach(it=>it.v.forEach((v,i)=>{if(i<nMeses)soma[i]+=v;}));
-          // Rótulo idêntico nos dois anos (usa nomesOutros.size) => funde em UMA linha na renderização
           const linhaOutros={f:`Outros (${nomesOutros.size} fornecedores)`,v:soma.map(x=>Math.round(x*100)/100),_brutos:outros};
           resultado.push(linhaOutros);
+        }else if(outros.length===1){
+          resultado.push({f:outros[0].f,v:outros[0].v});
         }
         return resultado;
       };
