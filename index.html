@@ -67,6 +67,10 @@ body{background:var(--cream);color:var(--ink);font-family:"Outfit",sans-serif;fo
 .conf-bar.erro{display:flex;background:#b03020;color:#fff;}
 .conf-bar .conf-list{display:flex;gap:6px;flex-wrap:wrap;}
 .conf-bar .conf-chip{background:rgba(255,255,255,.22);padding:2px 8px;border-radius:8px;font-weight:700;font-size:11px;white-space:nowrap;}
+.btn-dir.on{background:var(--em);color:#fff;border-color:var(--em);}
+body.diretoria .tc{display:none;}
+body.diretoria .caixa-strip{display:none;}
+body.diretoria .charts-row{margin-bottom:0;}
 .farol-bar.vermelho .farol-chip{background:rgba(176,48,32,.15);color:var(--rd);border:1px solid rgba(176,48,32,.25);}
 .farol-bar.amarelo .farol-chip{background:rgba(192,107,0,.15);color:var(--am);border:1px solid rgba(192,107,0,.25);}
 .farol-note{font-size:11px;color:var(--ink3);margin-left:auto;font-style:italic;}
@@ -340,6 +344,7 @@ table.dfc th.boundary-fc,table.dfc td.boundary-fc{border-left:2px solid #a89e8b!
   </div>
   <div class="hr">
     <button class="btn-refresh" onclick="refreshAll()" id="btn-r"><span class="ri">↻</span> Atualizar</button>
+    <button class="btn-refresh btn-dir" onclick="toggleDiretoria()" id="btn-dir">▣ Modo Diretoria</button>
     <span class="bp bp-r" id="bp-real-label">Jan–Abr Real</span>
     <span class="bp bp-f" id="bp-fc-label">Mai–Dez Forecast</span>
     <div class="live">
@@ -2289,6 +2294,12 @@ function verificarConferencia(){
       el.title=fails.join('  |  ');
     }
   }catch(e){console.warn('verificarConferencia falhou:',e);}
+}
+function toggleDiretoria(){
+  const on=document.body.classList.toggle('diretoria');
+  const b=document.getElementById('btn-dir');
+  if(b){b.classList.toggle('on',on);b.innerHTML=on?'▣ Sair do Modo Diretoria':'▣ Modo Diretoria';}
+  window.scrollTo({top:0,behavior:'smooth'});
 }
 function refreshAll(){loadAll();}
 loadAll();
