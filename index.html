@@ -1991,8 +1991,8 @@ function loadAll(){
                 semOutros.sort((a,b)=>a.v.reduce((s,x)=>s+x,0)-b.v.reduce((s,x)=>s+x,0));
                 forns.length=0;
                 forns.push(...semOutros,linhaOutros);
-                // Atualiza label
-                linhaOutros.f=`Outros (${brutos.length} fornecedores)`;
+                // Rótulo FIXO e idêntico nos 2 anos => funde em uma linha só na renderização
+                linhaOutros.f='Outros (demais fornecedores)';
               }
               if(brutos.length===0){
                 // Não tem mais brutos pra promover — Outros vira "Outros" simples
@@ -2000,7 +2000,7 @@ function loadAll(){
                   // Outros zerado, remove
                   forns.splice(forns.indexOf(linhaOutros),1);
                 }else{
-                  linhaOutros.f='Outros';
+                  linhaOutros.f='Outros (demais fornecedores)';
                 }
               }
             });
