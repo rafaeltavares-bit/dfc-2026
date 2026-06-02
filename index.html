@@ -259,12 +259,12 @@ table.dfc td.fc-empty{color:#bbb!important;text-align:center;font-weight:400!imp
 
 
 
-.col2025t{background:var(--paper);min-width:75px;cursor:pointer;border-left:2px solid var(--rule2);border-right:2px solid var(--rule2);}
+.col2025t{background:rgba(74,90,121,.12);min-width:75px;cursor:pointer;border-left:2px solid #8a93a8;border-right:2px solid #8a93a8;}
 .col2025t .i,.col2025td{color:var(--ink);font-weight:700;border-left:2px solid var(--rule2);border-right:2px solid var(--rule2);}
 table.dfc td.col2025td.pos{color:var(--em)!important;}
 table.dfc td.col2025td.neg{color:var(--rd)!important;}
-.col2025m{display:none;min-width:72px;background:rgba(107,98,88,.035);}
-.col2025md{display:none;background:rgba(107,98,88,.02);}
+.col2025m{display:none;min-width:72px;background:rgba(74,90,121,.06);}
+.col2025md{display:none;background:rgba(74,90,121,.04);}
 table.dfc th.boundary-fc,table.dfc td.boundary-fc{border-left:2px solid #a89e8b!important;}
 .btn-collapse-all{position:fixed;bottom:24px;right:24px;z-index:100;background:var(--ink);color:#fff;border:none;border-radius:24px;padding:12px 18px;font-family:Outfit,sans-serif;font-size:13px;font-weight:600;cursor:pointer;box-shadow:0 4px 16px rgba(0,0,0,.18);display:flex;align-items:center;gap:8px;transition:transform .12s,box-shadow .12s;}
 .btn-collapse-all:hover{transform:translateY(-2px);box-shadow:0 6px 20px rgba(0,0,0,.24);}
@@ -838,11 +838,13 @@ function buildSection(company,data){
   const monthNames25=['Jan','Fev','Mar','Abr','Mai','Jun','Jul','Ago','Set','Out','Nov','Dez'];
   for(let _i=0;_i<12;_i++){
     const isLabelCell=(_i===8); // Set/25 é o centro do bloco verde quando expandido
-    thead+=`<th class="col2025m-${id}" ${isLabelCell?`id="lbl-real-exp-${id}"`:''} style="display:none;background:rgba(10,94,64,.25);color:var(--em);text-align:center;font-size:11px;letter-spacing:.07em;font-weight:700;padding:6px 0"></th>`;
+    thead+=`<th class="col2025m-${id}" ${isLabelCell?`id="lbl-real-exp-${id}"`:''} style="display:none;background:rgba(74,90,121,.20);color:#46587a;text-align:center;font-size:11px;letter-spacing:.07em;font-weight:700;padding:6px 0"></th>`;
   }
   // ▶2025 (total) → verde, sem rótulo
-  thead+=`<th style="background:rgba(10,94,64,.25);border-left:2px solid var(--rule2);border-right:2px solid var(--rule2)"></th>`;
+  thead+=`<th style="background:rgba(74,90,121,.20);border-left:2px solid #8a93a8;border-right:2px solid #8a93a8"></th>`;
   // 12 células de meses 2026 com cor + rótulos
+  const realCenter=Math.max(0,Math.floor((REAL-1)/2));
+  const fcCenter=REAL+Math.floor((N-REAL-1)/2);
   for(let i=0;i<N;i++){
     const isReal=i<REAL;
     const bg=isReal?'rgba(10,94,64,.25)':'rgba(154,108,24,.22)';
@@ -850,20 +852,20 @@ function buildSection(company,data){
     const bdL=i===REAL?'border-left:2px solid #a89e8b;':'';
     let label='';
     let extraId='';
-    if(i===1){
+    if(i===realCenter){
       label='▓ REALIZADO';
       extraId=`id="lbl-real-col-${id}"`;
     }
-    if(i===7) label='░ FORECAST';
+    if(i===fcCenter) label='░ FORECAST';
     thead+=`<th ${extraId} style="${bdL}background:${bg};color:${col};text-align:center;font-size:11px;letter-spacing:.07em;font-weight:700;padding:6px 0">${label}</th>`;
   }
   thead+=`<th style="background:var(--paper);border-left:2px solid var(--rule2)"></th></tr>`; // 2026
   // Linha 2: cabeçalhos das colunas
   thead+=`<tr><th><div class="i">Linha</div></th>`;
   ['Jan','Fev','Mar','Abr','Mai','Jun','Jul','Ago','Set','Out','Nov','Dez'].forEach(m=>{
-    thead+=`<th class="col2025m-${id}" style="display:none;min-width:72px;background:rgba(107,98,88,.05)"><div class="i" style="color:#6b6258">${m}/25</div></th>`;
+    thead+=`<th class="col2025m-${id}" style="display:none;min-width:72px;background:rgba(74,90,121,.08)"><div class="i" style="color:#46587a">${m}/25</div></th>`;
   });
-  thead+=`<th id="hdr25-${id}" onclick="tog25('${id}')" style="background:var(--paper);cursor:pointer;white-space:nowrap;min-width:80px;border-left:2px solid var(--rule2);border-right:2px solid var(--rule2)"><div class="i" style="color:var(--ink)">&#9658; 2025</div></th>`;
+  thead+=`<th id="hdr25-${id}" onclick="tog25('${id}')" style="background:rgba(74,90,121,.12);cursor:pointer;white-space:nowrap;min-width:80px;border-left:2px solid #8a93a8;border-right:2px solid #8a93a8"><div class="i" style="color:#46587a">&#9658; 2025</div></th>`;
   MM.forEach((_,i)=>{const bd=i===REAL?'border-left:2px solid #a89e8b;':'';thead+=`<th style="${bd}background:${i<REAL?'rgba(10,94,64,.05)':'rgba(154,108,24,.03)'}"><div class="i">${MM[i]}/26</div></th>`;}  );
   thead+=`<th class="tcol" style="background:var(--paper);border-left:2px solid var(--rule2)"><div class="i">2026</div></th></tr></thead>`;
 
@@ -1205,7 +1207,7 @@ function buildCharts(id,data){
           if(v===0)return;
           const bar=chart.getDatasetMeta(0).data[mi];
           if(!bar)return;
-          const yPos=v>=0?y.getPixelForValue(v)-5:y.getPixelForValue(v)+14;
+          const yPos=v>=0?y.getPixelForValue(v)-5:Math.min(y.getPixelForValue(v)+14,chart.chartArea.bottom-4);
           ctx.fillStyle=v<0?C_AQUI_R:v<500?C_DNRR_R:mi<REAL?C_SFIN_R:C_SFIN_F;
           ctx.fillText(fmtMs(v),bar.x,yPos);
         });
@@ -1232,14 +1234,9 @@ function updateFarol(dispV){
     const first=MM.find((_,i)=>dispV[i]<0);
     title.textContent=`ALERTA: Tesouraria negativa a partir de ${first}`;
     chips.innerHTML=negM.map(m=>`<span class="farol-chip">${m}</span>`).join('');
-  }else if(lowM.length>0){
-    bar.classList.add('amarelo');
-    const first=MM.find((_,i)=>dispV[i]>=0&&dispV[i]<500);
-    title.textContent=`ATENÇÃO: Tesouraria baixa a partir de ${first} (abaixo de R$ 500 mil)`;
-    chips.innerHTML=lowM.map(m=>`<span class="farol-chip">${m}</span>`).join('');
   }else{
     bar.classList.add('verde');
-    title.textContent='TESOURARIA SAUDÁVEL: Todos os meses positivos acima de R$ 500 mil';
+    title.textContent='TESOURARIA SAUDÁVEL: nenhum mês com tesouraria negativa';
     chips.innerHTML='';
   }
 }
