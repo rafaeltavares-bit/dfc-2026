@@ -356,11 +356,6 @@ table.dfc th.boundary-fc,table.dfc td.boundary-fc{border-left:2px solid #a89e8b!
   <div class="farol-note">Baseado no Disponível na Tesouraria · Atualiza com a planilha</div>
 </div>
 
-<div id="conf-bar" class="conf-bar">
-  <div class="conf-title"></div>
-  <div class="conf-list"></div>
-</div>
-
 <div class="tabs-wrap">
   <div class="tabs">
     <div class="tab active" data-id="consolidado" onclick="switchTab('consolidado',this)">Consolidado</div>
@@ -370,6 +365,7 @@ table.dfc th.boundary-fc,table.dfc td.boundary-fc{border-left:2px solid #a89e8b!
     <div class="tab" data-id="divida" onclick="switchTab('divida',this)">Painel da Dívida</div>
   </div>
   <div class="tr-info" id="tr-info"></div>
+  <div id="conf-mini" style="font-size:11px;margin-top:2px;text-align:right;font-weight:600"></div>
 </div>
 
 <div class="main">
@@ -2281,17 +2277,16 @@ function verificarConferencia(){
       const drill=sumBank('ROK',m)+sumBank('DEL',m);
       if(Math.abs(drill-(pagDFC[m]||0))>2){fails.push(`Empréstimos ${MMx[m]}/26: drill ${Math.round(drill)} vs DFC ${Math.round(pagDFC[m]||0)}`);break;}
     }
-    const bar=document.getElementById('conf-bar');
-    if(!bar)return;
-    const t=bar.querySelector('.conf-title'),l=bar.querySelector('.conf-list');
+    const el=document.getElementById('conf-mini');
+    if(!el)return;
     if(fails.length===0){
-      bar.className='conf-bar ok';
-      t.textContent='✓ Conferência: tudo concilia (Saldo Final, categorias = empresas, empréstimos)';
-      l.innerHTML='';
+      el.style.color='#0a5e40';
+      el.textContent='✓ Conferência OK';
+      el.title='Saldo Final, categorias = empresas e empréstimos conciliam (2026)';
     }else{
-      bar.className='conf-bar erro';
-      t.textContent=`⚠ Conferência: ${fails.length} divergência(s) —`;
-      l.innerHTML=fails.map(f=>`<span class="conf-chip">${f}</span>`).join('');
+      el.style.color='#b03020';
+      el.textContent=`⚠ Conferência: ${fails.length} divergência(s)`;
+      el.title=fails.join('  |  ');
     }
   }catch(e){console.warn('verificarConferencia falhou:',e);}
 }
