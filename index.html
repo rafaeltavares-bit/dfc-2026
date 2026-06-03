@@ -1058,7 +1058,7 @@ function buildSection(company,data){
               tbody+=`<tr class="d2-row d2-toggle ${empSc[eL]}" data-d2="${subKey}" onclick="tD3('${d3key}',this)"><td>${empLabels[eL]}</td>`;
               for(let _m=0;_m<12;_m++)tbody+='<td class="col2025md col2025m-'+id+'"></td>';
               tbody+='<td class="col2025td col2025t-'+id+'"></td>';
-              for(let i=0;i<N;i++){const v=totEmp[i];tbody+=`<td class="${vcls(v)}${i===REAL?' boundary-fc':''}">${(i>=REAL&&sub.drillBancos!=='captacao')?'—':(v!==0?fmt(v):'—')}</td>`;}
+              for(let i=0;i<N;i++){const v=totEmp[i];tbody+=`<td class="${vcls(v)}${i===REAL?' boundary-fc':''}">${v!==0?fmt(v):'—'}</td>`;}
               tbody+=`<td class="tcol ${vcls(empTotal)}">${fmt(empTotal)}</td></tr>`;
               // Bancos da empresa (nível 3)
               Object.entries(bk).forEach(([banco,vals])=>{
