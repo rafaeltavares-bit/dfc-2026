@@ -396,6 +396,13 @@ const CSV_PAG_DEL_2025='https://docs.google.com/spreadsheets/d/e/2PACX-1vT8sq6GU
 const CSV_PAG_REG_2025='https://docs.google.com/spreadsheets/d/e/2PACX-1vT8sq6GUhsoMtUzJ2KUh5Ra9UPaJFJENko4XJhyaJs6XEceOH_olouKMRsjFdQE_A/pub?gid=319006513&single=true&output=csv';
 const CSV_LOANS_ROK='https://docs.google.com/spreadsheets/d/e/2PACX-1vT8sq6GUhsoMtUzJ2KUh5Ra9UPaJFJENko4XJhyaJs6XEceOH_olouKMRsjFdQE_A/pub?gid=2001669643&single=true&output=csv';
 const CSV_LOANS_DEL='https://docs.google.com/spreadsheets/d/e/2PACX-1vT8sq6GUhsoMtUzJ2KUh5Ra9UPaJFJENko4XJhyaJs6XEceOH_olouKMRsjFdQE_A/pub?gid=169141205&single=true&output=csv';
+// ===== Drill de empréstimos AO VIVO (detalhe mês a mês por banco) =====
+// Trava pelo NOME da aba (igual ao resto da lógica), usando o id fixo do arquivo — gid nunca mais.
+// Se mudar o nome de uma aba na planilha, atualize aqui (e só aqui).
+const SHEET_DRILL_ROK='Emprestimos ROK';
+const SHEET_DRILL_DEL='Emprestimos _Delend';
+// id do arquivo no Drive (estável). gviz lê por nome de aba e devolve CSV.
+const GVIZ_BASE='https://docs.google.com/spreadsheets/d/18N3MOHcGySAif-QJm_9gu4EogaFAQQAL/gviz/tq?tqx=out:csv&headers=0&sheet=';
 const COL_JAN=31,N=12,COL_TOT=43;
 const COL_JAN_25=17,COL_TOT_25=29;
 let REAL=4; // será atualizado pela aba Config (chave MES_REAL)
@@ -444,7 +451,7 @@ let DFC_2026_BY_CO={}; // dados 2026 por empresa lidos da aba DFC (colunas AF-AR
 // Dívida Líquida — linhas 244-248 do CSV consolidado (colunas Jan-Dez 2026)
 let DL_DATA={impostosParcelados:null,dividaBancaria:null,totalDivida:null,caixa:null,dividaLiquida:null};
 const DFC_2025={"Saldo Inicial":[6612.88,5466.97,4589.06,5896.31,7460.75,6931.65,6188.51,7330.12,7845.95,5756.48,6273.06,6806.42,6612.88],"Recebimentos":[4266.28,4743.71,4732.5,4892.89,4909.29,4918.07,4653.74,4992.02,4768.35,4892.75,4719.85,5327.53,57817.0],"Pagamentos Operacionais":[-5043.69,-4678.02,-4778.42,-4935.57,-4535.58,-4589.41,-5122.68,-3414.95,-5798.85,-4453.04,-3188.73,-5281.46,-55820.4],"Geração Operacional":[-777.4,65.69,-45.92,-42.68,373.71,328.66,-468.94,1577.07,-1030.49,439.72,1531.12,46.07,1996.6],"CAPEX":[0.0,0.0,-0.16,-1.0,-1.0,-9.8,-1.0,-1.0,0.0,0.0,0.0,0.0,-13.96],"Aquisição de Empresas":[-252.17,-324.04,-101.34,-76.34,-101.34,-79.87,-101.34,-101.34,-101.34,-101.34,-101.34,-101.34,-1543.11],"Ger. após CAPEX":[-1029.57,-258.34,-147.42,-120.02,271.37,238.99,-571.28,1474.73,-1131.83,338.38,1429.79,-55.27,439.53],"Desp. Não Recorrentes":[-115.0,-98.51,-80.0,-80.0,-80.0,-80.0,-80.0,-80.0,-80.0,-80.0,-60.06,-40.0,-953.57],"Ger. após Desp.n.r.":[-1144.57,-356.85,-227.42,-200.02,191.37,158.99,-651.28,1394.73,-1211.83,258.38,1369.72,-95.27,-514.04],"Total Dívidas":[-856.34,-891.06,-833.53,-901.15,-912.76,-902.14,-1207.11,-878.9,-984.54,98.04,-861.37,-763.51,-9894.37],"Saldo Final":[5466.97,4589.06,5896.31,7460.75,6931.65,6188.51,7330.12,7845.95,5756.48,6273.06,6806.42,5947.64,5947.64],"Disp. Tesouraria":[4169.48,3232.11,4600.01,6162.55,5610.71,4919.68,6121.5,6630.81,4556.03,5170.73,5554.01,4821.49,4821.49],"Bloq. Garantia":[1297.49,1356.95,1296.3,1298.2,1320.94,1268.83,1208.62,1215.14,1200.45,1102.33,1252.41,1126.15,1126.15]};
-const LOANS_DRILL={"ROK":{"captacao":{"total":[0.0,9200.0,0.0,0.0,0.0,0.0,0.0,0.0,0.0,0.0,0.0,0.0],"bancos":{"Reperfilamento Abril.24 (Itaú)":[0.0,5200.0,0.0,0.0,0.0,0.0,0.0,0.0,0.0,0.0,0.0,0.0],"Direta Capital/Dhama- Capital de Giro":[0.0,4000.0,0.0,0.0,0.0,0.0,0.0,0.0,0.0,0.0,0.0,0.0]}},"pagamento":{"total":[-844.18,-1221.23,-5531.38,-652.93,-650.07,-857.27,-854.36,-850.37,-843.88,-839.99,-977.95,-965.39],"bancos":{"Banco BNDES - Daycoval":[-192.04,-197.31,-192.69,-206.15,-209.17,-201.99,-200.68,-198.68,-196.1,-194.68,-192.18,-190.22],"Reperfilamento Abril.24 (Itaú)":[-382.23,-553.02,-4891.48,0.0,0.0,-223.64,-223.64,-223.64,-223.64,-223.64,-223.64,-223.64],"Banco Sofisa I":[-66.64,-65.96,-63.56,-66.1,-64.45,-62.23,-62.08,-62.35,-60.76,-60.1,-59.84,-58.79],"Direta Capital/Dhama- Capital de Giro":[0.0,-87.67,-71.26,-71.29,-71.29,-65.92,-65.92,-65.92,-65.92,-65.92,-208.72,-206.37],"Banco Safra - capital de giro":[-102.35,-213.57,-203.67,-203.41,-203.69,-201.01,-200.03,-198.25,-196.41,-195.06,-193.47,-186.75],"Contrato de Mútuo":[-13.37,-15.72,-13.37,-18.08,-15.72,-15.72,-15.72,-15.72,-15.72,-15.72,-15.72,-15.72],"Banco Sofisa II":[-32.25,-32.21,-31.13,-31.22,-29.06,-30.09,-29.61,-29.13,-28.66,-28.18,-27.7,-27.23],"Banco Itau - Conta Garantida (16144)":[0.0,0.0,-8.03,0.0,0.0,0.0,0.0,0.0,0.0,0.0,0.0,0.0]}},"parcelamentos":[0,0,0,0,0,0,0,0,0,0,0,0],"desp_bancarias":[0,0,0,0,0,0,0,0,0,0,0,0]},"DEL":{"captacao":{"total":[0,0,0,0,0,0,0,0,0,0,0,0],"bancos":{}},"pagamento":{"total":[-88.77,0.0,-173.74,-101.97,0.0,-203.94,-101.97,-101.97,-101.97,-101.97,-101.97,-101.97],"bancos":{"Banco Safra":[-69.25,0.0,-138.5,-69.25,0.0,-138.5,-69.25,-69.25,-69.25,-69.25,-69.25,-69.25],"Banco Itaú":[-19.52,0.0,-35.24,-32.72,0.0,-65.44,-32.72,-32.72,-32.72,-32.72,-32.72,-32.72]}},"parcelamentos":[0,0,0,0,0,0,0,0,0,0,0,0],"desp_bancarias":[0,0,0,0,0,0,0,0,0,0,0,0]}};
+let LOANS_DRILL={"ROK":{"captacao":{"total":[0.0,9200.0,0.0,0.0,0.0,0.0,0.0,0.0,0.0,0.0,0.0,0.0],"bancos":{"Reperfilamento Abril.24 (Itaú)":[0.0,5200.0,0.0,0.0,0.0,0.0,0.0,0.0,0.0,0.0,0.0,0.0],"Direta Capital/Dhama- Capital de Giro":[0.0,4000.0,0.0,0.0,0.0,0.0,0.0,0.0,0.0,0.0,0.0,0.0]}},"pagamento":{"total":[-844.18,-1221.23,-5531.38,-652.93,-650.07,-857.27,-854.36,-850.37,-843.88,-839.99,-977.95,-965.39],"bancos":{"Banco BNDES - Daycoval":[-192.04,-197.31,-192.69,-206.15,-209.17,-201.99,-200.68,-198.68,-196.1,-194.68,-192.18,-190.22],"Reperfilamento Abril.24 (Itaú)":[-382.23,-553.02,-4891.48,0.0,0.0,-223.64,-223.64,-223.64,-223.64,-223.64,-223.64,-223.64],"Banco Sofisa I":[-66.64,-65.96,-63.56,-66.1,-64.45,-62.23,-62.08,-62.35,-60.76,-60.1,-59.84,-58.79],"Direta Capital/Dhama- Capital de Giro":[0.0,-87.67,-71.26,-71.29,-71.29,-65.92,-65.92,-65.92,-65.92,-65.92,-208.72,-206.37],"Banco Safra - capital de giro":[-102.35,-213.57,-203.67,-203.41,-203.69,-201.01,-200.03,-198.25,-196.41,-195.06,-193.47,-186.75],"Contrato de Mútuo":[-13.37,-15.72,-13.37,-18.08,-15.72,-15.72,-15.72,-15.72,-15.72,-15.72,-15.72,-15.72],"Banco Sofisa II":[-32.25,-32.21,-31.13,-31.22,-29.06,-30.09,-29.61,-29.13,-28.66,-28.18,-27.7,-27.23],"Banco Itau - Conta Garantida (16144)":[0.0,0.0,-8.03,0.0,0.0,0.0,0.0,0.0,0.0,0.0,0.0,0.0]}},"parcelamentos":[0,0,0,0,0,0,0,0,0,0,0,0],"desp_bancarias":[0,0,0,0,0,0,0,0,0,0,0,0]},"DEL":{"captacao":{"total":[0,0,0,0,0,0,0,0,0,0,0,0],"bancos":{}},"pagamento":{"total":[-88.77,0.0,-173.74,-101.97,0.0,-203.94,-101.97,-101.97,-101.97,-101.97,-101.97,-101.97],"bancos":{"Banco Safra":[-69.25,0.0,-138.5,-69.25,0.0,-138.5,-69.25,-69.25,-69.25,-69.25,-69.25,-69.25],"Banco Itaú":[-19.52,0.0,-35.24,-32.72,0.0,-65.44,-32.72,-32.72,-32.72,-32.72,-32.72,-32.72]}},"parcelamentos":[0,0,0,0,0,0,0,0,0,0,0,0],"desp_bancarias":[0,0,0,0,0,0,0,0,0,0,0,0]}};
 let LOANS={
   'Rede OK':{saldo:0,caixa:0,dl:0,loans:[]},
   'Delend':{saldo:0,caixa:0,dl:0,loans:[]}
@@ -524,6 +531,78 @@ function loadLoansCSV(url,empresa){
       }catch(e){console.error('loadLoansCSV erro',empresa,e);resolve();}
     },error:()=>{console.warn('Falhou CSV LOANS',empresa);resolve();}});
   });
+}
+
+// ===== Drill de empréstimos AO VIVO =====
+// Lê as abas por NOME (gviz) e reescreve LOANS_DRILL.bancos. Travas de segurança:
+//  (1) ROK: a soma dos bancos tem de bater, mês a mês, com (TOTAL − Receita Federal) da própria aba;
+//  (2) magnitude do total de janeiro plausível (pega erro de escala/formato);
+//  (3) qualquer falha (fetch, CORS, parse) mantém a FOTO embutida — nunca mostra número errado.
+// A faixa de Conferência continua comparando o drill contra o DFC ao vivo.
+function _csvDownload(url){return new Promise(res=>{Papa.parse(url,{download:true,complete:r=>res(r.data||null),error:()=>res(null)});});}
+// Parser de número robusto a pt-BR ("1.234,56") e US ("1,234.56"): o último separador é o decimal.
+function _numL(s){
+  s=((s==null?'':s)+'').replace(/[^\d.,-]/g,'').trim();
+  if(s===''||s==='-')return 0;
+  const lc=s.lastIndexOf(','),ld=s.lastIndexOf('.');
+  if(lc>ld){s=s.replace(/\./g,'').replace(',', '.');}        // pt-BR
+  else if(ld>lc){s=s.replace(/,/g,'');}                       // US
+  else if(lc>=0){s=s.replace(',', '.');}                      // só vírgula
+  const v=parseFloat(s);return isNaN(v)?0:v;
+}
+async function rebuildLoansDrill(){
+  try{
+    const [rk,dl]=await Promise.all([
+      _csvDownload(GVIZ_BASE+encodeURIComponent(SHEET_DRILL_ROK)),
+      _csvDownload(GVIZ_BASE+encodeURIComponent(SHEET_DRILL_DEL))
+    ]);
+    if(!rk||!dl)return;
+    const ROKC0=28, DELC0=17; // 2026: ROK=AC..AN (28..39) ; DEL=R..AC (17..28), 0-based
+    const arr12=(r,c0,div)=>{const a=[];for(let k=0;k<N;k++){let v=_numL((r||[])[c0+k]);if(div)v/=div;a.push(Math.round(v*100)/100);}return a;};
+    // ROK: lê o bloco que começa em headerText (col C). Captura bancos, e também as linhas
+    // "TOTAL" e "Receita Federal" para a trava de consistência.
+    function rokBlock(rows,headerText){
+      let h=-1;for(let i=0;i<rows.length;i++){if((rows[i]||[]).some(c=>(((c||'')+'').indexOf(headerText)>=0))){h=i;break;}}
+      if(h<0)return null;
+      const bancos={};let total=null,parcel=null;
+      for(let i=h+1;i<rows.length;i++){
+        const r=rows[i]||[]; const lbl=((r[2]||'')+'').trim();
+        if(!lbl)continue;
+        if(lbl.toUpperCase()==='TOTAL'){total=arr12(r,ROKC0);break;}
+        if(lbl.indexOf('Empr')===0)continue;
+        if(lbl.indexOf('Receita Federal')===0){parcel=arr12(r,ROKC0);continue;}
+        const a=arr12(r,ROKC0);if(a.some(v=>Math.abs(v)>1e-9))bancos[lbl]=a;
+      }
+      return Object.keys(bancos).length?{bancos,total,parcel}:null;
+    }
+    const pag=rokBlock(rk,'TOTAL DOS PAGAMENTOS');
+    const cap=rokBlock(rk,'CONTRATA'); // CONTRATAÇÕES
+    if(!pag)return;
+    // (1) Consistência ROK: soma(bancos) ≈ TOTAL − Receita Federal, todos os 12 meses.
+    if(pag.total){
+      for(let m=0;m<N;m++){
+        const somaB=Object.values(pag.bancos).reduce((s,a)=>s+(a[m]||0),0);
+        const esperado=(pag.total[m]||0)-((pag.parcel&&pag.parcel[m])||0);
+        if(Math.abs(somaB-esperado)>2){console.warn('rebuildLoansDrill: ROK não confere com TOTAL no mês',m+1,somaB,'vs',esperado,'→ mantendo foto');return;}
+      }
+    }
+    // DEL: cada empréstimo tem uma linha "PMT" (col B), em reais → ÷1000. Nome vem do cabeçalho "Empréstimo X".
+    const delBancos={}; let cur=null;
+    for(let i=0;i<dl.length;i++){
+      const r=dl[i]||[]; const hdr=((r[1]||'')+'')+((r[2]||'')+'');
+      if(/Empr[ée]stimo/i.test(hdr)){cur=/safra/i.test(hdr)?'Banco Safra':/ita[uú]/i.test(hdr)?'Banco Itaú':hdr.trim();}
+      if(((r[1]||'')+'').trim()==='PMT'){const a=arr12(r,DELC0,1000);if(a.some(v=>Math.abs(v)>1e-9)&&cur)delBancos[cur]=a;}
+    }
+    if(!Object.keys(delBancos).length)return;
+    // (2) Magnitude janeiro (R$ mil).
+    const janTot=Object.values(pag.bancos).reduce((s,a)=>s+(a[0]||0),0)+Object.values(delBancos).reduce((s,a)=>s+(a[0]||0),0);
+    if(Math.abs(janTot)<200||Math.abs(janTot)>50000){console.warn('rebuildLoansDrill: janTot implausível',janTot,'→ mantendo foto');return;}
+    // Aplica
+    LOANS_DRILL.ROK.pagamento.bancos=pag.bancos;
+    if(cap)LOANS_DRILL.ROK.captacao.bancos=cap.bancos;
+    LOANS_DRILL.DEL.pagamento.bancos=delBancos;
+    console.log('LOANS_DRILL ao vivo ✓ (por nome de aba)',{ROK:Object.keys(pag.bancos).length,DEL:Object.keys(delBancos).length,janTot:Math.round(janTot)});
+  }catch(e){console.warn('rebuildLoansDrill falhou, mantendo foto:',e);}
 }
 
 function pN(s){if(!s||s.trim()===''||s.trim()==='-')return 0;const v=parseFloat(s.replace(/\s/g,'').replace(/\./g,'').replace(',','.'));return isNaN(v)?0:v;}
@@ -1875,7 +1954,7 @@ function loadAll(){
   document.getElementById('loading').style.display='block';
   document.querySelectorAll('.section').forEach(s=>s.classList.remove('active'));
   // Primeiro lê Config (define REAL), depois recarrega DRILL, depois processa DFC
-  loadConfig().then(()=>rebuildDRILL()).then(()=>{
+  loadConfig().then(()=>Promise.all([rebuildDRILL(),rebuildLoansDrill()])).then(()=>{
   Papa.parse(CSV_DFC,{download:true,complete:async function(res){
     const rows=res.data;
     if(!rows||rows.length<200){showErr('Planilha retornou dados insuficientes.');return;}
