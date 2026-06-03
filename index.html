@@ -640,7 +640,7 @@ function copts(){return{responsive:true,maintainAspectRatio:false,
     el.style.opacity='1';
   }}},
   scales:{x:{ticks:{color:'#6b6258',font:{family:'Outfit',size:13}},grid:{display:false},border:{display:false}},
-           y:{ticks:{color:'#6b6258',font:{family:'Outfit',size:12},callback:v=>v===0?'0':Math.abs(v/1000).toFixed(0)+'M'},grid:{display:false},border:{display:false}}}
+           y:{ticks:{display:false},grid:{display:false},border:{display:false}}}
 };}
 
 // Colors
@@ -1324,7 +1324,7 @@ function buildCharts(id,data){
       tooltip:{..._baseTip,callbacks:{afterBody:items=>{const mi=items[0].dataIndex;return['',`💰 Disponível: ${sv[mi].toLocaleString('pt-BR',{maximumFractionDigits:0})} R$ mil`];}}}}};
     // Folga abaixo do zero para o rótulo negativo não encostar no eixo (ex.: setembro −0,5M).
     const _minV=Math.min(0,...sv);
-    sOpts.scales={...sOpts.scales,y:{...sOpts.scales.y,suggestedMin:_minV<0?_minV*1.7:undefined,ticks:{...sOpts.scales.y.ticks,callback:v=>v===0?'0':(v/1000).toFixed(1).replace('.',',')}}};
+    sOpts.scales={...sOpts.scales,y:{...sOpts.scales.y,suggestedMin:_minV<0?_minV*1.7:undefined,ticks:{display:false}}};
     sOpts.interaction={mode:'index',intersect:false};
     sOpts.plugins['saldoLabel_'+id]={};
     CH[id+'s']=new Chart(ctx2,{type:'bar',data:{labels:MM,datasets:[{label:'Disp. Tesouraria',data:sv,backgroundColor:sc,borderRadius:5,borderSkipped:false}]},options:sOpts});
@@ -1654,8 +1654,8 @@ function buildDivida(){
             x:{grid:{display:false},ticks:{font:{family:'Outfit',size:11},color:'#6b6258'}},
             y:{
               grid:{display:false},
-              ticks:{font:{family:'Outfit',size:11},color:'#6b6258',callback:v=>v.toFixed(0)+'M'},
-              title:{display:true,text:'R$ milhões',font:{family:'Outfit',size:11},color:'#6b6258'}
+              ticks:{display:false},
+              title:{display:false}
             }
           }
         }
