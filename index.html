@@ -77,6 +77,9 @@ body.diretoria .charts-row{margin-bottom:0;}
 body.diretoria .divida-grid{margin-bottom:10px;}
 body.diretoria .divida-card{padding:11px;}
 body.diretoria .divida-card .loan-bar{margin-top:6px;}
+body.diretoria .divhd{margin:2px 0 8px !important;padding-bottom:5px !important;}
+body.diretoria .divhd-proj{margin-top:14px !important;}
+body.diretoria .divbar{padding:9px 16px !important;margin-bottom:10px !important;}
 .farol-bar.vermelho .farol-chip{background:rgba(176,48,32,.15);color:var(--rd);border:1px solid rgba(176,48,32,.25);}
 .farol-bar.amarelo .farol-chip{background:rgba(192,107,0,.15);color:var(--am);border:1px solid rgba(192,107,0,.25);}
 .farol-note{font-size:11px;color:var(--ink3);margin-left:auto;font-style:italic;}
@@ -1254,7 +1257,7 @@ function buildCharts(id,data){
       {label:'Pgto Dívidas',data:div,backgroundColor:MM.map((_,i)=>i<REAL?C_DIVD_R:C_DIVD_F),borderRadius:3,borderSkipped:false,stack:'p'},
     ]},options:o});
     // Label plugin - each label above its own bar
-    const fmtM=v=>(v/1000).toFixed(1).replace('.',',');
+    const fmtM=v=>(v/1000).toFixed(Math.abs(v)<1000?2:1).replace('.',',');
     const labelPlugin={
       id:'barLabels_'+id,
       afterDraw(chart){
@@ -1525,11 +1528,11 @@ function buildDivida(){
   const dlM=fmtM(bL), divM=fmtM(bT), cxM=fmtM(bC);
 
   el.innerHTML=`
-    <div style="margin:2px 0 16px;padding-bottom:8px;border-bottom:2px solid var(--rule);display:flex;align-items:baseline;gap:10px;flex-wrap:wrap">
+    <div class="divhd" style="margin:2px 0 16px;padding-bottom:8px;border-bottom:2px solid var(--rule);display:flex;align-items:baseline;gap:10px;flex-wrap:wrap">
       <span style="font-size:15px;font-weight:800;letter-spacing:.04em;text-transform:uppercase;color:var(--ink)">Posição Atual</span>
       <span style="font-size:12px;color:var(--ink3)">Foto consolidada em ${mesAtual} · valores realizados</span>
     </div>
-    <div style="background:var(--sp-l);border:1px solid #b8c8e8;color:var(--sp);padding:14px 20px;border-radius:10px;margin-bottom:18px;display:flex;align-items:center;justify-content:space-between;flex-wrap:wrap;gap:14px">
+    <div class="divbar" style="background:var(--sp-l);border:1px solid #b8c8e8;color:var(--sp);padding:14px 20px;border-radius:10px;margin-bottom:18px;display:flex;align-items:center;justify-content:space-between;flex-wrap:wrap;gap:14px">
       <div style="font-size:13px;font-weight:500">Posição de dívida com base no Saldo de ${mesAtual}. Valores em R$ milhões.</div>
       <div style="display:flex;gap:22px;font-size:12px">
         <div><span style="color:var(--ink3);letter-spacing:.06em;text-transform:uppercase;font-weight:700">Dívida Bruta</span> <span style="color:var(--rd);font-weight:700;font-size:16px;margin-left:6px">${divM}</span></div>
@@ -1557,7 +1560,7 @@ function buildDivida(){
     ${[...LOANS['Rede OK'].loans.map(l=>({...l,e:'rok',eL:'ROK'})),...LOANS['Delend'].loans.map(l=>({...l,e:'del',eL:'DEL'}))].map(l=>`<tr class="r-normal"><td>${l.i}</td><td style="text-align:center"><span class="emp-badge ${l.e}">${l.eL}</span></td><td style="color:var(--ink3)">${l.d}</td><td style="color:var(--ink3);font-size:12px">${l.taxa||'—'}</td><td class="pos">${fmt(l.s)}</td><td>${fmt(l.a26)}</td><td>${fmt(l.a27)}</td><td>${fmt(l.a28)}</td></tr>`).join('')}
     <tr class="r-bold"><td>Total Consolidado</td><td></td><td></td><td></td><td class="neg">${fmt(cT)}</td><td>${fmt([...LOANS['Rede OK'].loans,...LOANS['Delend'].loans].reduce((a,l)=>a+l.a26,0))}</td><td>${fmt([...LOANS['Rede OK'].loans,...LOANS['Delend'].loans].reduce((a,l)=>a+l.a27,0))}</td><td>${fmt([...LOANS['Rede OK'].loans,...LOANS['Delend'].loans].reduce((a,l)=>a+l.a28,0))}</td></tr>
     </tbody></table></div></div>
-    <div style="margin:30px 0 16px;padding-bottom:8px;border-bottom:2px solid var(--rule);display:flex;align-items:baseline;gap:10px;flex-wrap:wrap">
+    <div class="divhd divhd-proj" style="margin:30px 0 16px;padding-bottom:8px;border-bottom:2px solid var(--rule);display:flex;align-items:baseline;gap:10px;flex-wrap:wrap">
       <span style="font-size:15px;font-weight:800;letter-spacing:.04em;text-transform:uppercase;color:var(--ink)">Projeção 2026</span>
       <span style="font-size:12px;color:var(--ink3)">Evolução mensal Jan–Dez · realizado + forecast</span>
     </div>
