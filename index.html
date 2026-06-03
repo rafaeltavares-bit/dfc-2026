@@ -70,8 +70,13 @@ body{background:var(--cream);color:var(--ink);font-family:"Outfit",sans-serif;fo
 .btn-dir.on{background:var(--em);color:#fff;border-color:var(--em);}
 .ch-foot{font-size:10px;color:var(--ink3);margin-top:6px;text-align:right;letter-spacing:.02em;font-weight:500;}
 body.diretoria .tc{display:none;}
+body.diretoria .tc.dir-keep{display:block;} /* gráfico-estrela da dívida fica visível p/ diretoria */
 body.diretoria .caixa-strip{display:none;}
 body.diretoria .charts-row{margin-bottom:0;}
+/* Painel da Dívida em modo diretoria: compacta cards p/ abrir espaço ao gráfico */
+body.diretoria .divida-grid{margin-bottom:10px;}
+body.diretoria .divida-card{padding:11px;}
+body.diretoria .divida-card .loan-bar{margin-top:6px;}
 .farol-bar.vermelho .farol-chip{background:rgba(176,48,32,.15);color:var(--rd);border:1px solid rgba(176,48,32,.25);}
 .farol-bar.amarelo .farol-chip{background:rgba(192,107,0,.15);color:var(--am);border:1px solid rgba(192,107,0,.25);}
 .farol-note{font-size:11px;color:var(--ink3);margin-left:auto;font-style:italic;}
@@ -1178,11 +1183,12 @@ function buildSection(company,data){
         <div class="ch"><div class="ct">Recebimentos vs Pagamentos</div><div class="cs">R$ milhões</div></div>
         <div class="chart-legend" id="leg-${id}"></div>
         <div class="cw"><canvas id="cm-${id}"></canvas></div>
-        ${REAL<12?`<div class="ch-foot">▪ ${MM[REAL]}–Dez: projeção (forecast)</div>`:''}
+        ${REAL<12?`<div class="ch-foot">${MM[REAL]}–Dez: projeção (forecast)</div>`:''}
       </div>
       <div class="chart-card">
         <div class="ch"><div class="ct">Disponível na Tesouraria</div><div class="cs">R$ milhões</div></div>
         <div class="cw" style="margin-top:34px"><canvas id="cs-${id}"></canvas></div>
+        ${REAL<12?`<div class="ch-foot">${MM[REAL]}–Dez: projeção (forecast)</div>`:''}
       </div>
     </div>
     <div class="tc">
@@ -1464,7 +1470,7 @@ function buildDivida(){
   function buildDLChart(){
     if(!DL_DATA.dividaLiquida)return '';
     return `
-    <div class="tc" style="margin-bottom:14px">
+    <div class="tc dir-keep" style="margin-bottom:14px">
       <div class="th-row">
         <div class="th-title">Evolução da Dívida Líquida</div>
         <div class="th-note">R$ milhões · opaco = realizado · transparente = projetado</div>
