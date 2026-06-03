@@ -1297,9 +1297,7 @@ function buildCharts(id,data){
     // caixa de 50 mil já é saudável, então o limite é baixo (positivo aparece verde).
     const lowTh=(id==='number'||id==='delend')?30:500;
     const sc=sv.map((v,i)=>v<0?C_AQUI_R:v<lowTh?C_DNRR_R:i<REAL?C_SFIN_R:C_SFIN_F);
-    // Decimais por empresa: grandes (Consolidado/Rede OK) 1 casa; pequenas (Régua/Delend) 2 casas.
-    // Mesma regra usada no gráfico de Recebimentos (fmtM) — consistente dentro de cada empresa.
-    const fmtMs=v=>(v/1000).toFixed((id==='number'||id==='delend')?2:1).replace('.',',');
+    const fmtMs=v=>(v/1000).toFixed((id==='number'||id==='delend')?2:Math.abs(v)<100?2:1).replace('.',',');
     const saldoLabelPlugin={
       id:'saldoLabel_'+id,
       afterDraw(chart){
@@ -1312,9 +1310,8 @@ function buildCharts(id,data){
           if(v===0)return;
           const bar=chart.getDatasetMeta(0).data[mi];
           if(!bar)return;
-          // Positivo: rótulo acima da barra. Negativo: logo abaixo da ponta, com folga,
-          // mas sem encostar na base do gráfico (deixa 16px de respiro para não cortar).
-          const yPos=v>=0?y.getPixelForValue(v)-5:Math.min(y.getPixelForValue(v)+14,chart.chartArea.bottom-16);
+          // Negativo: acima da linha do zero (espaço sempre vazio, sem risco de corte).
+          const yPos=v>=0?y.getPixelForValue(v)-5:y.getPixelForValue(0)-8;
           ctx.fillStyle=v<0?C_AQUI_R:v<lowTh?C_DNRR_R:mi<REAL?C_SFIN_R:C_SFIN_F;
           ctx.fillText(fmtMs(v),bar.x,yPos);
         });
@@ -1328,6 +1325,7 @@ function buildCharts(id,data){
     // Folga abaixo do zero para o rótulo negativo não encostar no eixo (ex.: setembro −0,5M).
     const _minV=Math.min(0,...sv);
     sOpts.scales={...sOpts.scales,y:{...sOpts.scales.y,suggestedMin:_minV<0?_minV*1.7:undefined,ticks:{...sOpts.scales.y.ticks,callback:v=>v===0?'0':(v/1000).toFixed(1).replace('.',',')}}};
+    sOpts.interaction={mode:'index',intersect:false};
     sOpts.plugins['saldoLabel_'+id]={};
     CH[id+'s']=new Chart(ctx2,{type:'bar',data:{labels:MM,datasets:[{label:'Disp. Tesouraria',data:sv,backgroundColor:sc,borderRadius:5,borderSkipped:false}]},options:sOpts});
   }
