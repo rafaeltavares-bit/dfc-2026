@@ -2249,7 +2249,7 @@ function loadAll(){
       try{
         const CATS=['Serviços de Informações Cadastrais','Repasse Parceiros','Gastos com Pessoal','Tecnologia & Telecom','Terceiros & Marketing','Impostos e Contribuições','Gastos com Locação','Gastos com Viagem','Outros'];
         const VISOES_FC=[['consolidado','Consolidado'],['redeok','Rede OK'],['delend','Delend'],['number','Régua']];
-        const TOL=1.0; // R$ 1 mil de tolerância
+        const TOL=6.0; // ±R$ 6 mil: teto do ruído de arredondamento (soma de até 12 células arredondadas = ±6). Em precisão cheia os dados batem 100%; erro real seria muito maior.
 
         // K1: por visão, soma das 9 categorias por mês == Pagamentos Operacionais
         const k1={};
