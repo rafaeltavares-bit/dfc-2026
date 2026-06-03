@@ -907,7 +907,7 @@ function buildSection(company,data){
   // Caixa strip (realized only, FC placeholder)
   let cs=`<div class="caixa-strip"><span class="cs-label">Tesouraria:</span>`;
   MM.forEach((m,i)=>{
-    if(i<REAL){const v=dispV[i];const c=v<0?'neg':v<500?'low':'ok';const ic=v<0?'⚠':v<500?'!':'✓';cs+=`<span class="cp ${c}"><span class="dot"></span>${m} ${ic}</span>`;}
+    if(i<REAL){const v=dispV[i];const _lt=(id==='number'||id==='delend')?30:500;const c=v<0?'neg':v<_lt?'low':'ok';const ic=v<0?'⚠':v<_lt?'!':'✓';cs+=`<span class="cp ${c}"><span class="dot"></span>${m} ${ic}</span>`;}
     else cs+=`<span class="cp fc">${m}</span>`;
   });
   cs+='</div>';
@@ -1178,8 +1178,6 @@ function buildSection(company,data){
   tbody+='</tbody>';
 
   document.getElementById('sec-'+id).innerHTML=`
-    <div class="rf-banner"><span class="rf-pill rf-real">${MM[0]}–${MM[REAL-1]} = Realizado</span><span style="color:var(--ink3)">·</span><span class="rf-pill rf-fc">${REAL<12?`${MM[REAL]}–Dez = Forecast`:'Sem Forecast'}</span><span class="rf-note">Valores em R$ mil</span></div>
-    ${cs}
     <div class="kpi-grid">${kpis.map(k=>`<div class="kpi ${k.c}"><div class="kpi-ac"></div><div class="kpi-row"><div class="kpi-label">${k.l}</div><span class="kpi-badge">2026</span></div><div class="kpi-value ${k.v<0?'neg':k.v>0?'pos':''}">${fmt(k.v)}</div><div class="kpi-sub">${k.s||''}</div>${k.bd?`<div class="saldo-breakdown"><div class="sb-item disp"><div class="sb-label">Disponível Tesouraria</div><div class="sb-val ${k.bd.d<0?'neg':''}">${fmt(k.bd.d)}</div></div><div class="sb-item bloq"><div class="sb-label">Bloqueado Garantia</div><div class="sb-val">${fmt(k.bd.b)}</div></div></div>`:''} </div>`).join('')}</div>
     <div class="charts-row">
       <div class="chart-card">
@@ -1257,7 +1255,7 @@ function buildCharts(id,data){
       {label:'Pgto Dívidas',data:div,backgroundColor:MM.map((_,i)=>i<REAL?C_DIVD_R:C_DIVD_F),borderRadius:3,borderSkipped:false,stack:'p'},
     ]},options:o});
     // Label plugin - each label above its own bar
-    const fmtM=v=>(v/1000).toFixed(Math.abs(v)<1000?2:1).replace('.',',');
+    const fmtM=v=>(v/1000).toFixed((id==='number'||id==='delend')?2:1).replace('.',',');
     const labelPlugin={
       id:'barLabels_'+id,
       afterDraw(chart){
@@ -1294,9 +1292,14 @@ function buildCharts(id,data){
   const ctx2=document.getElementById('cs-'+id);
   if(ctx2){
     const sv=m12('Disp. Tesouraria');
-    const sc=sv.map((v,i)=>v<0?C_AQUI_R:v<500?C_DNRR_R:i<REAL?C_SFIN_R:C_SFIN_F);
-    // Formato: 2 casas quando o valor é pequeno (<100 mil) para não virar "0,0".
-    const fmtMs=v=>(v/1000).toFixed(Math.abs(v)<100?2:1).replace('.',',');
+    // Limite de "caixa baixo" (cor de aviso) POR EMPRESA, em R$ mil.
+    // Consolidado/Rede OK faturam milhões → 500. Régua e Delend faturam ~140 mil/mês →
+    // caixa de 50 mil já é saudável, então o limite é baixo (positivo aparece verde).
+    const lowTh=(id==='number'||id==='delend')?30:500;
+    const sc=sv.map((v,i)=>v<0?C_AQUI_R:v<lowTh?C_DNRR_R:i<REAL?C_SFIN_R:C_SFIN_F);
+    // Decimais por empresa: grandes (Consolidado/Rede OK) 1 casa; pequenas (Régua/Delend) 2 casas.
+    // Mesma regra usada no gráfico de Recebimentos (fmtM) — consistente dentro de cada empresa.
+    const fmtMs=v=>(v/1000).toFixed((id==='number'||id==='delend')?2:1).replace('.',',');
     const saldoLabelPlugin={
       id:'saldoLabel_'+id,
       afterDraw(chart){
@@ -1309,9 +1312,10 @@ function buildCharts(id,data){
           if(v===0)return;
           const bar=chart.getDatasetMeta(0).data[mi];
           if(!bar)return;
-          // Positivo: rótulo acima da barra. Negativo: abaixo da ponta da barra (convenção), com folga.
-          const yPos=v>=0?y.getPixelForValue(v)-5:Math.min(y.getPixelForValue(v)+15,chart.chartArea.bottom-3);
-          ctx.fillStyle=v<0?C_AQUI_R:v<500?C_DNRR_R:mi<REAL?C_SFIN_R:C_SFIN_F;
+          // Positivo: rótulo acima da barra. Negativo: logo abaixo da ponta, com folga,
+          // mas sem encostar na base do gráfico (deixa 16px de respiro para não cortar).
+          const yPos=v>=0?y.getPixelForValue(v)-5:Math.min(y.getPixelForValue(v)+14,chart.chartArea.bottom-16);
+          ctx.fillStyle=v<0?C_AQUI_R:v<lowTh?C_DNRR_R:mi<REAL?C_SFIN_R:C_SFIN_F;
           ctx.fillText(fmtMs(v),bar.x,yPos);
         });
         ctx.restore();
@@ -1323,7 +1327,7 @@ function buildCharts(id,data){
       tooltip:{..._baseTip,callbacks:{afterBody:items=>{const mi=items[0].dataIndex;return['',`💰 Disponível: ${sv[mi].toLocaleString('pt-BR',{maximumFractionDigits:0})} R$ mil`];}}}}};
     // Folga abaixo do zero para o rótulo negativo não encostar no eixo (ex.: setembro −0,5M).
     const _minV=Math.min(0,...sv);
-    sOpts.scales={...sOpts.scales,y:{...sOpts.scales.y,suggestedMin:_minV<0?_minV*1.35:undefined,ticks:{...sOpts.scales.y.ticks,callback:v=>v===0?'0':(v/1000).toFixed(1).replace('.',',')}}};
+    sOpts.scales={...sOpts.scales,y:{...sOpts.scales.y,suggestedMin:_minV<0?_minV*1.7:undefined,ticks:{...sOpts.scales.y.ticks,callback:v=>v===0?'0':(v/1000).toFixed(1).replace('.',',')}}};
     sOpts.plugins['saldoLabel_'+id]={};
     CH[id+'s']=new Chart(ctx2,{type:'bar',data:{labels:MM,datasets:[{label:'Disp. Tesouraria',data:sv,backgroundColor:sc,borderRadius:5,borderSkipped:false}]},options:sOpts});
   }
