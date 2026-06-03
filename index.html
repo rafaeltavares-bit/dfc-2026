@@ -613,6 +613,7 @@ function sa(a){return a.reduce((x,y)=>x+(typeof y==='number'&&!isNaN(y)?y:0),0);
 function vcls(v,hl){if(hl&&v<0)return'neg neg-hl';return v<0?'neg':v>0?'pos':'';}
 
 function copts(){return{responsive:true,maintainAspectRatio:false,
+  layout:{padding:{top:22}},
   plugins:{legend:{display:false},tooltip:{enabled:false,external:function(context){
     const{chart,tooltip}=context;
     const wrap=chart.canvas.parentNode;
@@ -1182,7 +1183,6 @@ function buildSection(company,data){
       <div class="chart-card">
         <div class="ch"><div class="ct">Disponível na Tesouraria</div><div class="cs">R$ milhões</div></div>
         <div class="cw" style="margin-top:34px"><canvas id="cs-${id}"></canvas></div>
-        ${REAL<12?`<div class="ch-foot">▪ ${MM[REAL]}–Dez: projeção (forecast) · tom mais claro</div>`:''}
       </div>
     </div>
     <div class="tc">
@@ -1241,7 +1241,7 @@ function buildCharts(id,data){
       }
     };
     CH[id+'m']=new Chart(ctx1,{type:'bar',data:{labels:MM,datasets:[
-      {label:'Recebimentos',data:recv,backgroundColor:C_RECV_R,borderRadius:3,borderSkipped:false,stack:'r'},
+      {label:'Recebimentos',data:recv,backgroundColor:MM.map((_,i)=>i<REAL?C_RECV_R:C_RECV_F),borderRadius:3,borderSkipped:false,stack:'r'},
       {label:'Operacionais',data:pOp,backgroundColor:MM.map((_,i)=>i<REAL?C_OPER_R:C_OPER_F),borderRadius:0,borderSkipped:false,stack:'p'},
       {label:'Aquisição',data:aEmp,backgroundColor:MM.map((_,i)=>i<REAL?C_AQUI_R:C_AQUI_F),borderRadius:0,borderSkipped:false,stack:'p'},
       {label:'Desp. N. Rec.',data:dNR,backgroundColor:MM.map((_,i)=>i<REAL?C_DNRR_R:C_DNRR_F),borderRadius:0,borderSkipped:false,stack:'p'},
@@ -1286,7 +1286,8 @@ function buildCharts(id,data){
   if(ctx2){
     const sv=m12('Disp. Tesouraria');
     const sc=sv.map((v,i)=>v<0?C_AQUI_R:v<500?C_DNRR_R:i<REAL?C_SFIN_R:C_SFIN_F);
-    const fmtMs=v=>(v/1000).toFixed(1).replace('.',',');
+    // Formato: 2 casas quando o valor é pequeno (<100 mil) para não virar "0,0".
+    const fmtMs=v=>(v/1000).toFixed(Math.abs(v)<100?2:1).replace('.',',');
     const saldoLabelPlugin={
       id:'saldoLabel_'+id,
       afterDraw(chart){
@@ -1299,7 +1300,8 @@ function buildCharts(id,data){
           if(v===0)return;
           const bar=chart.getDatasetMeta(0).data[mi];
           if(!bar)return;
-          const yPos=v>=0?y.getPixelForValue(v)-5:Math.min(y.getPixelForValue(v)+14,chart.chartArea.bottom-4);
+          // Positivo: rótulo acima da barra. Negativo: abaixo da ponta da barra (convenção), com folga.
+          const yPos=v>=0?y.getPixelForValue(v)-5:Math.min(y.getPixelForValue(v)+15,chart.chartArea.bottom-3);
           ctx.fillStyle=v<0?C_AQUI_R:v<500?C_DNRR_R:mi<REAL?C_SFIN_R:C_SFIN_F;
           ctx.fillText(fmtMs(v),bar.x,yPos);
         });
@@ -1307,7 +1309,12 @@ function buildCharts(id,data){
       }
     };
     Chart.register(saldoLabelPlugin);
-    const sOpts={...copts(),plugins:{...copts().plugins,legend:{display:false}}};sOpts.scales={...sOpts.scales,y:{...sOpts.scales.y,ticks:{...sOpts.scales.y.ticks,callback:v=>v===0?'0':(v/1000).toFixed(1).replace('.',',')}}};
+    const _baseTip=copts().plugins.tooltip;
+    const sOpts={...copts(),plugins:{...copts().plugins,legend:{display:false},
+      tooltip:{..._baseTip,callbacks:{afterBody:items=>{const mi=items[0].dataIndex;return['',`💰 Disponível: ${sv[mi].toLocaleString('pt-BR',{maximumFractionDigits:0})} R$ mil`];}}}}};
+    // Folga abaixo do zero para o rótulo negativo não encostar no eixo (ex.: setembro −0,5M).
+    const _minV=Math.min(0,...sv);
+    sOpts.scales={...sOpts.scales,y:{...sOpts.scales.y,suggestedMin:_minV<0?_minV*1.35:undefined,ticks:{...sOpts.scales.y.ticks,callback:v=>v===0?'0':(v/1000).toFixed(1).replace('.',',')}}};
     sOpts.plugins['saldoLabel_'+id]={};
     CH[id+'s']=new Chart(ctx2,{type:'bar',data:{labels:MM,datasets:[{label:'Disp. Tesouraria',data:sv,backgroundColor:sc,borderRadius:5,borderSkipped:false}]},options:sOpts});
   }
