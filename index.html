@@ -404,6 +404,41 @@ const CSV_PAG_DEL_2025='https://docs.google.com/spreadsheets/d/e/2PACX-1vT8sq6GU
 const CSV_PAG_REG_2025='https://docs.google.com/spreadsheets/d/e/2PACX-1vT8sq6GUhsoMtUzJ2KUh5Ra9UPaJFJENko4XJhyaJs6XEceOH_olouKMRsjFdQE_A/pub?gid=319006513&single=true&output=csv';
 const CSV_LOANS_ROK='https://docs.google.com/spreadsheets/d/e/2PACX-1vT8sq6GUhsoMtUzJ2KUh5Ra9UPaJFJENko4XJhyaJs6XEceOH_olouKMRsjFdQE_A/pub?gid=2001669643&single=true&output=csv';
 const CSV_LOANS_DEL='https://docs.google.com/spreadsheets/d/e/2PACX-1vT8sq6GUhsoMtUzJ2KUh5Ra9UPaJFJENko4XJhyaJs6XEceOH_olouKMRsjFdQE_A/pub?gid=169141205&single=true&output=csv';
+
+// ===== RETRY AUTOMÁTICO (05/06/2026) =====
+// O "Publicar na web" do Google tem cache frio: a 1ª requisição após horas/dias
+// sem acesso costuma falhar (ou vir vazia). Antes, o painel tentava 1x e desistia
+// ("Não foi possível buscar o CSV"). Agora TODO download de CSV tenta até 4x,
+// esperando 2s → 5s → 10s entre tentativas. Intercepta Papa.parse num ponto único:
+// nenhuma função de carregamento precisou mudar.
+(function(){
+  const _orig=Papa.parse.bind(Papa);
+  const WAITS=[2000,5000,10000]; // até 3 retentativas após a 1ª falha
+  Papa.parse=function(input,cfg){
+    if(!cfg||!cfg.download)return _orig(input,cfg);
+    let n=0;
+    const userComplete=cfg.complete,userError=cfg.error;
+    const tag=String(input).slice(-28); // só p/ log (gid no fim da URL)
+    const run=()=>_orig(input,Object.assign({},cfg,{
+      complete:r=>{
+        if((!r||!r.data||r.data.length<2)&&n<WAITS.length){retry('resposta vazia');return;}
+        userComplete&&userComplete(r);
+      },
+      error:e=>{
+        if(n<WAITS.length){retry(e&&e.message||'erro de rede');return;}
+        console.warn('CSV …'+tag+': falhou após '+(WAITS.length+1)+' tentativas.');
+        if(userError)userError(e);else if(userComplete)userComplete({data:null});
+      }
+    }));
+    const retry=why=>{
+      const w=WAITS[n];n++;
+      console.warn('CSV …'+tag+': tentativa '+n+' falhou ('+why+'), repetindo em '+(w/1000)+'s…');
+      setTimeout(run,w);
+    };
+    run();
+  };
+})();
+
 // ===== Drill de empréstimos AO VIVO (detalhe mês a mês por banco) =====
 // Trava pelo NOME da aba (igual ao resto da lógica), usando o id fixo do arquivo — gid nunca mais.
 // Se mudar o nome de uma aba na planilha, atualize aqui (e só aqui).
@@ -1665,6 +1700,7 @@ function buildDivida(){
 }
 
 function showErr(msg){document.getElementById('loading').style.display='none';const el=document.getElementById('error');el.style.display='block';el.innerHTML='⚠ '+msg;}
+function hideErr(){const el=document.getElementById('error');if(el){el.style.display='none';}}
 function switchTab(id,el){document.querySelectorAll('.section').forEach(s=>s.classList.remove('active'));document.querySelectorAll('.tab').forEach(t=>t.classList.remove('active'));document.getElementById('sec-'+id).classList.add('active');el.classList.add('active');const fbar=document.getElementById('farol-bar');if(id==='divida'){fbar.style.display='none';}else{fbar.style.display='';if(DISP_BY_TAB[id])updateFarol(DISP_BY_TAB[id]);}setTimeout(syncHScroll,50);}
 
 // =========================================================================
@@ -1976,6 +2012,7 @@ function loadAll(){
   Papa.parse(CSV_DFC,{download:true,complete:async function(res){
     const rows=res.data;
     if(!rows||rows.length<200){showErr('Planilha retornou dados insuficientes.');return;}
+    hideErr(); // sucesso: apaga faixa vermelha de tentativa anterior
     try{
       document.getElementById('loading').style.display='none';
       // Extract debt sub-rows for drill
