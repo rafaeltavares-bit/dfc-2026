@@ -831,8 +831,10 @@ function buildDrillRows(id,isCon,coKey,data){
         const setNomes=new Set([...cF.map(x=>x.f),...cF25.map(x=>x.f)]);
         const nomesArr=[...setNomes];
         const nomes=nomesArr.filter(n=>!n.startsWith('Outros ('));
-        const outrosNomes=nomesArr.filter(n=>n.startsWith('Outros ('));
-        outrosNomes.forEach(n=>nomes.push(n));
+        // "Outros (demais fornecedores)" só aparece se há >20 fornecedores nomeados
+        if(nomes.length>20){
+          nomesArr.filter(n=>n.startsWith('Outros (')).forEach(n=>nomes.push(n));
+        }
         nomes.forEach(f=>{
           const item26=cF.find(x=>x.f===f);
           const vs=item26?item26.v:Array(N).fill(0);
@@ -852,7 +854,10 @@ function buildDrillRows(id,isCon,coKey,data){
       const setNomes2=new Set([...lista26.map(x=>x.f),...lista25.map(x=>x.f)]);
       const arr2=[...setNomes2];
       const nomes=arr2.filter(n=>!n.startsWith('Outros ('));
-      arr2.filter(n=>n.startsWith('Outros (')).forEach(n=>nomes.push(n));
+      // "Outros (demais fornecedores)" só aparece se há >20 fornecedores nomeados
+      if(nomes.length>20){
+        arr2.filter(n=>n.startsWith('Outros (')).forEach(n=>nomes.push(n));
+      }
       nomes.forEach(f=>{
         const item26=lista26.find(x=>x.f===f);
         const vs=item26?item26.v:Array(N).fill(0);
@@ -1170,7 +1175,7 @@ function buildSection(company,data){
           const setDNR=new Set([...fornsCO.map(x=>x.f),...fornsCO25.map(x=>x.f)]);
           const arrDNR=[...setDNR];
           const nomes=arrDNR.filter(n=>!n.startsWith('Outros ('));
-          arrDNR.filter(n=>n.startsWith('Outros (')).forEach(n=>nomes.push(n));
+          if(nomes.length>20){arrDNR.filter(n=>n.startsWith('Outros (')).forEach(n=>nomes.push(n));}
           const sc=isCon?`d3-${co.toLowerCase()}`:'d3-rok';
           nomes.forEach(f=>{
             const item26=fornsCO.find(x=>x.f===f);
